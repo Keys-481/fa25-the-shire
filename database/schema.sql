@@ -1,6 +1,29 @@
 -- Drop tables in a specific order to avoid foreign key constraints errors
-DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS comments, notifications;
+DROP TABLE IF EXISTS degree_plans, enrollments;
+DROP TABLE IF EXISTS student_certificates;
+DROP TABLE IF EXISTS advising_relations;
+DROP TABLE IF EXISTS student_courses, certificate_courses;
+DROP TABLE IF EXISTS requirement_courses;
+DROP TABLE IF EXISTS semester_offerings;
+DROP TABLE IF EXISTS course_prerequisites;
+DROP TABLE IF EXISTS user_roles, user_permissions, role_permissions;
+DROP TABLE IF EXISTS students, advisors, users;
+DROP TABLE IF EXISTS semesters, programs, courses, certificates;
+DROP TYPE IF EXISTS grade, program_type, requirement_type, notif_type, cert_status, permission_name, role_name;
 
+-- Define Custom Types --
+CREATE TYPE grade AS ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'W');
+CREATE TYPE program_type AS ENUM('masters', 'certificate', 'undergraduate');
+CREATE TYPE requirement_type AS ENUM('core', 'elective', 'culminating_activity', 'portfolio', 'thesis');
+CREATE TYPE notif_type AS ENUM('info', 'warning', 'alert');
+CREATE TYPE cert_status AS ENUM('in_progress', 'completed');
+CREATE TYPE role_name AS ENUM('admin', 'advisor', 'student', 'accounting');
+CREATE TYPE permission_name AS ENUM('view_all_students', 'view_assigned_students',
+                                    'view_own_data', 'edit_degree_plan', 'comment_create',
+                                    'comment_edit', 'comment_delete', 'enrollment_reporting',
+                                    'graduation_reporting', 'user_create', 'user_modify', 'user_delete',
+                                    'user_grant_permissions');
 
 -- Core User and Access Management Tables --
 CREATE TABLE users (
@@ -14,16 +37,12 @@ CREATE TABLE users (
 
 CREATE TABLE roles (
     role_id SERIAL PRIMARY KEY,
-    role_name ENUM('admin', 'advisor', 'student', 'accounting') UNIQUE NOT NULL,
+    role_name role_name UNIQUE NOT NULL,
 );
 
 CREATE TABLE permissions (
     permission_id SERIAL PRIMARY KEY,
-    permission_name ENUM('view_all_students', 'view_assigned_students',
-                        'view_own_data', 'edit_degree_plan', 'comment_create',
-                        'comment_edit', 'comment_delete', 'enrollment_reporting',
-                        'graduation_reporting', 'user_create', 'user_modify', 'user_delete',
-                        'user_grant_permissions') UNIQUE NOT NULL,
+    permission_name permission_name UNIQUE NOT NULL,
 );
 
 CREATE TABLE role_permissions (
@@ -69,7 +88,7 @@ CREATE TABLE advising_relations (
 CREATE TABLE programs (
     program_id SERIAL PRIMARY KEY,
     program_name VARCHAR(255) NOT NULL,
-    program_type ENUM('masters', 'certificate', 'undergraduate') NOT NULL,
+    program_type program_type NOT NULL,
 );
 
 CREATE TABLE courses (
@@ -101,7 +120,7 @@ CREATE TABLE semester_offerings (
 CREATE TABLE program_requirements (
     requirement_id SERIAL PRIMARY KEY,
     program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
-    requirement_type ENUM('core', 'elective', 'culminating_activity', 'portflio', 'thesis') NOT NULL,
+    requirement_type requirement_type NOT NULL,
     req_description TEXT NOT NULL,
     required_credits INT NOT NULL,
     parent_requirement_id INT REFERENCES program_requirements(requirement_id) ON DELETE CASCADE,
@@ -137,13 +156,13 @@ CREATE TABLE enrollments (
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     semester_id INT REFERENCES semesters(semester_id) ON DELETE CASCADE,
-    grade grade ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'W'),
+    grade grade,
 );
 
 CREATE TABLE student_certificates (
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     certificate_id INT REFERENCES certificates(certificate_id) ON DELETE CASCADE,
-    cert_status ENUM('in_progress', 'completed') NOT NULL,
+    cert_status cert_status NOT NULL,
     PRIMARY KEY (student_id, certificate_id),
 )
 
@@ -161,7 +180,7 @@ CREATE TABLE notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
     notif_message TEXT NOT NULL,
-    notif_type ENUM('info', 'warning', 'alert') NOT NULL,
+    notif_type notif_type NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     read_at TIMESTAMP,
 );
