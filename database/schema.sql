@@ -1,3 +1,6 @@
+-- File: database/schema.sql
+-- This file defines the database schema for the application.
+
 -- Drop tables in a specific order to avoid foreign key constraints errors
 DROP TABLE IF EXISTS comments, notifications;
 DROP TABLE IF EXISTS degree_plans, enrollments;
@@ -5,12 +8,12 @@ DROP TABLE IF EXISTS student_certificates;
 DROP TABLE IF EXISTS advising_relations;
 DROP TABLE IF EXISTS student_courses, certificate_courses;
 DROP TABLE IF EXISTS requirement_courses;
-DROP TABLE IF EXISTS semester_offerings;
+DROP TABLE IF EXISTS course_offerings;
 DROP TABLE IF EXISTS course_prerequisites;
 DROP TABLE IF EXISTS user_roles, user_permissions, role_permissions;
 DROP TABLE IF EXISTS students, advisors, users;
 DROP TABLE IF EXISTS semesters, programs, courses, certificates;
-DROP TYPE IF EXISTS grade, program_type, requirement_type, notif_type, cert_status, permission_name, role_name;
+DROP TYPE IF EXISTS grade, program_type, requirement_type, notif_type, cert_status, permission_name, role_name, semester_type, course_status;
 
 -- Define Custom Types --
 CREATE TYPE grade AS ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'W');
@@ -19,6 +22,8 @@ CREATE TYPE requirement_type AS ENUM('core', 'elective', 'culminating_activity',
 CREATE TYPE notif_type AS ENUM('info', 'warning', 'alert');
 CREATE TYPE cert_status AS ENUM('in_progress', 'completed');
 CREATE TYPE role_name AS ENUM('admin', 'advisor', 'student', 'accounting');
+CREATE TYPE semester_type AS ENUM('FA', 'SP', 'SU');
+CREATE TYPE course_status AS ENUM('Planned', 'In Progress', 'Completed', 'Dropped', 'Failed', 'Withdrawn');
 CREATE TYPE permission_name AS ENUM('view_all_students', 'view_assigned_students',
                                     'view_own_data', 'edit_degree_plan', 'comment_create',
                                     'comment_edit', 'comment_delete', 'enrollment_reporting',
@@ -101,6 +106,7 @@ CREATE TABLE courses (
 CREATE TABLE semesters (
     semester_id SERIAL PRIMARY KEY,
     semester_name VARCHAR(50) UNIQUE NOT NULL,
+    semester_type semester_type NOT NULL,
     sem_start_date DATE NOT NULL,
     sem_end_date DATE NOT NULL,
 );
@@ -111,10 +117,10 @@ CREATE TABLE course_prerequisites (
     PRIMARY KEY (course_id, prerequisite_course_id),
 );
 
-CREATE TABLE semester_offerings (
+CREATE TABLE course_offerings (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
-    semester_id INT REFERENCES semesters(semester_id) ON DELETE CASCADE,
-    PRIMARY KEY (course_id, semester_id),
+    semester_type semester_type NOT NULL,
+    PRIMARY KEY (course_id, semester_type),
 );
 
 CREATE TABLE program_requirements (
@@ -149,6 +155,7 @@ CREATE TABLE degree_plans (
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     semester_id INT REFERENCES semesters(semester_id) ON DELETE CASCADE,
+    course_status course_status NOT NULL,
 );
 
 CREATE TABLE enrollments (
