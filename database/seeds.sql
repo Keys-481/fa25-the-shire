@@ -3,12 +3,17 @@
 
 -- Use TRUNCATE to clear the tables. CASCADE is used to also clear any dependent tables.
 -- The order is important to avoid foreign key constraint errors.
-TRUNCATE TABLE users, roles, permissions, role_permissions, students, advisors, advising_relations, programs, courses, semesters, course_prerequisites, semester_offerings, program_requirements, requirement_courses, degree_plans, enrollments, comments, certificates, certificate_courses, student_certificates CASCADE;
+TRUNCATE TABLE users, roles, permissions, user_roles, role_permissions,
+            advisors, students, programs, courses, semesters,
+            course_offerings, course_prerequisites, program_requirements,
+            requirement_courses, degree_plans, advising_relations,
+            student_certificates, enrollments, notifications, degree_plan_comments
+CASCADE;
 
 INSERT INTO roles (role_id, role_name) VALUES
 (1, 'admin'),
 (2, 'advisor'),
-(3, 'student');
+(3, 'student'),
 (4, 'accounting');
 
 INSERT INTO permissions (permission_id, permission_name) VALUES
@@ -67,7 +72,7 @@ INSERT INTO advisors (advisor_id, user_id) VALUES
 
 -- Insert programs
 INSERT INTO programs (program_id, program_name, program_type) VALUES
-(1, 'Master of Science in Organizational Performance and Workplace Learning', 'Masters'),
+(1, 'Master of Science in Organizational Performance and Workplace Learning', 'masters'),
 (2, 'Graduate Certificate in Organizational Development (OD)', 'certificate');
 
 -- Insert students
@@ -79,9 +84,9 @@ INSERT INTO students (student_id, school_student_id, user_id, program_id) VALUES
 -- Insert student-advisor assignments
 -- Alice Johnson is assigned to Jane Doe and John Smith, Bob Williams to John Smith
 INSERT INTO advising_relations (advisor_id, student_id) VALUES
-(1, 4), -- Alice Johnson assigned to Jane Doe
-(2, 4), -- Alice Johnson assigned to John Smith
-(2, 5); -- Bob Williams assigned to John Smith
+(1, 1), -- Alice Johnson assigned to Jane Doe
+(2, 1), -- Alice Johnson assigned to John Smith
+(2, 2); -- Bob Williams assigned to John Smith
 
 -- Insert courses
 -- Note: `course_id` is the primary key (integer), and course_code is a unique string identifier
@@ -91,9 +96,9 @@ INSERT INTO courses (course_id, course_code, course_name, credits) VALUES
 (3, 'OPWL-560', 'Workplace Performance Improvement', 4),
 (4, 'OPWL-518', 'Contracting and Consulting', 2),
 (5, 'OPWL-592', 'Portfolio (1) - Graduation term', 1),
-(6, 'OPWL-507', 'Interviews and Data Analysis', 1);
-(7, 'OPWL-531', 'Quantitative Research Organizations', 3);
-(8, 'OPWL-529', 'Needs Assesment', 4);
+(6, 'OPWL-507', 'Interviews and Data Analysis', 1),
+(7, 'OPWL-531', 'Quantitative Research Organizations', 3),
+(8, 'OPWL-529', 'Needs Assesment', 4),
 (9, 'OPWL-530', 'Evaluation', 4);
 
 -- TODO: Add more courses as needed and update course prerequisites and offerings accordingly
@@ -102,7 +107,7 @@ INSERT INTO courses (course_id, course_code, course_name, credits) VALUES
 INSERT INTO course_prerequisites (course_id, prerequisite_course_id) VALUES
 (7, 1), -- OPWL-531 requires OPWL-536
 (3, 1), -- OPWL-560 requires OPWL-536
-(9, 1); -- OPWL-529 requires OPWL-536
+(9, 1), -- OPWL-529 requires OPWL-536
 (8, 1); -- OPWL-530 requires OPWL-536
 
 
@@ -110,14 +115,14 @@ INSERT INTO course_prerequisites (course_id, prerequisite_course_id) VALUES
 INSERT INTO semesters (semester_id, semester_name, semester_type, sem_start_date, sem_end_date) VALUES
 (1, 'Fall 2023', 'FA', '2023-08-21', '2023-12-15'),
 (2, 'Spring 2024', 'SP', '2024-01-15', '2024-05-10'),
-(3, 'Summer 2024', 'SU', '2024-06-01', '2024-08-01');
-(4, 'Fall 2024', 'FA', '2024-08-20', '2024-12-14');
-(5, 'Spring 2025', 'SP', '2025-01-13', '2025-05-09');
-(6, 'Summer 2025', 'SU', '2025-06-02', '2025-08-03');
-(7, 'Fall 2025', 'FA', '2025-08-19', '2025-12-13');
-(8, 'Spring 2026', 'SP', '2026-01-12', '2026-05-08');
-(9, 'Summer 2026', 'SU', '2026-06-01', '2026-08-02');
-(10, 'Fall 2026', 'FA', '2026-08-18', '2026-12-12');
+(3, 'Summer 2024', 'SU', '2024-06-01', '2024-08-01'),
+(4, 'Fall 2024', 'FA', '2024-08-20', '2024-12-14'),
+(5, 'Spring 2025', 'SP', '2025-01-13', '2025-05-09'),
+(6, 'Summer 2025', 'SU', '2025-06-02', '2025-08-03'),
+(7, 'Fall 2025', 'FA', '2025-08-19', '2025-12-13'),
+(8, 'Spring 2026', 'SP', '2026-01-12', '2026-05-08'),
+(9, 'Summer 2026', 'SU', '2026-06-01', '2026-08-02'),
+(10, 'Fall 2026', 'FA', '2026-08-18', '2026-12-12'),
 (11, 'Spring 2027', 'SP', '2027-01-11', '2027-05-07');
 
 -- Insert semester offerings
@@ -140,23 +145,29 @@ INSERT INTO course_offerings (course_id, semester_type) VALUES
 (7, 'SU'), -- OPWL-531 offered in Summer
 (8, 'FA'), -- OPWL-529 offered in Fall
 (8, 'SP'), -- OPWL-529 offered in Spring
-(9, 'FA'); -- OPWL-530 offered in Fall
+(9, 'FA'), -- OPWL-530 offered in Fall
 (9, 'SP'); -- OPWL-530 offered in Spring
 
 -- Insert program requirements
-INSERT INTO program_requirements (requirement_id, program_id, requirement_type) VALUES
-(1, 1, 'core'), -- Core courses for OPWL MS
-(2, 2, 'core'), -- Core courses for OD certificate
-(3, 1, 'elective'); -- Elective courses for OPWL MS
+-- Note: Some requirements are hierarchical (e.g., culminating activity with sub-requirements)
+INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description) VALUES
+(1, 1, 'core', NULL, 12, 'Core Courses for OPWL MS'), -- Core requirement for OPWL MS
+(2, 2, 'core', NULL, 4, 'Core Course for OD Certificate'), -- Core requirement for OD certificate
+(3, 1, 'culminating_activity', NULL, NULL, 'Complete one (1) of the following'), -- Culminating activity for OPWL MS (Parent requirement)
+(4, 1, 'portfolio', 3, NULL, 'Complete all of the following'), -- Portfolio requirement under culminating activity
+(5, 1, 'research', 4, 3, 'Take at least 3 credits from the following (RESEARCH)'), -- Research requirement under portfolio
+(6, 1, 'elective', 4, 8, 'Take at least 8 credits from the following'), -- Elective requirement under portfolio
+(7, 1, 'misc', 4, 1, 'Take at least 1 credits from the following'); -- Misc requirement under portfolio
 
--- TODO: insert flexible requirements if needed (culminating activity, electives...)
--- TODO: add req_description and required_credits for each requirement
--- TODO: use parent_requirement_id for hierarchical requirements if needed
+-- TODO: insert other flexible requirements if needed (thesis, etc.)
 
 -- Insert requirement courses
 INSERT INTO requirement_courses (requirement_id, course_id) VALUES
 (1, 1), -- OPWL-536 is a core course for OPWL MS
 (2, 1), -- OPWL-536 is a core course for OD certificate
+(5, 2), -- OPWL-506 counts towards research requirement
+(5, 6), -- OPWL-507 counts towards research requirement
+(5, 7); -- OPWL-531 counts towards research requirement
 
 -- TODO: Add more requirement courses as needed
 
