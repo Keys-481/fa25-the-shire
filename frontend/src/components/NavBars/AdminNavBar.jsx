@@ -1,5 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 
+/**
+ * AdminNavBar component displays a top navigation bar for admin pages that  
+ * are not the dashboard. It includes a back arrow button that navigates to 
+ * the admin dashboard, and a title indicating the current page.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.title - The title to display in the navigation bar
+ * @returns {JSX.Element} A styled navigation bar with a back button and title
+ */
 export default function AdminNavBar({ title }) {
   const navigate = useNavigate()
 
@@ -11,6 +21,10 @@ export default function AdminNavBar({ title }) {
   )
 }
 
+/**
+ * Inline styles for the AdminNavBar component.
+ * Includes styling for the navbar container, back button, and title.
+ */
 const styles = {
   navbar: {
     display: 'flex',

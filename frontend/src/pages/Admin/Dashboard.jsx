@@ -1,11 +1,24 @@
 import { useNavigate } from 'react-router-dom'
 
+/**
+ * Dashboard component for the Admin role.
+ * Displays a top navigation bar and a grid of square buttons
+ * that link to the different admin sections: Courses, Users, and Settings.
+ *
+ * @component
+ * @returns {JSX.Element} A styled admin dashboard with navigation buttons
+ */
 export default function Dashboard() {
     const navigate = useNavigate()
-    const backgroundColor = '#FFFFFF' // White background
-    const textColor = '#FFFFFF' // White text
-    const secondaryTextColor = '#000000' // Black secondary text
 
+    // Defined color scheme
+    const backgroundColor = '#FFFFFF'
+    const textColor = '#FFFFFF' 
+    const secondaryTextColor = '#000000'
+
+    /**
+     * Inline styles for the Dashboard layout and elements.
+     */
     const styles = {
         container: {
             backgroundColor: backgroundColor,

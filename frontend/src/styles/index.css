@@ -1,18 +1,29 @@
+/**
+ * Root theme variables and global font settings.
+ * Applies system fonts and smooth rendering across browsers.
+ */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
+  /* Enables automatic theme switching based on user preference */
   color-scheme: light dark;
+
+  /* Default dark mode colors */
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
+  /* Improves text rendering and font behavior */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/**
+ * Link styling with hover effects.
+ */
 a {
   font-weight: 500;
   color: #646cff;
@@ -22,6 +33,10 @@ a:hover {
   color: #535bf2;
 }
 
+/**
+ * Base layout for full-screen rendering.
+ * Ensures no default margin/padding and centers content.
+ */
 body, html {
   margin: 0;
   padding: 0;
@@ -33,11 +48,17 @@ body, html {
   min-height: 100vh;
 }
 
+/**
+ * Heading styles for consistent typography.
+ */
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
 
+/**
+ * Button styling with hover and focus states.
+ */
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -57,6 +78,9 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/**
+ * Light mode overrides using media query.
+ */
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

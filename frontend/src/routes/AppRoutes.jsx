@@ -1,3 +1,11 @@
+/**
+ * AppRoutes component defines all the route mappings for the application.
+ * It uses React Router to handle navigation between different role-based pages.
+ *
+ * @component
+ * @returns {JSX.Element} A router configuration with defined routes for Admin, Student, Advisor, and Accounting roles
+ */
+
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import AdminCourses from '../pages/Admin/Courses'
 import AdminDashboard from '../pages/Admin/Dashboard'
@@ -22,7 +30,7 @@ export default function AppRoutes() {
         {/* Student Routes */}
 
         {/* Accounting Routes */}
-        
+
       </Routes>
     </Router>
   )
