@@ -27,17 +27,18 @@ async function getUserRoles(userId) {
 }
 
 /**
- * Check if an advisor has access to a specific student
- * @param advisorId - The ID of the advisor
+ * Check if a user has access to a specific student
+ * @param userId - The user ID of the advisor
  * @param studentId - The ID of the student
  * @returns A promise that resolves to true if the advisor has access, false otherwise
  */
-async function isAdvisorOfStudent(advisorId, studentId) {
+async function isAdvisorOfStudent(userId, studentId) {
     try {
         const result = await pool.query(
-            `SELECT 1 FROM advising_relations
-            WHERE advisor_id = $1 AND student_id = $2`,
-            [advisorId, studentId]
+            `SELECT 1 FROM advising_relations ar
+            JOIN advisors a ON ar.advisor_id = a.advisor_id
+            WHERE a.user_id = $1 AND ar.student_id = $2`,
+            [userId, studentId]
         );
         return result.rowCount > 0;
     } catch (error) {

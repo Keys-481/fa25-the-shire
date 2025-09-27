@@ -11,6 +11,9 @@ const express = require('express');
 const pool = require('./src/db');
 const app = express();
 
+// Import route handlers
+const studentRoutes = require('./src/routes/students');
+
 // use port from environment or default to 3000
 const PORT = process.env.PORT || 3000;
 
@@ -43,6 +46,9 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     res.send('Welcome to the Shire backend!');
 });
+
+// mount routes
+app.use('/students', studentRoutes);
 
 // Start server
 app.listen(PORT, () => {
