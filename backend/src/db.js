@@ -1,3 +1,8 @@
+/**
+ * File: backend/src/db.js
+ * This file sets up a  database connection pool to be used across the application.
+ * It uses environment variables for configuration.
+ */
 const { Pool } = require('pg');
 require('dotenv').config();
 
