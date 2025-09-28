@@ -7,6 +7,7 @@ const express = require('express');
 const router = express.Router();
 const StudentModel = require('../models/StudentModel');
 const AccessModel = require('../models/AccessModel');
+const DegreePlanModel = require('../models/DegreePlanModel');
 
 /**
  * Route: GET /students/:schoolId
@@ -37,6 +38,7 @@ router.get('/:schoolId', async (req, res) => {
         }
         if (userRoles.includes('advisor')) {
             const hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+
             if (hasAccess) {
                 return res.json(student);
             } else {
@@ -49,6 +51,52 @@ router.get('/:schoolId', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+/**
+ * Route: GET /students/:schoolId/degree-plan
+ * Retrieves the degree plan for a student by their school ID.
+ */
+router.get('/:schoolId/degree-plan', async (req, res) => {
+    const { schoolId } = req.params;
+    try {
+        // Expect req.user to be set by middleware (mock or real auth)
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const student = await StudentModel.getStudentBySchoolId(schoolId);
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+
+        if (userRoles.includes('admin')) {
+            // admin has access to all students
+            const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
+            return res.json(degreePlan);
+        }
+        if (userRoles.includes('advisor')) {
+            const hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+            
+            if (hasAccess) {
+                const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
+                return res.json(degreePlan);
+            } else {
+                return res.status(404).json({ message: 'Student not found' });
+            }
+        }
+
+    } catch (error) {
+        console.error('Error fetching degree plan:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+})
 
 module.exports = router;
 
