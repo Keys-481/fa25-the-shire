@@ -60,7 +60,8 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES
 (1, 1), -- Admin User
-(2, 2), -- Jane Doe (Advisor)
+(2, 2), -- Jane Doe (Advisor and also admin)
+(2, 1), -- Jane Doe (Admin)
 (3, 2), -- John Smith (Advisor)
 (4, 3), -- Alice Johnson (Student)
 (5, 3); -- Bob Williams (Student)
@@ -85,7 +86,7 @@ INSERT INTO students (student_id, school_student_id, user_id, program_id) VALUES
 -- Alice Johnson is assigned to Jane Doe and John Smith, Bob Williams to John Smith
 INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (1, 1), -- Alice Johnson assigned to Jane Doe
-(2, 1), -- Alice Johnson assigned to John Smith
+(1, 2), -- Bob Williams assigned to Jane Doe
 (2, 2); -- Bob Williams assigned to John Smith
 
 -- Insert courses

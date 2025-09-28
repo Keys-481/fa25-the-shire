@@ -3,6 +3,7 @@
  * file: backend/db_setup.js
  * Automates the database setup and seeding process for local development and testing.
  * Connects to PostgreSQL, drops all existing tables, re-creates them, and populates with mock data.
+ * Can be called directly or imported for Jest tests
  */
 
 const { Client } = require('pg');
@@ -46,10 +47,15 @@ async function runSchemaAndSeeds() {
         console.log('--- Database setup complete! ---');
     } catch (err) {
         console.error('Failed to set up database:', err.stack);
-        process.exit(1);
+        throw err;
     } finally {
         await client.end();
     }
 }
 
-runSchemaAndSeeds();
+// If this script is run directly, execute the setup
+if (require.main === module) {
+    runSchemaAndSeeds().catch(() => process.exit(1));
+}
+
+module.exports = { runSchemaAndSeeds };

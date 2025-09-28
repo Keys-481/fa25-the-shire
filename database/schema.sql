@@ -43,7 +43,7 @@ DROP TYPE IF EXISTS
 CASCADE;
 
 -- Define Custom Types --
-CREATE TYPE grade AS ENUM('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'W');
+CREATE TYPE grade AS ENUM('A+','A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'W');
 CREATE TYPE program_type AS ENUM('masters', 'certificate', 'undergraduate');
 CREATE TYPE requirement_type AS ENUM('core', 'elective', 'culminating_activity', 'portfolio', 'thesis', 'research', 'misc');
 CREATE TYPE notif_type AS ENUM('info', 'warning', 'alert');
@@ -94,6 +94,9 @@ CREATE TABLE role_permissions (
     PRIMARY KEY (role_id, permission_id)
 );
 
+CREATE INDEX idx_role_permissions_role_id ON role_permissions(role_id);
+CREATE INDEX idx_role_permissions_permission_id ON role_permissions(permission_id);
+
 -- User-Roles Mapping Table:
 -- Many-to-Many relationship between users and roles
 CREATE TABLE user_roles (
@@ -101,6 +104,9 @@ CREATE TABLE user_roles (
     role_id INT REFERENCES roles(role_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
+
+CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
 
 -- User-Permissions Mapping Table:
 -- optional direct user-permission grants/revokes that override role-based permissions --
@@ -112,31 +118,8 @@ CREATE TABLE user_permissions (
     PRIMARY KEY (user_id, permission_id)
 );
 
--- Student and Advisor Tables --
-
--- Students Table:
--- Links to users table and includes student-specific information
-CREATE TABLE students (
-    student_id SERIAL PRIMARY KEY,
-    school_student_id VARCHAR(9) UNIQUE NOT NULL,
-    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
-    program_id VARCHAR(100) NOT NULL
-);
-
--- Advisors Table:
--- Links to users table and includes advisor-specific information
-CREATE TABLE advisors (
-    advisor_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id) ON DELETE CASCADE
-);
-
--- Advising Relations Table:
--- Many-to-Many relationship between advisors and students
-CREATE TABLE advising_relations (
-    advisor_id INT REFERENCES advisors(advisor_id) ON DELETE CASCADE,
-    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
-    PRIMARY KEY (advisor_id, student_id)
-);
+CREATE INDEX idx_user_permissions_user_id ON user_permissions(user_id);
+CREATE INDEX idx_user_permissions_permission_id ON user_permissions(permission_id);
 
 -- Programs and Courses Tables --
 
@@ -177,6 +160,9 @@ CREATE TABLE course_prerequisites (
     PRIMARY KEY (course_id, prerequisite_course_id)
 );
 
+CREATE INDEX idx_course_prerequisites_course_id ON course_prerequisites(course_id);
+CREATE INDEX idx_course_prerequisites_prereq_id ON course_prerequisites(prerequisite_course_id);
+
 -- Course Offerings Table:
 -- Defines which courses are offered in which semester types
 CREATE TABLE course_offerings (
@@ -184,6 +170,8 @@ CREATE TABLE course_offerings (
     semester_type semester_type NOT NULL,
     PRIMARY KEY (course_id, semester_type)
 );
+
+CREATE INDEX idx_course_offerings_course_id ON course_offerings(course_id);
 
 -- Program Requirements Table:
 -- Defines degree requirements for each program
@@ -197,6 +185,9 @@ CREATE TABLE program_requirements (
     parent_requirement_id INT REFERENCES program_requirements(requirement_id) ON DELETE CASCADE
 );
 
+CREATE INDEX idx_program_requirements_program_id ON program_requirements(program_id);
+CREATE INDEX idx_program_requirements_parent_req_id ON program_requirements(parent_requirement_id);
+
 -- Requirement-Courses Mapping Table:
 -- Many-to-Many relationship between program requirements and courses
 CREATE TABLE requirement_courses (
@@ -204,6 +195,9 @@ CREATE TABLE requirement_courses (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     PRIMARY KEY (requirement_id, course_id)
 );
+
+CREATE INDEX idx_requirement_courses_requirement_id ON requirement_courses(requirement_id);
+CREATE INDEX idx_requirement_courses_course_id ON requirement_courses(course_id);
 
 -- Certificates Table:
 -- Defines certificates that can be earned within programs
@@ -213,12 +207,52 @@ CREATE TABLE certificates (
     program_id INT REFERENCES programs(program_id) ON DELETE CASCADE
 );
 
+CREATE INDEX idx_certificates_program_id ON certificates(program_id);
+
 -- Certificate-Courses Mapping Table:
 -- Many-to-Many relationship between certificates and courses
 CREATE TABLE certificate_courses (
-    certificate_id SERIAL PRIMARY KEY,
-    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE
+    certificate_id INT REFERENCES certificates(certificate_id) ON DELETE CASCADE,
+    course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
+    PRIMARY KEY (certificate_id, course_id)
 );
+
+CREATE INDEX idx_certificate_courses_certificate_id ON certificate_courses(certificate_id);
+CREATE INDEX idx_certificate_courses_course_id ON certificate_courses(course_id);
+
+-- Student and Advisor Tables --
+
+-- Students Table:
+-- Links to users table and includes student-specific information
+CREATE TABLE students (
+    student_id SERIAL PRIMARY KEY,
+    school_student_id VARCHAR(9) UNIQUE NOT NULL,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    program_id INT REFERENCES programs(program_id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_students_user_id ON students(user_id);
+CREATE INDEX idx_students_program_id ON students(program_id);
+
+-- Advisors Table:
+-- Links to users table and includes advisor-specific information
+CREATE TABLE advisors (
+    advisor_id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_advisors_user_id ON advisors(user_id);
+
+-- Advising Relations Table:
+-- Many-to-Many relationship between advisors and students
+CREATE TABLE advising_relations (
+    advisor_id INT REFERENCES advisors(advisor_id) ON DELETE CASCADE,
+    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
+    PRIMARY KEY (advisor_id, student_id)
+);
+
+CREATE INDEX idx_advising_relations_advisor_id ON advising_relations(advisor_id);
+CREATE INDEX idx_advising_relations_student_id ON advising_relations(student_id);
 
 -- Student Plans and Enrollment Tables --
 
@@ -233,6 +267,10 @@ CREATE TABLE degree_plans (
     course_status course_status NOT NULL
 );
 
+CREATE INDEX idx_degree_plans_student_id ON degree_plans(student_id);
+CREATE INDEX idx_degree_plans_course_id ON degree_plans(course_id);
+CREATE INDEX idx_degree_plans_semester_id ON degree_plans(semester_id);
+
 -- Enrollments Table:
 -- Tracks actual enrollments and grades for students in courses per semester
 -- grade is an ENUM type defined above (NULL if not yet graded)
@@ -244,6 +282,10 @@ CREATE TABLE enrollments (
     grade grade
 );
 
+CREATE INDEX idx_enrollments_student_id ON enrollments(student_id);
+CREATE INDEX idx_enrollments_course_id ON enrollments(course_id);
+CREATE INDEX idx_enrollments_semester_id ON enrollments(semester_id);
+
 -- Student-Certificates Mapping Table:
 -- Many-to-Many relationship between students and certificates with status
 -- cert_status is an ENUM type defined above (in_progress, completed)
@@ -253,6 +295,9 @@ CREATE TABLE student_certificates (
     cert_status cert_status NOT NULL,
     PRIMARY KEY (student_id, certificate_id)
 );
+
+CREATE INDEX idx_student_certificates_student_id ON student_certificates(student_id);
+CREATE INDEX idx_student_certificates_certificate_id ON student_certificates(certificate_id);
 
 -- Comments and Notifications Tables --
 
@@ -267,6 +312,9 @@ CREATE TABLE degree_plan_comments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX idx_degree_plan_comments_plan_id ON degree_plan_comments(plan_id);
+CREATE INDEX idx_degree_plan_comments_author_id ON degree_plan_comments(author_id);
+
 -- Notifications Table:
 -- Stores notifications for users
 -- notif_type is an ENUM type defined above (info, warning, alert)
@@ -278,3 +326,5 @@ CREATE TABLE notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     read_at TIMESTAMP
 );
+
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
