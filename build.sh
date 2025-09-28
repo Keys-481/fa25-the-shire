@@ -23,10 +23,10 @@ while [[ $# -gt 0 ]]; do
 Usage: $0 [--no-cache] [--skip-db]
 
 This script:
-  • Requires an existing .env at repo root (not created automatically)
-  • Starts/initializes a Postgres container (unless --skip-db)
-  • Creates DB & user from .env (idempotent), applies schema/seeds if present
-  • Builds the app image (frontend+backend) as ${APP_IMAGE}
+  Requires an existing .env at repo root
+  Starts/initializes a Postgres container (unless --skip-db)
+  Creates DB & user from .env, applies schema/seeds if present
+  Builds the app image (frontend + backend) as ${APP_IMAGE}
 
 Expected .env keys (must exist):
   DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT
