@@ -16,6 +16,11 @@ import AdminUsers from '../pages/Admin/Users'
 import StudentDashboard from '../pages/Student/Dashboard'
 import StudentSettings from '../pages/Student/Settings'
 import StudentDegreeTracking from '../pages/Student/DegreeTracking'
+//advisor imports
+import AdvisorDashboard from '../pages/Advisor/Dashboard'
+import Advising from '../pages/Advisor/Advising'
+import AdvisingFunctionality from '../pages/Advisor/AdvisingFunctionality'
+import AdvisorSettings from '../pages/Advisor/Settings' 
 
 export default function AppRoutes() {
   return (
@@ -31,7 +36,11 @@ export default function AppRoutes() {
         <Route path="/admin/settings" element={<AdminSettings />} />
 
         {/* Advising Routes */}
-
+        <Route path="/advisor/dashboard" element={<AdvisorDashboard />} />
+        <Route path="/advisor/advising" element={<Advising />} />
+        <Route path="/advisor/reporting-functionality" element={<AdvisingFunctionality />} />
+        <Route path="/advisor/settings" element={<AdvisorSettings />} />
+        
         {/* Student Routes */}
         <Route path="/student/dashboard" element={<StudentDashboard />} />
         <Route path="/student/degree-tracking" element={<StudentDegreeTracking />} />

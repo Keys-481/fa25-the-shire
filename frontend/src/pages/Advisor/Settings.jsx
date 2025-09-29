@@ -1,12 +1,12 @@
-import StudentNavBar from "../../components/NavBars/StudentNavBar"
+import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar"
 
 /**
- * StudentSettings component displays the Settings page for students.
+ * AdvisorSettings component displays the Settings page for advisors.
  * 
  * @component
- * @returns {JSX.Element} A simple admin view for managing or viewing courses
+ * @returns {JSX.Element} 
  */
-export default function StudentSettings() {
+export default function AdvisorSettings() {
   // Defined color scheme
       const backgroundColor = '#FFFFFF'
       const textColor = '#FFFFFF' 
@@ -36,11 +36,11 @@ export default function StudentSettings() {
 
   return (
     <div style={styles.container}>
-        {/* Student Navigation Bar */}
-         <StudentNavBar/>
+        {/* Advisor Navigation Bar */}
+         <AdvisorNavBar/>
          
         {/* Title */}
-        <h2 style={styles.h2}>Student Settings</h2>
+        <h2 style={styles.h2}>Advisor Settings</h2>
 
        {/* Divider line */}
         <div style={{ width: '100%', margin: '5px', height: '2px', backgroundColor: 'black' }}></div>

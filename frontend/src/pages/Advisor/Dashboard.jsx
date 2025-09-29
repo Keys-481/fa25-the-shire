@@ -5,7 +5,7 @@ import logo from '../../assets/images/boise_state_wbg.png'
  * AdvisorDashboard component displays the main dashboard for advisors with navigation options.
  *
  * @component
- * @returns {JSX.Element} The main dashboard view for students
+ * @returns {JSX.Element} The main dashboard view for advisors
  */
 export default function AdvisorDashboard() {
     const navigate = useNavigate()
@@ -80,7 +80,7 @@ export default function AdvisorDashboard() {
             </div>
 
             {/* Page Title */}
-            <h2 style={styles.h2}>Student Homepage</h2>
+            <h2 style={styles.h2}>Advisor Homepage</h2>
 
             {/* Divider line */}
             <div style={{ width: '100%', margin: '5px', height: '2px', backgroundColor: 'black' }}></div>
@@ -90,11 +90,15 @@ export default function AdvisorDashboard() {
             <div style={styles.content}>
                 <div style={styles.buttonRow}>
                     {/* Navigation Button */}
-                    <button style={styles.squareButton} onClick={() => navigate('/student/degree-tracking')}>
-                        Degree Tracking
+                    <button style={styles.squareButton} onClick={() => navigate('/advisor/advising')}>
+                        Advising 
+                    </button>
+                    {/* Navigation Button */}
+                    <button style={styles.squareButton} onClick={() => navigate('/advisor/reporting-functionality')}>
+                        Reporting Functionality
                     </button>
                     {/* Settings Button */}
-                    <button style={styles.squareButton} onClick={() => navigate('/student/settings')}>
+                    <button style={styles.squareButton} onClick={() => navigate('/advisor/settings')}>
                         Settings
                     </button>
                 </div>

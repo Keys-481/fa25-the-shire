@@ -1,12 +1,12 @@
-import StudentNavBar from "../../components/NavBars/StudentNavBar"
+import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar"
 
 /**
- * StudentDegreeTracking component displays the Degree Tracking page for students.
+ * Advising component displays the Advising page for the advisors.
  * 
  * @component
- * @returns {JSX.Element}   A simple admin view for managing or viewing courses
+ * @returns {JSX.Element}  
  */
-export default function StudentDegreeTracking() {
+export default function Advising() {
 // Defined color scheme
       const backgroundColor = '#FFFFFF'
       const textColor = '#FFFFFF' 
@@ -36,11 +36,11 @@ export default function StudentDegreeTracking() {
  
    return (
      <div style={styles.container}>
-        {/* Student Navigation Bar */}
-        <StudentNavBar/>
+        {/* Advisor Navigation Bar */}
+       <AdvisorNavBar />
         
         {/* Title */}
-       <h2 style={styles.h2}>Student Degree Tracking</h2>
+       <h2 style={styles.h2}>Advising</h2>
 
         {/* Divider line */}
         <div style={{ width: '100%', margin: '5px', height: '2px', backgroundColor: 'black' }}></div>
