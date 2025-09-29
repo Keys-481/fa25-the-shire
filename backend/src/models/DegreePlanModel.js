@@ -13,7 +13,7 @@ const pool = require('../db');
 async function getDegreePlanByStudentId(studentId) {
     try {
         const result = await pool.query(
-            `SELECT dp.plan_id, dp.course_status,
+            `SELECT dp.student_id, dp.plan_id, dp.course_status,
                     c.course_id, c.course_code, c.course_name, c.credits,
                     s.semester_id, s.semester_name, s.semester_type,
                     s.sem_start_date, s.sem_end_date,

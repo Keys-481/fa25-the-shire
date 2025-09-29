@@ -1,5 +1,5 @@
 /**
- * File: backend/src/models/CoursesModel.js
+ * File: backend/src/models/CourseModel.js
  * Model for interacting with the courses entity in the database
  */
 
@@ -25,3 +25,7 @@ async function getPrerequisitesForCourse(courseId) {
         throw error;
     }
 }
+
+module.exports = {
+    getPrerequisitesForCourse,
+};

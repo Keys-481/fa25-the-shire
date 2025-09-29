@@ -8,7 +8,7 @@ const router = express.Router();
 const StudentModel = require('../models/StudentModel');
 const AccessModel = require('../models/AccessModel');
 const DegreePlanModel = require('../models/DegreePlanModel');
-const CoursesModel = require('../models/CoursesModel');
+const CourseModel = require('../models/CourseModel');
 
 /**
  * Route: GET /students/:schoolId
@@ -90,7 +90,7 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
             // add prerequisites to each course in the degree plan
             degreePlan = await Promise.all(
                 degreePlan.map(async (course) => {
-                    const prerequisites = await CoursesModel.getPrerequisitesForCourse(course.course_id);
+                    const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
                     return {
                         ...course,
                         prerequisites

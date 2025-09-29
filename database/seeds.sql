@@ -179,3 +179,9 @@ INSERT INTO degree_plans (plan_id, student_id, course_id, semester_id, course_st
 (3, 1, 3, 10, 'Planned'), -- OPWL-560 in Fall 2026
 (4, 1, 9, 8, 'Planned'), -- OPWL-530 in Spring 2026
 (5, 1, 5, 11, 'Planned'); -- OPWL-592 in Spring 2027
+
+-- Insert degree plan entries for Bob Williams (student2)
+INSERT INTO degree_plans (plan_id, student_id, course_id, semester_id, course_status) VALUES
+(6, 2, 1, 7, 'In Progress'), -- OPWL-536 in Fall 2025
+(7, 2, 4, 8, 'Planned'), -- OPWL-518 in Spring 2026
+(8, 2, 5, 9, 'Planned'); -- OPWL-592 in Summer 2026
