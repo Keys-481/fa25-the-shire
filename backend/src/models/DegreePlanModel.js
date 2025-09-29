@@ -6,7 +6,7 @@
 const pool = require('../db');
 
 /**
- * Get the degree plan for a specific student.
+ * Get the degree plan for a specific student by their internal student ID.
  * @param studentId - The internal ID of the student (not school ID).
  * @returns A promise that resolves to an array of degree plan entries for the student (courses in the plan).
  */

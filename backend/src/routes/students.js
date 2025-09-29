@@ -8,6 +8,7 @@ const router = express.Router();
 const StudentModel = require('../models/StudentModel');
 const AccessModel = require('../models/AccessModel');
 const DegreePlanModel = require('../models/DegreePlanModel');
+const CoursesModel = require('../models/CoursesModel');
 
 /**
  * Route: GET /students/:schoolId
@@ -54,7 +55,7 @@ router.get('/:schoolId', async (req, res) => {
 
 /**
  * Route: GET /students/:schoolId/degree-plan
- * Retrieves the degree plan for a student by their school ID.
+ * Retrieves the degree plan and student info for a student by their school ID.
  */
 router.get('/:schoolId/degree-plan', async (req, res) => {
     const { schoolId } = req.params;
@@ -75,28 +76,36 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
 
         // check access permissions
         const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
 
         if (userRoles.includes('admin')) {
-            // admin has access to all students
-            const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
-            return res.json(degreePlan);
-        }
-        if (userRoles.includes('advisor')) {
-            const hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
-            
-            if (hasAccess) {
-                const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
-                return res.json(degreePlan);
-            } else {
-                return res.status(404).json({ message: 'Student not found' });
-            }
+            hasAccess = true;
+        } else if (userRoles.includes('advisor')) {
+            hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
         }
 
+        if (hasAccess) {
+            let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
+
+            // add prerequisites to each course in the degree plan
+            degreePlan = await Promise.all(
+                degreePlan.map(async (course) => {
+                    const prerequisites = await CoursesModel.getPrerequisitesForCourse(course.course_id);
+                    return {
+                        ...course,
+                        prerequisites
+                    };
+                })
+            );
+            return res.json({ student, degreePlan });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
+        }
     } catch (error) {
         console.error('Error fetching degree plan:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-})
+});
 
 module.exports = router;
 
