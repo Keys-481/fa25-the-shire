@@ -16,15 +16,12 @@ async function getDegreePlanByStudentId(studentId) {
             `SELECT dp.student_id, dp.plan_id, dp.course_status,
                     c.course_id, c.course_code, c.course_name, c.credits,
                     s.semester_id, s.semester_name, s.semester_type,
-                    s.sem_start_date, s.sem_end_date,
-                    p.program_id, p.program_name, p.program_type
+                    s.sem_start_date, s.sem_end_date
             FROM degree_plans dp
             JOIN courses c ON dp.course_id = c.course_id
             JOIN semesters s on dp.semester_id = s.semester_id
-            JOIN students st ON dp.student_id = st.student_id
-            JOIN programs p ON st.program_id = p.program_id
             WHERE dp.student_id = $1
-            ORDER BY s.sem_start_date ASC`,
+            ORDER BY s.sem_start_date ASC, c.course_code ASC`,
             [studentId]
         );
         // return all degree plan entries (courses in the plan) for the student

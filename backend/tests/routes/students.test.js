@@ -2,6 +2,7 @@
  * File: backend/tests/routes/students.test.js
  * Integration tests for student routes using Jest and Supertest
  * Test database should be set up and seeded before running these tests
+ * Tests assume certain values in seed data, if seed data changes, tests may need to be updated
  */
 
 const request = require('supertest');
@@ -95,8 +96,12 @@ describe('GET /students/:schoolId/degree-plan', () => {
         const res = await request(app).get('/students/112299690/degree-plan');
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('112299690');
+        expect(res.body.student.first_name).toBe('Alice'); // should match seed data
+        expect(res.body.student.last_name).toBe('Johnson'); // should match seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+        const courseCodes = res.body.degreePlan.map(course => course.course_code);
+        expect(courseCodes).toContain('OPWL-536'); // should match seed data
     });
 
     // Test for advisor user accessing their assigned student's degree plan
@@ -105,8 +110,12 @@ describe('GET /students/:schoolId/degree-plan', () => {
         const res = await request(app).get('/students/113601927/degree-plan');
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('113601927');
+        expect(res.body.student.first_name).toBe('Bob'); // should match seed data
+        expect(res.body.student.last_name).toBe('Williams'); // should match seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+        const courseCodes = res.body.degreePlan.map(course => course.course_code);
+        expect(courseCodes).toContain('OPWL-536'); // should match seed data
     });
 
     // Test for advisor user accessing a student's degree plan they are not assigned to

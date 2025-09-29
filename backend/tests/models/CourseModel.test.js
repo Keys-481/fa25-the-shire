@@ -1,6 +1,7 @@
 /**
  * File: backend/tests/models/CourseModel.test.js
  * Unit tests for CourseModel.js using Jest
+ * Tests assume certain values in seed data, if seed data changes, tests may need to be updated
  */
 
 const CourseModel = require('../../src/models/CourseModel');
