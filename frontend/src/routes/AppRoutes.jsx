@@ -19,7 +19,7 @@ import StudentDegreeTracking from '../pages/Student/DegreeTracking'
 //advisor imports
 import AdvisorDashboard from '../pages/Advisor/Dashboard'
 import Advising from '../pages/Advisor/Advising'
-import AdvisingFunctionality from '../pages/Advisor/AdvisingFunctionality'
+import AdvisorReportingFunctionality from '../pages/Advisor/ReportingFunctionality'
 import AdvisorSettings from '../pages/Advisor/Settings' 
 
 export default function AppRoutes() {
@@ -38,7 +38,7 @@ export default function AppRoutes() {
         {/* Advising Routes */}
         <Route path="/advisor/dashboard" element={<AdvisorDashboard />} />
         <Route path="/advisor/advising" element={<Advising />} />
-        <Route path="/advisor/reporting-functionality" element={<AdvisingFunctionality />} />
+        <Route path="/advisor/reporting-functionality" element={<AdvisorReportingFunctionality />} />
         <Route path="/advisor/settings" element={<AdvisorSettings />} />
         
         {/* Student Routes */}

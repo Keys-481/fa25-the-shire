@@ -1,19 +1,19 @@
 import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar"
 
 /**
- * AdvisingFunctionality component displays the Advising functionality page for advisors.
+ * ReportingFunctionality component displays the Reporting functionality page for advisors.
  * 
  * @component
  * @returns {JSX.Element}   
  */
-export default function AdvisingFunctionality() {
+export default function ReportingFunctionality() {
 // Defined color scheme
       const backgroundColor = '#FFFFFF'
       const textColor = '#FFFFFF' 
       const secondaryTextColor = '#000000'
   
     /**
-     * Styling for the Degree Tracking page
+     * Styling for the Reporting Functionality page
      */
      const styles = {
          container: {
@@ -40,7 +40,7 @@ export default function AdvisingFunctionality() {
         <AdvisorNavBar/>
 
         {/* Title */}
-       <h2 style={styles.h2}>Advising Functionality</h2>
+       <h2 style={styles.h2}>Reporting Functionality</h2>
 
         {/* Divider line */}
         <div style={{ width: '100%', margin: '5px', height: '2px', backgroundColor: 'black' }}></div>
