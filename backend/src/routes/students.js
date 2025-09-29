@@ -7,6 +7,8 @@ const express = require('express');
 const router = express.Router();
 const StudentModel = require('../models/StudentModel');
 const AccessModel = require('../models/AccessModel');
+const DegreePlanModel = require('../models/DegreePlanModel');
+const CourseModel = require('../models/CourseModel');
 
 /**
  * Route: GET /students/:schoolId
@@ -37,6 +39,7 @@ router.get('/:schoolId', async (req, res) => {
         }
         if (userRoles.includes('advisor')) {
             const hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+
             if (hasAccess) {
                 return res.json(student);
             } else {
@@ -46,6 +49,60 @@ router.get('/:schoolId', async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching student:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+/**
+ * Route: GET /students/:schoolId/degree-plan
+ * Retrieves the degree plan and student info for a student by their school ID.
+ */
+router.get('/:schoolId/degree-plan', async (req, res) => {
+    const { schoolId } = req.params;
+    try {
+        // Expect req.user to be set by middleware (mock or real auth)
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const student = await StudentModel.getStudentBySchoolId(schoolId);
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        } else if (userRoles.includes('advisor')) {
+            hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        }
+
+        if (hasAccess) {
+            let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
+
+            // add prerequisites to each course in the degree plan
+            degreePlan = await Promise.all(
+                degreePlan.map(async (course) => {
+                    const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
+                    return {
+                        ...course,
+                        prerequisites
+                    };
+                })
+            );
+            return res.json({ student, degreePlan });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
+        }
+    } catch (error) {
+        console.error('Error fetching degree plan:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
