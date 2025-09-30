@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import logo from '../../assets/images/boise_state_wbg.png'
 
 /**
  * AdminNavBar component displays a top navigation bar for admin pages that  
@@ -16,7 +17,7 @@ export default function AdminNavBar({ title }) {
   return (
     <div style={styles.navbar}>
       <button onClick={() => navigate('/admin/dashboard')} style={styles.backButton}>←</button>
-      <h2 style={styles.title}>| {title}</h2>
+      <img src={logo} alt="BSU-Logo" style={styles.logo} />
     </div>
   )
 }
@@ -32,6 +33,7 @@ const styles = {
     padding: '10px 20px',
     backgroundColor: '#09347a',
     borderBottom: '2px solid #f1632a',
+    height: '40px',
   },
   backButton: {
     fontSize: '30px',
@@ -41,9 +43,11 @@ const styles = {
     border: 'none',
     color: '#FFFFFF',
   },
-  title: {
-    margin: 0,
-    color: '#FFFFFF',
-    fontSize: '22px',
+  logo: {
+    height: '45px',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    margin: '0 auto',
   },
 }

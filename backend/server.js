@@ -13,6 +13,7 @@ const app = express();
 
 // Import route handlers
 const studentRoutes = require('./src/routes/students');
+const courseRoutes = require('./src/routes/courses');
 
 // use port from environment or default to 3000
 const PORT = process.env.PORT || 3000;
@@ -49,6 +50,7 @@ app.get('/', (req, res) => {
 
 // mount routes
 app.use('/students', studentRoutes);
+app.use('/courses', courseRoutes);
 
 // Start server
 app.listen(PORT, () => {

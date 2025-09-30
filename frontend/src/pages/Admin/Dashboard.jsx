@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import logo from '../../assets/images/boise_state_wbg.png'
 
 /**
  * Dashboard component for the Admin role.
@@ -30,21 +31,23 @@ export default function Dashboard() {
         },
         navbar: {
             display: 'flex',
+            justifyContent: 'center',
             alignItems: 'center',
-            padding: '10px 20px',
+            padding: '5px 20px',
             backgroundColor: '#09347a',
             borderBottom: '2px solid #f1632a',
-            height: '35px',
+            height: '50px',
         },
-        title: {
-            margin: 0,
-            color: textColor,
+        h2: {
+            margin: '2px',
+            color: secondaryTextColor,
             fontSize: '22px',
-            marginLeft: '60px',
+            marginLeft: '10px',
+            fontFamily: 'Arial, sans-serif',
         },
         content: {
             display: 'flex',
-            padding: '2rem',
+            padding: '1rem',
             backgroundColor: 'transparent',
         },
         buttonRow: {
@@ -72,9 +75,15 @@ export default function Dashboard() {
 
     return (
         <div style={styles.container}>
+            {/* Navigation bar */}
             <div style={styles.navbar}>
-                <h2 style={styles.title}>Dashboard</h2>
+                <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px'}} />
             </div>
+
+            <h2 style={styles.h2}>Admin Homepage</h2>
+            <div style={{ width: '100%', height: '2px', backgroundColor: 'black' }}></div>
+
+            {/* Main Content */}
             <div style={styles.content}>
                 <div style={styles.buttonRow}>
                     <button style={styles.squareButton} onClick={() => navigate('/admin/courses')}>
