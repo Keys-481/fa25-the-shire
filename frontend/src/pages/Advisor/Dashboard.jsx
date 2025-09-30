@@ -89,7 +89,10 @@ export default function AdvisorDashboard() {
                     <button onClick={() => navigate('/')} style={styles.backButton}>←</button>
                 </div>  {/* remove or change to a log out button later*/}
 
-                <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px'}} />
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                    <img src={logo} alt="BSU-Logo" style={{ height: '45px' }} />
+                </div>
+                <div style={{ flex: 1 }}></div>
             </div>
 
             {/* Page Title */}
