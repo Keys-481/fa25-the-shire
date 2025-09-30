@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import logo from '../../assets/images/boise_state_wbg.png'
 
 /**
  * Dashboard component for the Admin role.
@@ -13,7 +14,7 @@ export default function Dashboard() {
 
     // Defined color scheme
     const backgroundColor = '#FFFFFF'
-    const textColor = '#FFFFFF' 
+    const textColor = '#FFFFFF'
     const secondaryTextColor = '#000000'
 
     /**
@@ -30,21 +31,23 @@ export default function Dashboard() {
         },
         navbar: {
             display: 'flex',
+            justifyContent: 'center',
             alignItems: 'center',
-            padding: '10px 20px',
+            padding: '5px 20px',
             backgroundColor: '#09347a',
             borderBottom: '2px solid #f1632a',
-            height: '35px',
+            height: '50px',
         },
-        title: {
-            margin: 0,
-            color: textColor,
+        h2: {
+            margin: '2px',
+            color: secondaryTextColor,
             fontSize: '22px',
-            marginLeft: '60px',
+            marginLeft: '10px',
+            fontFamily: 'Arial, sans-serif',
         },
         content: {
             display: 'flex',
-            padding: '2rem',
+            padding: '1rem',
             backgroundColor: 'transparent',
         },
         buttonRow: {
@@ -79,12 +82,25 @@ export default function Dashboard() {
     }
 
     return (
-        
+
         <div style={styles.container}>
+            {/* Navigation bar */}
             <div style={styles.navbar}>
-                <button onClick={() => navigate('/')} style={styles.backButton}>←</button> {/* remove or change to a log out button later*/}
-                <h2 style={styles.title}>Dashboard</h2>
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                    <button onClick={() => navigate('/')} style={styles.backButton}>←</button>
+                </div>  {/* remove or change to a log out button later*/}
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                    <img src={logo} alt="BSU-Logo" style={{ height: '45px' }} />
+                </div>
+                <div style={{ flex: 1 }}></div>
             </div>
+
+            <h2 style={styles.h2}>Admin Homepage</h2>
+            <div style={{ width: '100%', height: '2px', backgroundColor: 'black' }}></div>
+
+            {/* Main Content */}
             <div style={styles.content}>
                 <div style={styles.buttonRow}>
                     <button style={styles.squareButton} onClick={() => navigate('/admin/courses')}>
