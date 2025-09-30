@@ -7,6 +7,8 @@
  */
 
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+//login import
+import PlaceHolder_LogIn from '../pages/LogIn/PlaceHolder_LogIn'
 //admin imports
 import AdminCourses from '../pages/Admin/Courses'
 import AdminDashboard from '../pages/Admin/Dashboard'
@@ -22,12 +24,13 @@ import Advising from '../pages/Advisor/Advising'
 import AdvisorReportingFunctionality from '../pages/Advisor/ReportingFunctionality'
 import AdvisorSettings from '../pages/Advisor/Settings' 
 
+
 export default function AppRoutes() {
   return (
     <Router>
       <Routes>
         {/* Replace to navigate to the dashboard based on permissions */}
-        <Route path="/" element={<AdminDashboard />} />
+        <Route path="/" element={<PlaceHolder_LogIn />} />
 
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
