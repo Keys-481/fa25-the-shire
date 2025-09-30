@@ -14,7 +14,7 @@ export default function Dashboard() {
 
     // Defined color scheme
     const backgroundColor = '#FFFFFF'
-    const textColor = '#FFFFFF' 
+    const textColor = '#FFFFFF'
     const secondaryTextColor = '#000000'
 
     /**
@@ -82,12 +82,19 @@ export default function Dashboard() {
     }
 
     return (
-        
+
         <div style={styles.container}>
             {/* Navigation bar */}
             <div style={styles.navbar}>
-                <button onClick={() => navigate('/')} style={styles.backButton}>←</button> {/* remove or change to a log out button later*/}
-                <h2 style={styles.title}>Dashboard</h2>
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                    <button onClick={() => navigate('/')} style={styles.backButton}>←</button>
+                </div>  {/* remove or change to a log out button later*/}
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                    <img src={logo} alt="BSU-Logo" style={{ height: '45px' }} />
+                </div>
+                <div style={{ flex: 1 }}></div>
             </div>
 
             <h2 style={styles.h2}>Admin Homepage</h2>
