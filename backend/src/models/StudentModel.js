@@ -14,7 +14,17 @@ const pool = require('../db');
 async function getStudentBySchoolId(schoolStudentId) {
     try {
         const result = await pool.query(
-            'SELECT * FROM students WHERE school_student_id = $1',
+            `SELECT s.student_id,
+                    s.school_student_id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.phone_number,
+                    p.program_name
+            FROM students s
+            JOIN users u ON s.user_id = u.user_id
+            LEFT JOIN programs p ON s.program_id = p.program_id
+            WHERE s.school_student_id = $1`,
             [schoolStudentId]
         );
         return result.rows[0]; // returns the student object or undefined if not found

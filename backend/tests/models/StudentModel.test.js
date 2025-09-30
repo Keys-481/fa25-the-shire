@@ -1,6 +1,7 @@
 /**
  * File: backend/tests/models/StudentModel.test.js
  * Unit tests for StudentModel.js using Jest
+ * Tests assume certain values in seed data, if seed data changes, tests may need to be updated
  */
 
 const StudentModel = require('../../src/models/StudentModel');
@@ -29,6 +30,8 @@ describe('StudentModel', () => {
         const student = await StudentModel.getStudentBySchoolId(schoolId);
         expect(student).toBeDefined();
         expect(student.school_student_id).toBe(schoolId);
+        expect(student.first_name).toBe('Alice'); // should match seed data
+        expect(student.last_name).toBe('Johnson'); // should match seed data
     });
 
     // Test for getting student with invalid school ID

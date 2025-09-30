@@ -2,6 +2,7 @@
  * File: backend/tests/routes/students.test.js
  * Integration tests for student routes using Jest and Supertest
  * Test database should be set up and seeded before running these tests
+ * Tests assume certain values in seed data, if seed data changes, tests may need to be updated
  */
 
 const request = require('supertest');
@@ -9,6 +10,16 @@ const express = require('express');
 const { runSchemaAndSeeds } = require('../../db_setup');
 const pool = require('../../src/db');
 const studentRoutes = require('../../src/routes/students');
+
+// Reset and seed the database before each test
+    beforeAll(async () => {
+        await runSchemaAndSeeds();
+    });
+
+    // Close the database connection after all tests
+    afterAll(async () => {
+        await pool.end();
+    });
 
 /**
  * Helper function to create an Express app with mocked authentication
@@ -29,20 +40,11 @@ function makeAppWithUser(mockUser) {
     return app;
 }
 
-// Reset and seed the database before each test
-beforeAll(async () => {
-    await runSchemaAndSeeds();
-});
-
-// Close the database connection after all tests
-afterAll(async () => {
-    await pool.end();
-});
-
 /**
  * Tests for /students/:schoolId route
  */
 describe('GET /students/:schoolId', () => {
+
     // Test for admin user accessing a student user
     // admin user with user ID 1 should exist in seed data
     test('returns student for admin', async () => {
@@ -73,6 +75,68 @@ describe('GET /students/:schoolId', () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/students/invalid_id');
         expect(res.status).toBe(404);
+    });
+
+    // Test for invalid user (no user info)
+    test('returns 401 for no user info', async () => {  
+        const app = makeAppWithUser(null);
+        const res = await request(app).get('/students/112299690');
+        expect(res.status).toBe(401);
+    });
+});
+
+/**
+ * Tests for /students/:schoolId/degree-plan route
+ */
+describe('GET /students/:schoolId/degree-plan', () => {
+
+    // Test for admin user accessing a student's degree plan
+    test('admin can view any student\'s degree plan', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/112299690/degree-plan');
+        expect(res.status).toBe(200);
+        expect(res.body.student.school_student_id).toBe('112299690');
+        expect(res.body.student.first_name).toBe('Alice'); // should match seed data
+        expect(res.body.student.last_name).toBe('Johnson'); // should match seed data
+        expect(Array.isArray(res.body.degreePlan)).toBe(true);
+        expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+        const courseCodes = res.body.degreePlan.map(course => course.course_code);
+        expect(courseCodes).toContain('OPWL-536'); // should match seed data
+    });
+
+    // Test for advisor user accessing their assigned student's degree plan
+    test('advisor can view assigned student degree plan', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
+        const res = await request(app).get('/students/113601927/degree-plan');
+        expect(res.status).toBe(200);
+        expect(res.body.student.school_student_id).toBe('113601927');
+        expect(res.body.student.first_name).toBe('Bob'); // should match seed data
+        expect(res.body.student.last_name).toBe('Williams'); // should match seed data
+        expect(Array.isArray(res.body.degreePlan)).toBe(true);
+        expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+        const courseCodes = res.body.degreePlan.map(course => course.course_code);
+        expect(courseCodes).toContain('OPWL-536'); // should match seed data
+    });
+
+    // Test for advisor user accessing a student's degree plan they are not assigned to
+    test('returns 403 for advisor not assigned to student', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
+        const res = await request(app).get('/students/112299690/degree-plan');
+        expect(res.status).toBe(403);
+    });
+
+    // Test for user looking up a non-existent student's degree plan
+    test('returns 404 for non-existent student', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/invalid_id/degree-plan');
+        expect(res.status).toBe(404);
+    });
+
+    // Test for invalid user (no user info)
+    test('returns 401 for no user info', async () => {
+        const app = makeAppWithUser(null);
+        const res = await request(app).get('/students/112299690/degree-plan');
+        expect(res.status).toBe(401);
     });
 });
 
