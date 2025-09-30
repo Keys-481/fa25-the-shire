@@ -10,7 +10,7 @@ const pool = require('../db');
  * @param {string} name - The partial or full name of the course to search for.
  * @returns {Promise<Array>} A promise that resolves to an array of course objects matching the name.
  */
-async findByName(name) {
+async function findByName(name) {
   return pool.query(
     'SELECT course_id, course_name FROM courses WHERE course_name ILIKE $1',
     [`%${name}%`]
@@ -22,7 +22,7 @@ async findByName(name) {
  * @param {string} id - The partial or full course ID to search for.
  * @returns {Promise<Array>} A promise that resolves to an array of course objects matching the ID.
  */
-async findById(id) {
+async function findById(id) {
   return pool.query(
     'SELECT course_id, course_name FROM courses WHERE course_id ILIKE $1',
     [`%${id}%`]
@@ -35,7 +35,7 @@ async findById(id) {
  * @param {string} id - The partial or full course ID.
  * @returns {Promise<Array>} A promise that resolves to an array of course objects matching both criteria.
  */
-async findByNameAndId(name, id) {
+async function findByNameAndId(name, id) {
   return pool.query(
     'SELECT course_id, course_name FROM courses WHERE course_name ILIKE $1 AND course_id ILIKE $2',
     [`%${name}%`, `%${id}%`]
