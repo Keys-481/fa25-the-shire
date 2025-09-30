@@ -2,14 +2,12 @@ import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
 
 /**
- * Dashboard component for the Admin role.
- * Displays a top navigation bar and a grid of square buttons
- * that link to the different admin sections: Courses, Users, and Settings.
+ * Placeholder Login page
  *
  * @component
- * @returns {JSX.Element} A styled admin dashboard with navigation buttons
+ * @returns {JSX.Element} 
  */
-export default function Dashboard() {
+export default function PlaceHolder_LogIn() {
     const navigate = useNavigate()
 
     // Defined color scheme
@@ -18,7 +16,7 @@ export default function Dashboard() {
     const secondaryTextColor = '#000000'
 
     /**
-     * Inline styles for the Dashboard layout and elements.
+     * Styling for the Placeholder Login page
      */
     const styles = {
         container: {
@@ -40,9 +38,10 @@ export default function Dashboard() {
         },
         h2: {
             margin: '2px',
-            color: secondaryTextColor,
+            marginLeft: '100px',
+            color: '#000000',
             fontSize: '22px',
-            marginLeft: '10px',
+            marginLeft: '60px',
             fontFamily: 'Arial, sans-serif',
         },
         content: {
@@ -71,39 +70,36 @@ export default function Dashboard() {
             boxShadow: '0 8px 8px rgba(0, 0, 0, 0.1)',
             padding: '1rem',
         },
-        backButton: {
-            fontSize: '30px',
-            marginRight: '10px',
-            cursor: 'pointer',
-            background: 'none',
-            border: 'none',
-            color: '#FFFFFF',
-        },
     }
 
     return (
-        
         <div style={styles.container}>
             {/* Navigation bar */}
             <div style={styles.navbar}>
-                <button onClick={() => navigate('/')} style={styles.backButton}>←</button> {/* remove or change to a log out button later*/}
-                <h2 style={styles.title}>Dashboard</h2>
+                <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px'}} />
             </div>
 
-            <h2 style={styles.h2}>Admin Homepage</h2>
-            <div style={{ width: '100%', height: '2px', backgroundColor: 'black' }}></div>
+            {/* Page Title */}
+            <h2 style={styles.h2}>User Log In</h2>
 
-            {/* Main Content */}
+            {/* Divider line */}
+            <div style={{ width: '100%', margin: '5px', height: '2px', backgroundColor: 'black' }}></div>
+
+
+            {/*  Main Content Area with Navigation Buttons */}
             <div style={styles.content}>
                 <div style={styles.buttonRow}>
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/courses')}>
-                        Courses
+                    {/* Navigation Button */}
+                    <button style={styles.squareButton} onClick={() => navigate('/admin/dashboard')}>
+                        Administrator
                     </button>
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/users')}>
-                        Users
+                    {/* Navigation Button */}
+                    <button style={styles.squareButton} onClick={() => navigate('/advisor/dashboard')}>
+                        Advisor
                     </button>
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/settings')}>
-                        Settings
+                    {/* Settings Button */}
+                    <button style={styles.squareButton} onClick={() => navigate('/student/dashboard')}>
+                        Student
                     </button>
                 </div>
             </div>

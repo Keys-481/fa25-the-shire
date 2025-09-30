@@ -1,3 +1,4 @@
+[![CI](https://github.com/Keys-481/fa25-the-shire/actions/workflows/ci.yml/badge.svg)](https://github.com/Keys-481/fa25-the-shire/actions/workflows/ci.yml)
 # capstone-project: Graduate Advising Tool
 BSU CS481 Capstone project template
 
