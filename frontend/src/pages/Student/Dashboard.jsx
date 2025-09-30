@@ -70,12 +70,21 @@ export default function StudentDashboard() {
             boxShadow: '0 8px 8px rgba(0, 0, 0, 0.1)',
             padding: '1rem',
         },
+        backButton: {
+            fontSize: '30px',
+            marginLeft: '10px',
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+            color: '#FFFFFF',
+        },
     }
 
     return (
         <div style={styles.container}>
             {/* Navigation bar */}
             <div style={styles.navbar}>
+                <button onClick={() => navigate('/')} style={styles.backButton}>←</button> {/* remove or change to a log out button later*/}
                 <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px'}} />
             </div>
 
