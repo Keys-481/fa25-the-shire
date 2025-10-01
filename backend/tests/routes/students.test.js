@@ -41,6 +41,56 @@ function makeAppWithUser(mockUser) {
 }
 
 /**
+ * Tests for /students/search route
+ * Currently only supports search by school ID (q1)
+ */
+describe('GET /students/search', () => {
+
+    // Test searching for a student by school ID as an admin user
+    // admin user with user ID 1 should exist in seed data as admin
+    test('returns student for valid school ID as admin', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); 
+        const res = await request(app).get('/students/search').query({ q1: '112299690' });
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].id).toBe('112299690');
+        expect(res.body[0].name).toBe('Alice Johnson');
+    });
+
+    // Test searching for a student by school ID as an advisor assigned to that student
+    // advisor with user ID 3 should have access to student with school_student_id '113601927' in seed data
+    test('returns student for valid school ID as assigned advisor', async () => {
+        const app = makeAppWithUser({ user_id: 3 });
+        const res = await request(app).get('/students/search').query({ q1: '113601927' });
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].id).toBe('113601927');
+    });
+
+    // Test searching for a student by school ID as an advisor not assigned to that student
+    // advisor with user ID 3 does not have access to student with school_student_id '112299690' in seed data
+    test('returns 404 for valid school ID as unassigned advisor', async () => {
+        const app = makeAppWithUser({ user_id: 3 });
+        const res = await request(app).get('/students/search').query({ q1: '112299690' });
+        expect(res.status).toBe(404);
+    });
+
+    // Test searching for a non-existent student by school ID
+    test('returns 404 for non-existent school ID', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/search').query({ q1: 'invalid_id' });
+        expect(res.status).toBe(404);
+    });
+
+    // Test searching without providing a school ID
+    test('returns 400 for missing school ID', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/search').query({});
+        expect(res.status).toBe(400);
+    });
+});
+
+/**
  * Tests for /students/:schoolId route
  */
 describe('GET /students/:schoolId', () => {
