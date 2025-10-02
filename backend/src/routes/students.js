@@ -148,7 +148,7 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         if (hasAccess) {
             let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
 
-            // add prerequisites to each course in the degree plan
+            // add prerequisites and course offerings to each course in the degree plan
             degreePlan = await Promise.all(
                 degreePlan.map(async (course) => {
                     const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
@@ -160,7 +160,6 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     };
                 })
             );
-            console.log({student, degreePlan});
             return res.json({ student, degreePlan });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });

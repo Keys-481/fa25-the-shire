@@ -34,6 +34,7 @@ export default function DegreePlan({ student }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // helper function to group courses by semester
     const groupCoursesBySemester = (courses) => {
         if (!courses || courses.length === 0) return {};
         return courses.reduce((acc, course) => {
@@ -46,6 +47,8 @@ export default function DegreePlan({ student }) {
         }, {});
     }
 
+    // function to render the degree plan
+    // This function takes the degree plan data and returns the JSX to display it
     const renderDegreePlan = (planData) => {
         const courses = planData?.degreePlan;
 

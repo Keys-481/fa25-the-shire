@@ -63,6 +63,11 @@ async function getPrerequisitesForCourse(courseId) {
   }
 }
 
+/**
+ * Get the semesters in which a course is offered by its internal ID.
+ * @param courseId - the internal ID of the course
+ * @returns A promise that resolves to a string listing the semesters the course is offered.
+ */
 async function getCourseOfferings(courseId) {
   try {
     const result = await pool.query(
