@@ -9,8 +9,12 @@ import AdminNavBar from '../../components/NavBars/AdminNavBar'
 export default function AdminSettings() {
   return (
     <div>
-      <AdminNavBar title="Settings" />
-      <p>Welcome to the Settings page!</p>
+      <AdminNavBar/>
+      <div className='window'>
+      <div className='title-bar'>
+        <h1>Settings</h1>
+      </div>
+      </div>
     </div>
   )
 }

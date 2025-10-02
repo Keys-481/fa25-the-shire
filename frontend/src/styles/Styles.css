@@ -1,0 +1,267 @@
+/* Constant Style Settings */
+:root {
+  --background: #FFFFFF;
+  --main: #000000;
+  --accent: #09347a;
+}
+
+/************************/
+/*     Class Styles     */
+/************************/
+
+/*** Container Layouts ***/
+
+/* Area includes everything but NavBar */
+.window { 
+  background-color: var(--background);
+  min-height: calc(100% - 60px);
+  width: 100%;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+/* Area is in window below NavBar */
+.title-bar {
+  background-color: transparent;
+  min-height: 30px;
+  width: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px solid #000000 ;
+}
+
+/* Area is in window below title bar */
+.container { 
+  background-color: transparent;
+  height: calc(100% - 32px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 32px;
+  left: 0px;
+}
+
+/* Area is within container on left side */
+.side-panel { 
+  background-color: transparent;
+  height: 100%;
+  width: 20%;
+  top: 0px;
+  left: 0px;
+  border-right: 2px solid black;
+}
+
+/* Area is within side-panel and below SearchBar */
+.side-panel-results {
+  height: calc(100% - 110px);
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  border-right: 2px solid black;
+  margin-top: 10px;
+}
+
+/* In container next to side-bar */
+.section-results {
+  background-color: transparent;
+  width: calc(80% - 2px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  left: calc(20% + 2px); /* Adjust based on sidebar width */
+  top: 0px;
+}
+
+/* In container section-results */
+.section-results-side {
+  background-color: transparent;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.dashboard-container {
+  display: flex;
+  padding: 1rem;
+}
+
+/*** Object Layouts ***/
+
+.textbox-row {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  width: 60%;
+  position: relative;
+  left: 15px;
+  margin-top: 10px;
+}
+
+.textbox {
+  padding: 6px 12px;
+  border: 2px solid var(--main);
+  border-radius: 5px;
+  font-size: 14px;
+  width: 300px;
+  margin-left: 10px;
+}
+
+.horizontal-line-half {
+  position: absolute;
+  width: 20%;
+  height: 2px;
+  background-color: var(--main);
+  margin-top: 5px;
+  left: 0;
+  margin-bottom: 5px;
+}
+
+.horizontal-line {
+  position: relative;
+  width: 60vw;
+  height: 2px;
+  background-color: var(--main);
+  margin-bottom: 50px;
+  left: 15px;
+}
+
+.h2-row {
+  display: flex;
+  align-items: center;
+  width: 60vw;
+  position: relative;
+  left: 15px;
+  margin-top: 20px;
+}
+
+.h2-column {
+  /* display: flex; */
+  align-items: center;
+  width: 60vw;
+  position: relative;
+  left: 15px;
+  margin-top: 20px;
+}
+
+.layout {
+  width: 150px;
+}
+
+.subtext {
+  height: 10px;
+  color: var(--accent);
+}
+
+.inline-row {
+  display: flex;
+  align-items: center;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.square-button {
+  width: 200px;
+  height: 200px;
+  background-color: var(--background);
+  color: var(--main);
+  border: 1px solid var(--main);
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  padding: 1rem;
+  box-shadow: none;
+}
+
+.square-button:hover {
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2); /* Right and bottom shadow */
+}
+
+/** NavBar Styles **/
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: #09347a;
+  border-bottom: 2px solid #f1632a;
+  height: 60px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+}
+
+.back-button {
+  font-size: 30px;
+  margin-right: 10px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #FFFFFF;
+}
+
+.logo {
+  height: 45px;
+  max-width: 100%;
+}
+
+/************************/
+/*    Element Styles    */
+/************************/
+
+h1 {
+  margin: 2px;
+  color: var(--main);
+  font-size: 22px;
+  margin-left: 10px;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  margin: 2px;
+  color: var(--main);
+  font-size: 18px;
+  margin-left: 5px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  position: relative;
+  width: 60%;
+}
+
+p {
+  margin: 2px;
+  color: var(--main);
+  font-size: 15px;
+  margin-left: 10px;
+  font-family: Arial, sans-serif;
+}
+
+button {
+  padding: 6px 12px;
+  background-color: var(--accent);
+  color: var(--background);
+  border: 2px solid var(--main);
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 5px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
