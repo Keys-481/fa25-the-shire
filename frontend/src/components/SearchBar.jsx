@@ -18,6 +18,11 @@ export default function SearchBar({ onSearch, searchEndpoint, placeholder1, plac
     const endpoint = `${searchEndpoint}?${params.toString()}`
     try {
       const response = await fetch(endpoint)
+
+      if (!response.ok) {
+        console.error(`Search failed with status: ${response.status} ${response.statusText}`)
+        throw new Error(`HTTP Error: ${response.status}`)
+      }
       const data = await response.json()
       if (onSearch) onSearch(data)
     } catch (error) {

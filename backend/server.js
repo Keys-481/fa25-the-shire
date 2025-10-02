@@ -9,6 +9,7 @@ require('dotenv').config({path: '../.env'});
 // Import necessary modules
 const express = require('express');
 const pool = require('./src/db');
+const cors = require('cors');
 const app = express();
 
 // Import route handlers
@@ -42,6 +43,9 @@ async function checkDbConnection() {
 // Middleware to parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Enable CORS for all routes (to allow requests from frontend for development)
+app.use(cors());
 
 // Basic route
 app.get('/', (req, res) => {
