@@ -6,6 +6,7 @@
 
 import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar"
 import SearchBar from "../../components/SearchBar"
+import DegreePlan from "../../components/DegreePlan"
 import { useState } from "react"
 
 /**
@@ -24,10 +25,18 @@ export default function Advising() {
   const [results, setResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
+  // state to hold selected student
+  const [selectedStudent, setSelectedStudent] = useState(null);
+
   // Handle search results from SearchBar component
   const handleSearchResults = (results) => {
     setResults(results);
     setHasSearched(true);
+  }
+
+  // Handle click on studnet from results list
+  const handleStudentSelect = (student) => {
+    setSelectedStudent(student);
   }
 
   const searchStudentEndpoint = '/students/search';
@@ -120,7 +129,13 @@ export default function Advising() {
     return (
       <ul style={styles.resultsList}>
         {results.map((student, index) => (
-          <li key={index} style={styles.resultItem}>
+          <li key={index}
+              style={{
+                ...styles.resultItem,
+                cursor: 'pointer',
+                backgroundColor: selectedStudent?.id === student.id ? '#D3D3D3' : '#f9f9f9',
+              }} onClick={() => handleStudentSelect(student)}
+>
             <strong>{student.name}</strong> <br />
             {student.id}
           </li>
@@ -162,7 +177,11 @@ export default function Advising() {
 
       {/* Right panel for future implementation */}
       <div style={styles.rightPanel}>
-        <p style={{ color: "black", marginTop: "20px" }}>Student Details</p>
+        {selectedStudent ? (
+          <DegreePlan student={selectedStudent} />
+        ) : (
+          <p style={{ marginTop: "20px" }}> No student selected</p>
+        )}
       </div>
   </div>
 </div>
