@@ -11,11 +11,6 @@ import SearchBar from '../../components/SearchBar'
  * @returns {JSX.Element} A simple admin view for managing or viewing users
  */
 export default function AdminUsers() {
-  // Defined color scheme
-  const backgroundColor = '#FFFFFF'
-  const mainColor = '#000000'
-  const accentColor = '#09347a'
-
   const [results, setResults] = useState([])
   const [addingUserPrivilege, setAddingUserPrivilege] = useState(null)
   const [privilegeType, setPrivilegeType] = useState(null)

@@ -24,37 +24,3 @@ export default function AdminNavBar() {
     </div>
   )
 }
-
-/**
- * Inline styles for the AdminNavBar component.
- * Includes styling for the navbar container, back button, and title.
- */
-const styles = {
-  navbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '10px 20px',
-    backgroundColor: '#09347a',
-    borderBottom: '2px solid #f1632a',
-    height: '60px', 
-    width: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    boxSizing: 'border-box',
-  },
-  backButton: {
-    fontSize: '30px',
-    marginRight: '10px',
-    cursor: 'pointer',
-    background: 'none',
-    border: 'none',
-    color: '#FFFFFF',
-  },
-  logo: {
-    height: '45px',
-    maxWidth: '100%',
-  }
-
-}
