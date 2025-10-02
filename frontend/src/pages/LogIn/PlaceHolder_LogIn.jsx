@@ -11,7 +11,7 @@ import '../../styles/Styles.css'
 export default function PlaceHolder_LogIn() {
     const navigate = useNavigate()
     return (
-        <div>
+        <div className='page-wrapper'>
             {/* Navigation bar */}
             <div className='navbar'>
                 <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px' }} />
