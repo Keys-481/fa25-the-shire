@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
+import '../../styles/Styles.css'
 
 /**
  * Dashboard component for the Admin role.
@@ -31,12 +32,29 @@ export default function Dashboard() {
         },
         navbar: {
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            padding: '5px 20px',
+            justifyContent: 'center',
+            padding: '10px 20px',
             backgroundColor: '#09347a',
             borderBottom: '2px solid #f1632a',
-            height: '50px',
+            height: '60px',
+            width: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            boxSizing: 'border-box',
+        },
+        backButton: {
+            fontSize: '30px',
+            marginRight: '10px',
+            cursor: 'pointer',
+            background: 'none',
+            border: 'none',
+            color: '#FFFFFF',
+        },
+        logo: {
+            height: '45px',
+            maxWidth: '100%',
         },
         h2: {
             margin: '2px',
@@ -70,48 +88,38 @@ export default function Dashboard() {
             transition: 'transform 0.2s ease',
             boxShadow: '0 8px 8px rgba(0, 0, 0, 0.1)',
             padding: '1rem',
-        },
-        backButton: {
-            fontSize: '30px',
-            marginRight: '10px',
-            cursor: 'pointer',
-            background: 'none',
-            border: 'none',
-            color: '#FFFFFF',
-        },
+        }
     }
 
     return (
-
-        <div style={styles.container}>
+        <div>
             {/* Navigation bar */}
-            <div style={styles.navbar}>
-
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-                    <button onClick={() => navigate('/')} style={styles.backButton}>←</button>
+            <div className='navbar'>
+                <div style={{ position: 'absolute', left: '20px' }}>
+                    <button onClick={() => navigate('/')} className='back-button'>←</button>
                 </div>  {/* remove or change to a log out button later*/}
-
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                    <img src={logo} alt="BSU-Logo" style={{ height: '45px' }} />
-                </div>
-                <div style={{ flex: 1 }}></div>
+                <img src={logo} alt="BSU-Logo" className='logo' />
             </div>
 
-            <h2 style={styles.h2}>Admin Homepage</h2>
-            <div style={{ width: '100%', height: '2px', backgroundColor: 'black' }}></div>
-
             {/* Main Content */}
-            <div style={styles.content}>
-                <div style={styles.buttonRow}>
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/courses')}>
-                        Courses
-                    </button>
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/users')}>
-                        Users
-                    </button>
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/settings')}>
-                        Settings
-                    </button>
+            <div className='window'>
+                <div className='title-bar'>
+                    <h1>Admin Homepage</h1>
+                </div>
+                <div className='container'>
+                    <div className='dashboard-container'>
+                        <div className='button-row'>
+                            <button className='square-button' onClick={() => navigate('/admin/courses')}>
+                                Courses
+                            </button>
+                            <button className='square-button' onClick={() => navigate('/admin/users')}>
+                                Users
+                            </button>
+                            <button className='square-button' onClick={() => navigate('/admin/settings')}>
+                                Settings
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

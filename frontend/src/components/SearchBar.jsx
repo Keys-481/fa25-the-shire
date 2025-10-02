@@ -36,7 +36,7 @@ export default function SearchBar({ onSearch, searchEndpoint, placeholder1, plac
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '18vw' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '18vw'}}>
       <input
         type="text"
         placeholder={placeholder1}
@@ -70,4 +70,5 @@ const inputStyle = {
   backgroundColor: backgroundColor,
   color: accentColor,
   marginTop: '5px',
+  marginLeft: '10px'
 }
