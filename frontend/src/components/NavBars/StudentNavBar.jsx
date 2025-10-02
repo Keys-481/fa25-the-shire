@@ -1,53 +1,24 @@
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
+import '../../styles/Styles.css'
 
-export default function StudentNavBar({ title }) {
+/**
+ * StudentNavBar component renders the navigation bar for student users.
+ * It includes a back button that navigates to the student dashboard and displays the BSU logo.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered student navigation bar.
+ */
+export default function StudentNavBar() {
   const navigate = useNavigate()
 
   {/* Display the Student navigation bar */}
   return (
-    <div style={styles.navbar}>
-      <button onClick={() => navigate('/student/dashboard')} style={styles.backButton}>
-        ←
-      </button>
-      <h2 style={styles.title}>{title}</h2>
-      <img src={logo} alt="BSU-Logo" style={styles.logo} />
+    <div className='navbar'>
+      <div style={{ position: 'absolute', left: '20px' }}>
+        <button onClick={() => navigate('/student/dashboard')} className='back-button'>←</button>
+      </div>
+      <img src={logo} alt="BSU-Logo" className='logo'/>
     </div>
   )
-}
-/**
- * Styling for the Student Navigation Bar
- */
-const styles = {
-  navbar: {
-    position: 'relative', 
-    display: 'flex',
-    alignItems: 'center',
-    padding: '10px 20px',
-    backgroundColor: '#09347a',
-    borderBottom: '2px solid #f1632a',
-    height: '40px',  
-  },
-  backButton: {
-    fontSize: '30px',
-    cursor: 'pointer',
-    background: 'none',
-    border: 'none',
-    color: '#FFFFFF',
-    marginRight: '10px',
-  },
-  title: {
-    margin: 0,
-    color: '#FFFFFF',
-    fontSize: '22px',
-    fontfontWeight: 'bold',
-  },
-  logo: {
-    height: '45px',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    margin: '0 auto',  
-}
-
 }

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
+import '../../styles/Styles.css'
 
 /**
  * Placeholder Login page
@@ -9,98 +10,36 @@ import logo from '../../assets/images/boise_state_wbg.png'
  */
 export default function PlaceHolder_LogIn() {
     const navigate = useNavigate()
-
-    // Defined color scheme
-    const backgroundColor = '#FFFFFF'
-    const textColor = '#FFFFFF' 
-    const secondaryTextColor = '#000000'
-
-    /**
-     * Styling for the Placeholder Login page
-     */
-    const styles = {
-        container: {
-            backgroundColor: backgroundColor,
-            color: textColor,
-            minHeight: '100%',
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-        },
-        navbar: {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '5px 20px',
-            backgroundColor: '#09347a',
-            borderBottom: '2px solid #f1632a',
-            height: '50px',
-        },
-        h2: {
-            margin: '2px',
-            marginLeft: '100px',
-            color: '#000000',
-            fontSize: '22px',
-            marginLeft: '60px',
-            fontFamily: 'Arial, sans-serif',
-        },
-        content: {
-            display: 'flex',
-            padding: '1rem',
-            backgroundColor: 'transparent',
-        },
-        buttonRow: {
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '2rem',
-        },
-        squareButton: {
-            width: '200px',
-            height: '200px',
-            backgroundColor: backgroundColor,
-            color: secondaryTextColor,
-            border: '1px solid ' + secondaryTextColor,
-            borderRadius: '8px',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            display: 'flex',
-            justifyContent: 'center',
-            transition: 'transform 0.2s ease',
-            boxShadow: '0 8px 8px rgba(0, 0, 0, 0.1)',
-            padding: '1rem',
-        },
-    }
-
     return (
-        <div style={styles.container}>
+        <div>
             {/* Navigation bar */}
-            <div style={styles.navbar}>
-                <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px'}} />
+            <div className='navbar'>
+                <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px' }} />
             </div>
 
-            {/* Page Title */}
-            <h2 style={styles.h2}>User Log In</h2>
-
-            {/* Divider line */}
-            <div style={{ width: '100%', margin: '5px', height: '2px', backgroundColor: 'black' }}></div>
-
-
-            {/*  Main Content Area with Navigation Buttons */}
-            <div style={styles.content}>
-                <div style={styles.buttonRow}>
-                    {/* Navigation Button */}
-                    <button style={styles.squareButton} onClick={() => navigate('/admin/dashboard')}>
-                        Administrator
-                    </button>
-                    {/* Navigation Button */}
-                    <button style={styles.squareButton} onClick={() => navigate('/advisor/dashboard')}>
-                        Advisor
-                    </button>
-                    {/* Settings Button */}
-                    <button style={styles.squareButton} onClick={() => navigate('/student/dashboard')}>
-                        Student
-                    </button>
+            <div className='window'>
+                {/* Page Title */}
+                <div className='title-bar'>
+                    <h1>User Log In</h1>
+                </div>
+                <div className='container'>
+                    {/*  Main Content Area with Navigation Buttons */}
+                    <div className='dashboard-container'>
+                        <div className='button-row'>
+                            {/* Navigation Button */}
+                            <button className='square-button' onClick={() => navigate('/admin/dashboard')}>
+                                Administrator
+                            </button>
+                            {/* Navigation Button */}
+                            <button className='square-button' onClick={() => navigate('/advisor/dashboard')}>
+                                Advisor
+                            </button>
+                            {/* Settings Button */}
+                            <button className='square-button' onClick={() => navigate('/student/dashboard')}>
+                                Student
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
