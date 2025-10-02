@@ -35,7 +35,7 @@ export default function DegreePlan({ student }) {
     const [error, setError] = useState(null);
 
     const groupCoursesBySemester = (courses) => {
-        if (!courses || course.length === 0) return {};
+        if (!courses || courses.length === 0) return {};
         return courses.reduce((acc, course) => {
             const semesterKey = course.semester_name || 'Unscheduled Courses';
             if (!acc[semesterKey]) {
@@ -49,7 +49,7 @@ export default function DegreePlan({ student }) {
     const renderDegreePlan = (planData) => {
         const courses = planData?.degreePlan;
 
-        if (!courses?.degreePlan?.length) {
+        if (!courses?.degreePlan?.length == 0) {
             return <p>No courses found in degree plan.</p>;
         }
 
@@ -82,7 +82,7 @@ export default function DegreePlan({ student }) {
                                         <td>{course.course_name}</td>
                                         <td>N/A</td>
                                         <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
-                                        <td>{course.offered_semesters && course.offered_semesters.length > 0 ? course.offered_semesters.map(os => os.semester_type).join(', ') : 'N/A'}</td>
+                                        <td>{course.offered_semesters || 'N/A'}</td>
                                         <td>{course.credits}</td>
                                     </tr>
                                 ))} 
