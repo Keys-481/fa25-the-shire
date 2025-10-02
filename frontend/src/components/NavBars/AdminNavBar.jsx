@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
+import '../../styles/Styles.css'
 
 /**
  * AdminNavBar component displays a top navigation bar for admin pages that  
@@ -11,13 +12,15 @@ import logo from '../../assets/images/boise_state_wbg.png'
  * @param {string} props.title - The title to display in the navigation bar
  * @returns {JSX.Element} A styled navigation bar with a back button and title
  */
-export default function AdminNavBar({ title }) {
+export default function AdminNavBar() {
   const navigate = useNavigate()
 
   return (
-    <div style={styles.navbar}>
-      <button onClick={() => navigate('/admin/dashboard')} style={styles.backButton}>←</button>
-      <img src={logo} alt="BSU-Logo" style={styles.logo} />
+    <div className='navbar'>
+      <div style={{ position: 'absolute', left: '20px' }}>
+        <button onClick={() => navigate('/admin/dashboard')} className='back-button'>←</button>
+      </div>
+      <img src={logo} alt="BSU-Logo" className='logo'/>
     </div>
   )
 }
@@ -30,10 +33,16 @@ const styles = {
   navbar: {
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     padding: '10px 20px',
     backgroundColor: '#09347a',
     borderBottom: '2px solid #f1632a',
-    height: '40px',
+    height: '60px', 
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    boxSizing: 'border-box',
   },
   backButton: {
     fontSize: '30px',
@@ -45,9 +54,7 @@ const styles = {
   },
   logo: {
     height: '45px',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    margin: '0 auto',
-  },
+    maxWidth: '100%',
+  }
+
 }

@@ -33,14 +33,8 @@ export default function AdminPersonSearch({ onResults }) {
       value={query}
       onChange={(e) => setQuery(e.target.value)}
       onKeyDown={handleKeyDown}
-      style={{
-        padding: '10px',
-        fontSize: '15px',
-        width: '300px',
-        borderRadius: '4px',
-        border: '1px solid #000',
-        margin: '10px 0',
-      }}
+      className='textbox'
+      style={{ marginBottom: '5px' }}
     />
   )
 }
