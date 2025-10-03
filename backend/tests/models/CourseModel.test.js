@@ -50,4 +50,16 @@ describe('CourseModel', () => {
         expect(Array.isArray(prerequisites)).toBe(true);
         expect(prerequisites.length).toBe(0);
     });
+
+    // Test for getting course offerings for a valid course ID
+    test('getCourseOfferings returns offerings if exists', async () => {
+        const courseId = 1;
+        const offerings = await CourseModel.getCourseOfferings(courseId);
+        expect(offerings).toBeDefined();
+        // model should return a string of semester types (e.g. "F, SP")
+        expect(typeof offerings).toBe('string');
+        expect(offerings.length).toBeGreaterThan(0);
+    });
+
+
 });

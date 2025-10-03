@@ -48,19 +48,40 @@ async function findByNameAndId(name, id) {
  * @returns A promise that resolves to an array of prerequisite course objects for the given course ID.
  */
 async function getPrerequisitesForCourse(courseId) {
-    try {
-        const result = await pool.query(
-            `SELECT prereq.course_id, prereq.course_code, prereq.course_name, prereq.credits
-            FROM course_prerequisites cp
-            JOIN courses prereq ON cp.prerequisite_course_id = prereq.course_id
-            WHERE cp.course_id = $1`,
-            [courseId]
-        );
-        return result.rows;
-    } catch (error) {
-        console.error('Error fetching prerequisites:', error);
-        throw error;
-    }
+  try {
+    const result = await pool.query(
+        `SELECT prereq.course_id, prereq.course_code, prereq.course_name, prereq.credits
+        FROM course_prerequisites cp
+        JOIN courses prereq ON cp.prerequisite_course_id = prereq.course_id
+        WHERE cp.course_id = $1`,
+        [courseId]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching prerequisites:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get the semesters in which a course is offered by its internal ID.
+ * @param courseId - the internal ID of the course
+ * @returns A promise that resolves to a string listing the semesters the course is offered.
+ */
+async function getCourseOfferings(courseId) {
+  try {
+    const result = await pool.query(
+        `SELECT semester_type
+        FROM course_offerings
+        WHERE course_id = $1`,
+        [courseId]
+    );
+    const offerings = result.rows.map(row => row.semester_type).join(', ');
+    return offerings;
+  } catch (error) {
+    console.error('Error fetching course offerings:', error);
+    throw error;
+  }
 }
 
 module.exports = {
@@ -68,4 +89,5 @@ module.exports = {
   findById,
   findByNameAndId,
   getPrerequisitesForCourse,
+  getCourseOfferings,
 };

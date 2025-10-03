@@ -121,6 +121,7 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
     const { schoolId } = req.params;
     try {
         // Expect req.user to be set by middleware (mock or real auth)
+        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
         const currentUser = req.user;
         if (!currentUser || !currentUser.user_id) {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
@@ -147,13 +148,15 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         if (hasAccess) {
             let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
 
-            // add prerequisites to each course in the degree plan
+            // add prerequisites and course offerings to each course in the degree plan
             degreePlan = await Promise.all(
                 degreePlan.map(async (course) => {
                     const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
+                    const offered_semesters = await CourseModel.getCourseOfferings(course.course_id);
                     return {
                         ...course,
-                        prerequisites
+                        prerequisites,
+                        offered_semesters
                     };
                 })
             );

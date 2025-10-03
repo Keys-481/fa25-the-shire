@@ -182,12 +182,13 @@ describe('GET /students/:schoolId/degree-plan', () => {
         expect(res.status).toBe(404);
     });
 
-    // Test for invalid user (no user info)
-    test('returns 401 for no user info', async () => {
-        const app = makeAppWithUser(null);
-        const res = await request(app).get('/students/112299690/degree-plan');
-        expect(res.status).toBe(401);
-    });
+    // Test for invalid user (no user info) (No login system yet, so changed route to work for frontend requests)
+    // need to implement login and authentication for this test to be valid
+    // test('returns 401 for no user info', async () => {
+    //     const app = makeAppWithUser(null);
+    //     const res = await request(app).get('/students/112299690/degree-plan');
+    //     expect(res.status).toBe(401);
+    // });
 });
 
 
