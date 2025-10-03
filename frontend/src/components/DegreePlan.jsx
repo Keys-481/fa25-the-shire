@@ -9,24 +9,6 @@ import { useEffect, useState } from "react";
  * DegreePlan component displays the degree plan for a specific student.
  */
 export default function DegreePlan({ student }) {
-
-    // CSS styles
-    const styles = {
-        headerRow: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '10px',
-        },
-        label: {
-            fontWeight: 'bold',
-            marginRight: '5px',
-        },
-        detailText: {
-            margin: '5px 0',
-        },
-    }
-
     const base_url = '/students';
 
     // state to hold degree plan data, loading, and error states
@@ -60,37 +42,40 @@ export default function DegreePlan({ student }) {
         const sortedSemesters = Object.keys(groupedPlan).sort();
 
         return (
-            <div className="course-plan-details" style={{ marginTop: '20px' }}>
+            <div>
                 {sortedSemesters.map((semester) => (
-                    <div key={semester} className="semester-group">
+                    <div key={semester} className="semester-section">
                         {/* Semester Header */}
                         <h4>{semester}</h4>
+                        <div className="table-horizontal-line"> </div>
 
                         { /* Courses List in Semester (Table format) */}
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Course Code</th>
-                                    <th>Course Title</th>
-                                    <th>Certificate Overlap</th>
-                                    <th>Prerequisites</th>
-                                    <th>Offered</th>
-                                    <th>Credits</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {groupedPlan[semester].map((course) => (
-                                    <tr key={course.course_id}>
-                                        <td><strong>{course.course_code}</strong></td>
-                                        <td>{course.course_name}</td>
-                                        <td>N/A</td>
-                                        <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
-                                        <td>{course.offered_semesters || 'N/A'}</td>
-                                        <td>{course.credits}</td>
+                        <div className="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Title</th>
+                                        <th>Certificate Overlap</th>
+                                        <th>Prerequisites</th>
+                                        <th>Offered</th>
+                                        <th>Credits</th>
                                     </tr>
-                                ))} 
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {groupedPlan[semester].map((course) => (
+                                        <tr key={course.course_id}>
+                                            <td><strong>{course.course_code}</strong></td>
+                                            <td>{course.course_name}</td>
+                                            <td>N/A</td>
+                                            <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
+                                            <td>{course.offered_semesters || 'N/A'}</td>
+                                            <td>{course.credits}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -134,7 +119,7 @@ export default function DegreePlan({ student }) {
     }
 
     if (error) {
-        return <p style={{ color: 'red' }}>Error: {error}</p>;
+        return <p className="error-message">Error: {error}</p>;
     }
 
     if (!planData?.degreePlan?.length) {
@@ -147,26 +132,26 @@ export default function DegreePlan({ student }) {
     return (
         <div className="degree-plan-container">
             {/* Student Info Section */}
-            <div className="student-details" style={{color: 'black', borderBottom: '1px solid gray', paddingBottom: '10px' }}>
-                <div style={styles.headerRow}>
-                    <h3 style={{margin: 0}}>
-                        <span style={styles.label}>Name:</span> {name}
+            <div className="degree-plan-header">
+                <div className="header-row">
+                    <h3>
+                        <span>Name:</span> {name}
                     </h3>
-                    <h3 style={{margin: 0}}>
-                        <span style={styles.label}>ID:</span> {id}
+                    <h3>
+                        <span>ID:</span> {id}
                     </h3>
                 </div>
-                <p style={styles.detailText}>
-                    <span style={styles.label}>Email:</span> {email}
-                    <span style={{ margin: '0 15px' }}>|</span>
-                    <span style={styles.label}>Phone:</span> {phone}
+                <p>
+                    <span>Email:</span> {email}
+                    <span className="degree-plan-content">|</span>
+                    <span>Phone:</span> {phone}
                 </p>
-                <p style={styles.detailText}><span style={styles.label}>Program:</span> {program}</p>
+                <p><span>Program:</span> {program}</p>
 
             </div>
 
             {/* Degree Plan Section */}
-            <div className="degree-plan-section" style={{ color: 'black', marginTop: '15px' }}>
+            <div className="degree-plan-content">
                 {renderDegreePlan(planData)}
             </div>
         </div>

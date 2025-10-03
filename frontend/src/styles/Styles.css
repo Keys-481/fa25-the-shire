@@ -3,6 +3,7 @@
   --background: #FFFFFF;
   --main: #000000;
   --accent: #09347a;
+  --secondary: #808080;
 }
 
 
@@ -22,7 +23,7 @@
 }
 
 /* Area includes everything but NavBar */
-.window { 
+.window {
   background-color: var(--background);
   min-height: calc(100% - 60px);
   width: 100%;
@@ -43,11 +44,11 @@
   left: 0px;
   display: flex;
   flex-direction: column;
-  border-bottom: 2px solid #000000 ;
+  border-bottom: 2px solid var(--main);
 }
 
 /* Area is in window below title bar */
-.container { 
+.container {
   background-color: transparent;
   height: calc(100% - 32px);
   width: 100%;
@@ -59,23 +60,23 @@
 }
 
 /* Area is within container on left side */
-.side-panel { 
+.side-panel {
   background-color: transparent;
   height: 100%;
   width: 20%;
   top: 0px;
   left: 0px;
-  border-right: 2px solid black;
+  border-right: 2px solid var(--main);
 }
 
 /* Area is within side-panel and below SearchBar */
 .side-panel-results {
-  height: calc(100% - 110px);
   width: 100%;
   top: 0px;
   left: 0px;
-  border-right: 2px solid black;
+  border-right: 2px solid var(--main);
   margin-top: 10px;
+  overflow-y:auto;
 }
 
 /* In container next to side-bar */
@@ -86,7 +87,8 @@
   display: flex;
   flex-direction: column;
   position: absolute;
-  left: calc(20% + 2px); /* Adjust based on sidebar width */
+  left: calc(20% + 2px);
+  /* Adjust based on sidebar width */
   top: 0px;
 }
 
@@ -96,11 +98,21 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
+  overflow-y: auto;
 }
 
 .dashboard-container {
   display: flex;
   padding: 1rem;
+}
+
+.table-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.semester-section {
+  margin-bottom: 50px;
 }
 
 /*** Object Layouts ***/
@@ -143,6 +155,13 @@
   left: 15px;
 }
 
+.table-horizontal-line {
+  position: relative;
+  width: 90%;
+  height: 1px;
+  background-color: var(--main);
+}
+
 .h2-row {
   display: flex;
   align-items: center;
@@ -153,12 +172,56 @@
 }
 
 .h2-column {
-  /* display: flex; */
   align-items: center;
   width: 60vw;
   position: relative;
   left: 15px;
   margin-top: 20px;
+}
+
+.header-row{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px;
+}
+
+.degree-plan-header {
+  border-bottom: 1px solid var(--secondary);
+  padding-bottom: 10px;
+}
+
+.degree-plan-content {
+  margin: 15px;
+}
+
+.error-message {
+  color: red;
+}
+
+
+.results-list {
+  list-style-type: none;
+  padding-left: 0;
+  padding-right: 0;
+  color: var(--accent);
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.result-item {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 0 auto 10px auto;
+  cursor: pointer;
+}
+
+.result-item.selected {
+  background-color: var(--accent);
+  color: var(--background);
 }
 
 .layout {
@@ -199,7 +262,8 @@
 }
 
 .square-button:hover {
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2); /* Right and bottom shadow */
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+  /* Right and bottom shadow */
 }
 
 /** NavBar Styles **/
@@ -263,6 +327,14 @@ p {
   font-family: Arial, sans-serif;
 }
 
+.p2 {
+  color: var(--main);
+  font-size: 15px;
+  margin: 10px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+}
+
 button {
   padding: 6px 12px;
   background-color: var(--accent);
@@ -274,4 +346,20 @@ button {
   margin-bottom: 5px;
   margin-right: 10px;
   margin-left: 10px;
+}
+
+span {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+table {
+  width: 90%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 8px;
+  text-align: left;
+  width: 16.6%
 }
