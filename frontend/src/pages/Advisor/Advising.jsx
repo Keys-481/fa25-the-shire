@@ -69,6 +69,11 @@ export default function Advising() {
           <h1>Advising</h1>
         </div>
 
+        <div className="advising-tabs">
+          {/* Advising Tabs Navigation Bar */}
+          <AdvisorNavBar />
+        </div>
+
         <div className="container">
           <div className="side-panel">
             {/* Search Section */}
