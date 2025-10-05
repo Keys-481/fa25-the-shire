@@ -26,17 +26,21 @@ export default function PlaceHolder_LogIn() {
                     {/*  Main Content Area with Navigation Buttons */}
                     <div className='dashboard-container'>
                         <div className='button-row'>
-                            {/* Navigation Button */}
+                            {/* Administrator Button */}
                             <button className='square-button' onClick={() => navigate('/admin/dashboard')}>
                                 Administrator
                             </button>
-                            {/* Navigation Button */}
+                            {/* Advisor Button */}
                             <button className='square-button' onClick={() => navigate('/advisor/dashboard')}>
                                 Advisor
                             </button>
-                            {/* Settings Button */}
+                            {/* Student Button */}
                             <button className='square-button' onClick={() => navigate('/student/dashboard')}>
                                 Student
+                            </button>
+                            {/* Accounting Button */}
+                            <button className='square-button' onClick={() => navigate('/accounting/dashboard')}>
+                                Accounting
                             </button>
                         </div>
                     </div>
