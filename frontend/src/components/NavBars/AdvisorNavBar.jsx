@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
 
@@ -7,9 +7,9 @@ export default function AdvisorNavBar({ title }) {
   const location = useLocation()
 
   const tabs =[
-    { id: 'advising', label: "Advising", path: '/advisor/advising' },
-    { id: 'compare', label: "Compare Catalogues", path: '/advisor/advising' },
-    { id: 'certificates-graduation', label: "Certificates/Graduation", path: '/advisor/advising' },
+    { id: 'advising', label: "Advising" },
+    { id: 'compare', label: "Compare Catalogues" },
+    { id: 'certificates-graduation', label: "Certificates/Graduation" },
   ]
   
   // Display the Advisor navigation bar
