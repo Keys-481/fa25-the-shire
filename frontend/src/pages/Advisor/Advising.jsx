@@ -59,24 +59,19 @@ export default function Advising() {
     );
   }
 
+
   return (
     <div>
-      {/* Advisor Navigation Bar */}
+      {/* Combined NavBar (Top + Tabs) */}
       <AdvisorNavBar />
+
       <div className="window">
         <div className="title-bar">
-          {/* Title */}
           <h1>Advising</h1>
-        </div>
-
-        <div className="advising-tabs">
-          {/* Advising Tabs Navigation Bar */}
-          <AdvisorNavBar />
         </div>
 
         <div className="container">
           <div className="side-panel">
-            {/* Search Section */}
             <p>Find a Student</p>
             <SearchBar
               onSearch={handleSearchResults}
@@ -85,20 +80,14 @@ export default function Advising() {
               placeholder2="Not Implemented"
             />
             <div className="horizontal-line-half"></div>
-            <div className="side-panel-results">
-              {/* Results list below search bar */}
-              <div>
-                {renderResults()}
-              </div>
-            </div>
+            <div className="side-panel-results">{renderResults()}</div>
 
             <div className="section-results">
-              {/* Right panel for future implementation */}
               <div className="section-results-side">
                 {selectedStudent ? (
                   <DegreePlan student={selectedStudent} />
                 ) : (
-                  <p className="p2"> No student selected</p>
+                  <p className="p2">No student selected</p>
                 )}
               </div>
             </div>
@@ -106,5 +95,5 @@ export default function Advising() {
         </div>
       </div>
     </div>
-  )
+  );
 }

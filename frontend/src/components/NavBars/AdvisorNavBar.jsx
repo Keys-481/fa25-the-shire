@@ -8,8 +8,8 @@ export default function AdvisorNavBar({ title }) {
 
   const tabs =[
     { id: 'advising', label: "Advising", path: '/advisor/advising' },
-    { id: 'compare', label: "Compare Catalogues", path: '/advisor/compare' },
-    { id: 'certificates-graduation', label: "Certificates/Graduation", path: '/advisor/certificates-graduation' },
+    { id: 'compare', label: "Compare Catalogues", path: '/advisor/advising' },
+    { id: 'certificates-graduation', label: "Certificates/Graduation", path: '/advisor/advising' },
   ]
   
   // Display the Advisor navigation bar
