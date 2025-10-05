@@ -13,7 +13,7 @@ export default function AccountingSettings() {
       <AccountingNavBar />
       <div className='window'>
         <div className='title-bar'>
-          <h1>Settings</h1>
+          <h1> Accounting Settings</h1>
         </div>
       </div>
     </div>
