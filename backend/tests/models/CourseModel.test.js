@@ -61,5 +61,38 @@ describe('CourseModel', () => {
         expect(offerings.length).toBeGreaterThan(0);
     });
 
+    // Partial or full course code queries return expected matches
+    test('searchCourses returns correct course by code', async () => {
+        const results = await CourseModel.searchCourses({ code: 'OPWL-536' });
+        expect(results).toBeDefined();
+        expect(Array.isArray(results)).toBe(true);
+        expect(results.length).toBeGreaterThan(0);
+        expect(results[0]).toHaveProperty('course_code', 'OPWL-536');
+    });
 
+    // Partial name matches work as expected
+    test('searchCourses returns correct course by name', async () => {
+        const results = await CourseModel.searchCourses({ name: 'Portfolio' });
+        expect(results).toBeDefined();
+        expect(Array.isArray(results)).toBe(true);
+        expect(results.length).toBeGreaterThan(0);
+        expect(results[0].course_name).toMatch(/Portfolio/i);
+    });
+
+    // Irrelevant queries return no results
+    test('searchCourses returns empty array for unknown course', async () => {
+        const results = await CourseModel.searchCourses({ name: 'Nonexistent Course' });
+        expect(results).toBeDefined();
+        expect(Array.isArray(results)).toBe(true);
+        expect(results.length).toBe(0);
+    });
+
+    // Verifies that combined filtering works as expcected
+    test('searchCourses returns correct course by name and code', async () => {
+        const results = await CourseModel.searchCourses({ name: 'Organizational', code: 'OPWL-536' });
+        expect(results).toBeDefined();
+        expect(Array.isArray(results)).toBe(true);
+        expect(results.length).toBeGreaterThan(0);
+        expect(results[0].course_code).toBe('OPWL-536');
+    });
 });
