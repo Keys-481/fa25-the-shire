@@ -25,6 +25,15 @@ export default function AdvisorNavBar({ title }) {
 
       {/* Advising Tabs Nav Bar */}
       <div className='tabs'>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`tab-button ${location.pathname === tab.path ? 'active' : ''}`}
+            onClick={() => navigate(tab.path)}
+          >
+            {tab.label}
+          </button>
+        ))}
         
       </div>
     </>
