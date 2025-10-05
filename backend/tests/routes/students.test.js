@@ -143,11 +143,12 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // Test for admin user accessing a student's degree plan
     test('admin can view any student\'s degree plan', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
-        const res = await request(app).get('/students/112299690/degree-plan');
+        const res = await request(app).get('/students/112299690/degree-plan?programId=1');
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('112299690');
         expect(res.body.student.first_name).toBe('Alice'); // should match seed data
         expect(res.body.student.last_name).toBe('Johnson'); // should match seed data
+        expect(res.body.programId).toBe('1'); // OPWL MS program ID in seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
         const courseCodes = res.body.degreePlan.map(course => course.course_code);
@@ -157,11 +158,12 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // Test for advisor user accessing their assigned student's degree plan
     test('advisor can view assigned student degree plan', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
-        const res = await request(app).get('/students/113601927/degree-plan');
+        const res = await request(app).get('/students/113601927/degree-plan?programId=2');
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('113601927');
         expect(res.body.student.first_name).toBe('Bob'); // should match seed data
         expect(res.body.student.last_name).toBe('Williams'); // should match seed data
+        expect(res.body.programId).toBe('2'); // OD certificate program ID in seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
         const courseCodes = res.body.degreePlan.map(course => course.course_code);
@@ -171,7 +173,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // Test for advisor user accessing a student's degree plan they are not assigned to
     test('returns 403 for advisor not assigned to student', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
-        const res = await request(app).get('/students/112299690/degree-plan');
+        const res = await request(app).get('/students/112299690/degree-plan?programId=1');
         expect(res.status).toBe(403);
     });
 
@@ -191,4 +193,51 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // });
 });
 
+/**
+ * Tests for /students/:schoolId/programs route
+ */
+describe('GET /students/:schoolId/programs', () => {
 
+    // Test for admin user accessing a student's programs
+    test('admin can view any student\'s programs', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/112299690/programs');
+        expect(res.status).toBe(200);
+        expect(res.body.student.school_student_id).toBe('112299690');
+        expect(res.body.student.first_name).toBe('Alice'); // should match seed data
+        expect(res.body.student.last_name).toBe('Johnson'); // should match seed data
+        expect(Array.isArray(res.body.programs)).toBe(true);
+        expect(res.body.programs.length).toBeGreaterThan(0);
+        const programTypes = res.body.programs.map(program => program.program_type);
+        expect(programTypes).toContain('masters'); // should match seed data
+        expect(programTypes).toContain('certificate'); // should match seed data
+    });
+
+    // Test for advisor user accessing their assigned student's programs
+    test('advisor can view assigned student programs', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
+        const res = await request(app).get('/students/113601927/programs');
+        expect(res.status).toBe(200);
+        expect(res.body.student.school_student_id).toBe('113601927');
+        expect(res.body.student.first_name).toBe('Bob'); // should match seed data
+        expect(res.body.student.last_name).toBe('Williams'); // should match seed data
+        expect(Array.isArray(res.body.programs)).toBe(true);
+        expect(res.body.programs.length).toBeGreaterThan(0);
+        const programTypes = res.body.programs.map(program => program.program_type);
+        expect(programTypes).toContain('certificate'); // should match seed data
+    });
+
+    // Test for advisor user accessing a student's programs they are not assigned to
+    test('returns 403 for advisor not assigned to student', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
+        const res = await request(app).get('/students/112299690/programs');
+        expect(res.status).toBe(403);
+    });
+
+    // Test for user looking up a non-existent student's programs
+    test('returns 404 for non-existent student', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/invalid_id/programs');
+        expect(res.status).toBe(404);
+    });
+});

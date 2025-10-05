@@ -59,8 +59,7 @@ router.get('/search', async (req, res) => {
                 id: student.school_student_id,
                 name: `${student.first_name} ${student.last_name}`,
                 email: student.email,
-                phone: student.phone_number,
-                program: student.program_name || 'N/A'
+                phone: student.phone_number
             },
         ];
         return res.json(formatted_student);
@@ -115,10 +114,12 @@ router.get('/:schoolId', async (req, res) => {
 
 /**
  * Route: GET /students/:schoolId/degree-plan
- * Retrieves the degree plan and student info for a student by their school ID.
+ * Retrieves the degree plan for a student and program by their school ID.
  */
 router.get('/:schoolId/degree-plan', async (req, res) => {
     const { schoolId } = req.params;
+    const { programId } = req.query;
+
     try {
         // Expect req.user to be set by middleware (mock or real auth)
         req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
@@ -146,7 +147,7 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         }
 
         if (hasAccess) {
-            let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id);
+            let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id, programId);
 
             // add prerequisites and course offerings to each course in the degree plan
             degreePlan = await Promise.all(
@@ -160,7 +161,7 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     };
                 })
             );
-            return res.json({ student, degreePlan });
+            return res.json({ student, programId, degreePlan });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
         }
@@ -169,6 +170,51 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+/**
+ * Route: GET /students/:schoolId/programs
+ * Retrieves all programs associated with a student by their school ID.
+ */
+router.get('/:schoolId/programs', async (req, res) => {
+    const { schoolId } = req.params;
+
+    try {
+        // Expect req.user to be set by middleware (mock or real auth)
+        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const student = await StudentModel.getStudentBySchoolId(schoolId);
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        } else if (userRoles.includes('advisor')) {
+            hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        }
+
+        if (hasAccess) {
+            const programs = await StudentModel.getProgramsByStudentId(student.student_id);
+            return res.json({ student, programs });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s programs' });
+        }
+    } catch (error) {
+        console.error('Error fetching student programs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+})
 
 module.exports = router;
 

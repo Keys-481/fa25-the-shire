@@ -25,9 +25,11 @@ describe('DegreePlanModel', () => {
 
     // Test for getting student degree plan with valid school ID
     // student with student_id 1 should exist in seed data with entries in degree plan table
+    // should be associated with program_id 1
     test('getDegreePlanByStudentId returns degree plan if exists', async () => {
-        const studentId = 1;
-        const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId);
+        const studentId = 1; // Alice Johnson
+        const programId = 1; // OPWL MS
+        const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId, programId);
 
         expect(Array.isArray(degreePlan)).toBe(true);
         expect(degreePlan.length).toBeGreaterThan(0);
