@@ -27,6 +27,7 @@ import AdvisorSettings from '../pages/Advisor/Settings'
 import AccountingDashboard from '../pages/Accounting/Dashboard'
 import AccountingGraduationReport from '../pages/Accounting/GraduationReport'
 import AccountingSettings from '../pages/Accounting/Settings'
+import AccountingReportingFunctionality from '../pages/Accounting/ReportingFunctionality'
 
 
 export default function AppRoutes() {
@@ -57,6 +58,7 @@ export default function AppRoutes() {
         <Route path="/accounting/dashboard" element={<AccountingDashboard />} />
         <Route path="/accounting/graduation-report" element={<AccountingGraduationReport />} />
         <Route path="/accounting/settings" element={<AccountingSettings />} />
+        <Route path="/accounting/reporting-functionality" element={<AccountingReportingFunctionality />} />
 
       </Routes>
     </Router>

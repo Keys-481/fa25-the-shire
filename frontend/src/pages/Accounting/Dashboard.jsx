@@ -34,6 +34,10 @@ export default function AccountingDashboard() {
                         <button className='square-button' onClick={() => navigate('/accounting/graduation-report')}>
                             Graduation Report
                         </button>
+                        {/* Reporting Functionality Button */}
+                        <button className='square-button' onClick={() => navigate('/accounting/reporting-functionality')}>
+                            Reporting Functionality
+                        </button>
                         {/* Settings Button */}
                         <button className='square-button' onClick={() => navigate('/accounting/settings')}>
                             Settings
