@@ -16,6 +16,7 @@ import SearchBar from "../../components/SearchBar";
  * @returns {JSX.Element} advisor view for searching and viewing student information
  */
 export default function Advising() {
+  const [activeTab, setActiveTab] = useState('advising');
   // State to hold search results
   const [results, setResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -61,16 +62,17 @@ export default function Advising() {
 
 
   return (
-    <div>
-      {/* Combined NavBar (Top + Tabs) */}
-      <AdvisorNavBar />
+  <div>
+    {/* Combined NavBar (Top + Tabs) */}
+    <AdvisorNavBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <div className="window">
-        <div className="title-bar">
-          <h1>Advising</h1>
-        </div>
+    <div className="window">
+      <div className="title-bar">
+        <h1>Advising</h1>
+      </div>
 
-        <div className="container">
+      <div className="container">
+        {activeTab === 'advising' && (
           <div className="side-panel">
             <p>Find a Student</p>
             <SearchBar
@@ -92,8 +94,23 @@ export default function Advising() {
               </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'compare' && (
+          <div className="side-panel">
+            <h2>Compare Catalogues</h2>
+            <p>Content for comparing catalogues goes here.</p>
+          </div>
+        )}
+
+        {activeTab === 'certificates-graduation' && (
+          <div className="side-panel">
+            <h2>Certificates / Graduation</h2>
+            <p>Content for certificates and graduation goes here.</p>
+          </div>
+        )}
       </div>
     </div>
-  );
+  </div>
+);
 }

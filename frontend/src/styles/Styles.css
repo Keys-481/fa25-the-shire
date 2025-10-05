@@ -300,38 +300,20 @@
 /* Advising Navigation Bar */
 /***************************/
 
-.advising-tabs {
+.tabs {
   display: flex;
-  justify-content: flex-start;
-  background-color: #f8f8f8;
-  border-bottom: 2px solid #ccc;
-  padding-left: 15px;
-  height: 40px;
-  align-items: center;
-  gap: 4px;
+  gap: 10px;
+  margin: 10px 0;
 }
 
-.advising-tab {
-  background-color: #e6e6e6;
-  color: #333;
-  border: 1px solid #ccc;
-  border-bottom: none;
-  padding: 6px 14px;
-  border-radius: 6px 6px 0 0;
-  font-size: 14px;
-  font-weight: 500;
+.tab-button {
+  padding: 5px 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
-.advising-tab:hover {
-  background-color: #dcdcdc;
-}
-
-.advising-tab.active {
-  background-color: #0033A0;
-  color: white;
-  border-color: #0033A0;
+.tab-button.active {
+  font-weight: bold;
+  border-bottom: 2px solid #000;
 }
 
 /************************/
