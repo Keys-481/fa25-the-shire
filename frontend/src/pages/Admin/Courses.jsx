@@ -12,7 +12,7 @@ export default function AdminCourses() {
     credits: ''
   });
 
-  const searchEndpoint = '/courses/search';
+  const searchEndpoint = '/courses/lookup';
 
   /**
    * Handles search results returned from the SearchBar component.
