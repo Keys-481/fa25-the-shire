@@ -348,6 +348,12 @@ button {
   margin-left: 10px;
 }
 
+button.inactive {
+  background-color: var(--background);
+  color: var(--main);
+  border: 1px solid var(--secondary);
+}
+
 span {
   font-weight: bold;
   margin-right: 5px;
