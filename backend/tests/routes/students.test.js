@@ -143,7 +143,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // Test for admin user accessing a student's degree plan
     test('admin can view any student\'s degree plan', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
-        const res = await request(app).get('/students/112299690/degree-plan?programId=1');
+        const res = await request(app).get('/students/112299690/degree-plan?programId=1&viewType=semester');
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('112299690');
         expect(res.body.student.first_name).toBe('Alice'); // should match seed data
@@ -158,7 +158,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // Test for advisor user accessing their assigned student's degree plan
     test('advisor can view assigned student degree plan', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
-        const res = await request(app).get('/students/113601927/degree-plan?programId=2');
+        const res = await request(app).get('/students/113601927/degree-plan?programId=2&viewType=semester');
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('113601927');
         expect(res.body.student.first_name).toBe('Bob'); // should match seed data
@@ -173,7 +173,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     // Test for advisor user accessing a student's degree plan they are not assigned to
     test('returns 403 for advisor not assigned to student', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
-        const res = await request(app).get('/students/112299690/degree-plan?programId=1');
+        const res = await request(app).get('/students/112299690/degree-plan?programId=1&viewType=semester');
         expect(res.status).toBe(403);
     });
 
@@ -182,6 +182,24 @@ describe('GET /students/:schoolId/degree-plan', () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/students/invalid_id/degree-plan');
         expect(res.status).toBe(404);
+    });
+
+    // Test for getting degree plan for requirements view type
+    test('returns degree plan grouped by requirements', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app).get('/students/112299690/degree-plan?programId=1&viewType=requirements');
+        expect(res.status).toBe(200);
+        expect(res.body.student.school_student_id).toBe('112299690');
+        expect(res.body.student.first_name).toBe('Alice');
+        expect(res.body.student.last_name).toBe('Johnson');
+        expect(res.body.programId).toBe('1'); // OPWL MS program ID in seed data
+        expect(Array.isArray(res.body.degreePlan)).toBe(true);
+        expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+        const courseCodes = res.body.degreePlan.map(course => course.course_code);
+        expect(courseCodes).toContain('OPWL-536');
+        expect(res.body.degreePlan[0]).toHaveProperty('requirement_id');
+        expect(res.body.degreePlan[0]).toHaveProperty('requirement_type');
+        expect(res.body.degreePlan[0]).toHaveProperty('req_description');
     });
 
     // Test for invalid user (no user info) (No login system yet, so changed route to work for frontend requests)

@@ -118,7 +118,7 @@ router.get('/:schoolId', async (req, res) => {
  */
 router.get('/:schoolId/degree-plan', async (req, res) => {
     const { schoolId } = req.params;
-    const { programId } = req.query;
+    const { programId, viewType } = req.query;
 
     try {
         // Expect req.user to be set by middleware (mock or real auth)
@@ -147,7 +147,13 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         }
 
         if (hasAccess) {
-            let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id, programId);
+            let degreePlan = [];
+            
+            if (viewType == 'requirements') {
+                degreePlan = await DegreePlanModel.getDegreePlanByRequirements(student.student_id, programId);
+            } else {
+                degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id, programId);
+            }
 
             // add prerequisites and course offerings to each course in the degree plan
             degreePlan = await Promise.all(
@@ -161,7 +167,8 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     };
                 })
             );
-            return res.json({ student, programId, degreePlan });
+            console.log(viewType, degreePlan);
+            return res.json({ student, programId, viewType, degreePlan });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
         }
@@ -214,7 +221,7 @@ router.get('/:schoolId/programs', async (req, res) => {
         console.error('Error fetching student programs:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
-})
+});
 
 module.exports = router;
 
