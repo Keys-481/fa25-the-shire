@@ -5,9 +5,9 @@
  */
 
 import { useState } from "react";
-import DegreePlan from "../../components/DegreePlan";
 import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar";
 import SearchBar from "../../components/SearchBar";
+import ProgramSelector from "../../components/ProgramSelector";
 
 /**
  * Advising component displays the Advising page for the advisors.
@@ -20,8 +20,11 @@ export default function Advising() {
   const [results, setResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  // state to hold selected student
+  // state to hold selected student and their programs
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [programs, setPrograms] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+
 
   // Handle search results from SearchBar component
   const handleSearchResults = (results) => {
@@ -29,9 +32,18 @@ export default function Advising() {
     setHasSearched(true);
   }
 
-  // Handle click on studnet from results list
-  const handleStudentSelect = (student) => {
+  // Handle click on student from results list
+  const handleStudentSelect = async (student) => {
     setSelectedStudent(student);
+
+    try {
+      // get list of programs for student
+      const response = await fetch(`/students/${student.id}/programs`);
+      const data = await response.json();
+      setPrograms(data.programs || []);
+    } catch (error) {
+      console.error('Error fetching student programs:', error);
+    }
   }
 
   const searchStudentEndpoint = '/students/search';
@@ -90,11 +102,12 @@ export default function Advising() {
             <div className="section-results">
               {/* Right panel for future implementation */}
               <div className="section-results-side">
-                {selectedStudent ? (
-                  <DegreePlan student={selectedStudent} />
-                ) : (
-                  <p className="p2"> No student selected</p>
-                )}
+                <ProgramSelector
+                  student={selectedStudent}
+                  programs={programs}
+                  selectedStudentProgram={selectedProgram}
+                  setSelectedProgram={setSelectedProgram}
+                />
               </div>
             </div>
           </div>

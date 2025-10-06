@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS
     degree_plan_comments,
     notifications,
     degree_plans,
+    student_programs,
     enrollments,
     student_certificates,
     advising_relations,
@@ -227,12 +228,10 @@ CREATE INDEX idx_certificate_courses_course_id ON certificate_courses(course_id)
 CREATE TABLE students (
     student_id SERIAL PRIMARY KEY,
     school_student_id VARCHAR(9) UNIQUE NOT NULL,
-    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
-    program_id INT REFERENCES programs(program_id) ON DELETE SET NULL
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_students_user_id ON students(user_id);
-CREATE INDEX idx_students_program_id ON students(program_id);
 
 -- Advisors Table:
 -- Links to users table and includes advisor-specific information
@@ -261,15 +260,30 @@ CREATE INDEX idx_advising_relations_student_id ON advising_relations(student_id)
 -- course_status is an ENUM type defined above (Planned, In Progress, Completed, Dropped, Failed, Withdrawn)
 CREATE TABLE degree_plans (
     plan_id SERIAL PRIMARY KEY,
+    program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     semester_id INT REFERENCES semesters(semester_id) ON DELETE CASCADE,
+    catalog_year VARCHAR(9) NOT NULL,
     course_status course_status NOT NULL
 );
 
 CREATE INDEX idx_degree_plans_student_id ON degree_plans(student_id);
 CREATE INDEX idx_degree_plans_course_id ON degree_plans(course_id);
 CREATE INDEX idx_degree_plans_semester_id ON degree_plans(semester_id);
+CREATE INDEX idx_degree_plans_catalog_year ON degree_plans(catalog_year);
+CREATE INDEX idx_degree_plans_program_id ON degree_plans(program_id);
+
+-- Student-Programs Mapping Table:
+-- Many-to-Many relationship between students and programs (for dual majors, minors, certificates)
+CREATE TABLE student_programs (
+    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
+    program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
+    PRIMARY KEY (student_id, program_id)
+);
+
+CREATE INDEX idx_student_programs_student_id ON student_programs(student_id);
+CREATE INDEX idx_student_programs_program_id ON student_programs(program_id);
 
 -- Enrollments Table:
 -- Tracks actual enrollments and grades for students in courses per semester

@@ -39,4 +39,21 @@ describe('StudentModel', () => {
         const student = await StudentModel.getStudentBySchoolId('invalid_id');
         expect(student).toBeUndefined();
     });
+
+    // Test for getting programs for a valid student ID
+    // (student with student_id 1 should exist in seed data and be associated with programs 1 and 2
+    test('getProgramsByStudentId returns programs for a valid student', async () => {
+        const studentId = 1; // should match your seed data
+        const programs = await StudentModel.getProgramsByStudentId(studentId);
+        expect(programs).toBeDefined();
+        expect(programs.length).toBeGreaterThan(0);
+        expect(programs[0]).toHaveProperty('program_id');
+        expect(programs[0]).toHaveProperty('program_name');
+        expect(programs[0]).toHaveProperty('program_type');
+
+        // Check that the student is enrolled in expected programs (based on seed data)
+        const programIds = programs.map(p => p.program_id);
+        expect(programIds).toContain(1); // should match seed data
+        expect(programIds).toContain(2); // should match seed data
+    });
 });

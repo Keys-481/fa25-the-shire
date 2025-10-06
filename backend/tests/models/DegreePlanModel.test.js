@@ -25,9 +25,11 @@ describe('DegreePlanModel', () => {
 
     // Test for getting student degree plan with valid school ID
     // student with student_id 1 should exist in seed data with entries in degree plan table
+    // should be associated with program_id 1
     test('getDegreePlanByStudentId returns degree plan if exists', async () => {
-        const studentId = 1;
-        const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId);
+        const studentId = 1; // Alice Johnson
+        const programId = 1; // OPWL MS
+        const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId, programId);
 
         expect(Array.isArray(degreePlan)).toBe(true);
         expect(degreePlan.length).toBeGreaterThan(0);
@@ -60,5 +62,27 @@ describe('DegreePlanModel', () => {
     test('getDegreePlanByStudentId returns empty array for non-existent student', async () => {
         const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(9999); // assuming 9999 does not exist
         expect(degreePlan).toEqual([]); // should return empty array if no degree plan found
+    });
+
+    // Test getting degree plan by program requirements
+    test('getDegreePlanByRequirement returns degree plan by requirements if exists', async () => {
+        const studentId = 1; // Alice Johnson
+        const programId = 1; // OPWL MS
+        const degreePlan = await DegreePlanModel.getDegreePlanByRequirements(studentId, programId);
+
+        expect(Array.isArray(degreePlan)).toBe(true);
+        expect(degreePlan.length).toBeGreaterThan(0);
+        // check that the first entry has expected fields
+        expect(degreePlan[0]).toHaveProperty('requirement_id');
+        expect(degreePlan[0]).toHaveProperty('req_description');
+        expect(degreePlan[0]).toHaveProperty('parent_requirement_id');
+        expect(degreePlan[0]).toHaveProperty('parent_description');
+        expect(degreePlan[0]).toHaveProperty('required_credits');
+        expect(degreePlan[0]).toHaveProperty('course_id');
+        expect(degreePlan[0]).toHaveProperty('course_code');
+        expect(degreePlan[0]).toHaveProperty('course_name');
+        expect(degreePlan[0]).toHaveProperty('credits');
+        expect(degreePlan[0]).toHaveProperty('course_status');
+        expect(degreePlan[0]).toHaveProperty('semester_name');
     });
 });
