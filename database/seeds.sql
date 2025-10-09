@@ -106,17 +106,37 @@ INSERT INTO courses (course_id, course_code, course_name, credits) VALUES
 (6, 'OPWL-507', 'Interviews and Data Analysis', 1),
 (7, 'OPWL-531', 'Quantitative Research Organizations', 3),
 (8, 'OPWL-529', 'Needs Assesment', 4),
-(9, 'OPWL-530', 'Evaluation', 4);
+(9, 'OPWL-530', 'Evaluation', 4),
+(10, 'OPWL-535', 'Principles of Adult Learning', 4),
+(11, 'OPWL-537', 'Instructional Design', 4),
+(12, 'OPWL-508', 'Data Visualization', 1),
+(13, 'OPWL-593', 'Thesis (1-6) - Last One - Graduation term', 6),
+(14, 'OPWL-571', 'Leadership, Culture, and Systems', 3),
+(15, 'OPWL-577', 'Leading Change', 3),
+(16, 'OPWL-573', 'Project Management Tools', 3),
+(17, 'OPWL--575', 'Facilitating Organizational Development, Interventions', 3),
+(18, 'OPWL-523', 'E-Learning Authoring and Development', 3),
+(19, 'OPWL-525', 'E-Learning Content Design and Learning Management Systems', 3),
+(20, 'OPWL-527', 'Game-based and Gamified Learning', 3),
+(21, 'OPWL-551', 'Storyboarding and Scenario-Based E-Learning', 3),
+(22, 'OPWL-547', 'Learning Experience Design', 3),
+(23, 'OPWL-545', 'AI Application in Learning and Development', 3);
 
--- TODO: Add more courses as needed and update course prerequisites and offerings accordingly
 
 -- Insert course prerequisites
+-- OPWL-536 is prereq for OPWL-529, OPWL-530, OPWL-537, OPWL-560, OPWL-531, OPWL-547
+-- OPWL-535 is prereq for OPWL-537
+-- OPWL-529/OPWL-530 are prereqs for OPWL-560
 INSERT INTO course_prerequisites (course_id, prerequisite_course_id) VALUES
 (7, 1), -- OPWL-531 requires OPWL-536
 (3, 1), -- OPWL-560 requires OPWL-536
 (9, 1), -- OPWL-529 requires OPWL-536
-(8, 1); -- OPWL-530 requires OPWL-536
-
+(8, 1), -- OPWL-530 requires OPWL-536
+(11, 1), -- OPWL-537 requires OPWL-536
+(11, 10), -- OPWL-537 requires OPWL-535
+(3, 9), -- OPWL-560 requires OPWL-529 (or OPWL-530 - need to enforce in requirements logic)
+(3, 8), -- OPWL-560 requires OPWL-530 (or OPWL-529 - need to enforce in requirements logic)
+(22, 1); -- OPWL-547 requires OPWL-536
 
 -- Insert semesters
 INSERT INTO semesters (semester_id, semester_name, semester_type, sem_start_date, sem_end_date) VALUES
@@ -153,30 +173,114 @@ INSERT INTO course_offerings (course_id, semester_type) VALUES
 (8, 'FA'), -- OPWL-529 offered in Fall
 (8, 'SP'), -- OPWL-529 offered in Spring
 (9, 'FA'), -- OPWL-530 offered in Fall
-(9, 'SP'); -- OPWL-530 offered in Spring
+(9, 'SP'), -- OPWL-530 offered in Spring
+(10, 'FA'), -- OPWL-535 offered in Fall
+(10, 'SP'), -- OPWL-535 offered in Spring
+(11, 'FA'), -- OPWL-537 offered in Fall
+(11, 'SP'), -- OPWL-537 offered in Spring
+(12, 'FA'), -- OPWL-508 offered in Fall
+(12, 'SP'), -- OPWL-508 offered in Spring
+(12, 'SU'), -- OPWL-508 offered in Summer
+(13, 'FA'), -- OPWL-593 offered in Fall
+(13, 'SP'), -- OPWL-593 offered in Spring
+(13, 'SU'), -- OPWL-593 offered in Summer
+(14, 'FA'), -- OPWL-571 offered in Fall
+(14, 'SU'), -- OPWL-571 offered in Summer
+(15, 'SP'), -- OPWL-577 offered in Spring (Odd years only - need to enforce)
+(15, 'SU'), -- OPWL-577 offered in Summer (Odd years only - need to enforce)
+(16, 'SU'), -- OPWL-573 offered in Summer
+(17, 'SU'), -- OPWL-575 offered in Summer
+(18, 'FA'), -- OPWL-523 offered in Fall
+(18, 'SU'), -- OPWL-523 offered in Summer
+(19, 'SP'), -- OPWL-525 offered in Spring
+(19, 'SU'), -- OPWL-525 offered in Summer
+(20, 'FA'), -- OPWL-527 offered in Fall
+(21, 'SP'), -- OPWL-551 offered in Spring
+(21, 'SU'), -- OPWL-551 offered in Summer
+(22, 'SP'), -- OPWL-547 offered in Spring
+(23, 'FA'), -- OPWL-545 offered in Fall
+(23, 'SP'), -- OPWL-545 offered in Spring
+(23, 'SU'); -- OPWL-545 offered in Summer
 
 -- Insert program requirements
 -- Note: Some requirements are hierarchical (e.g., culminating activity with sub-requirements)
 INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description) VALUES
+-- OPWL MS Program Requirement Structure
 (1, 1, 'core', NULL, 12, 'Core Courses for OPWL MS'), -- Core requirement for OPWL MS
-(2, 2, 'core', NULL, 4, 'Core Course for OD Certificate'), -- Core requirement for OD certificate
 (3, 1, 'culminating_activity', NULL, NULL, 'Complete one (1) of the following'), -- Culminating activity for OPWL MS (Parent requirement)
-(4, 1, 'portfolio', 3, NULL, 'Complete all of the following'), -- Portfolio requirement under culminating activity
+(4, 1, 'portfolio', 3, 12, 'Complete all of the following'), -- Portfolio requirement under culminating activity
 (5, 1, 'research', 4, 3, 'Take at least 3 credits from the following (RESEARCH)'), -- Research requirement under portfolio
 (6, 1, 'elective', 4, 8, 'Take at least 8 credits from the following'), -- Elective requirement under portfolio
-(7, 1, 'misc', 4, 1, 'Take at least 1 credits from the following'); -- Misc requirement under portfolio
+(7, 1, 'misc', 4, 1, 'Take at least 1 credits from the following'), -- Misc requirement under portfolio
+(8, 1, 'thesis', 3, 12, 'Complete all of the following'), -- Thesis requirement under culminating activity
+(9, 1, 'research', 8, 6, 'Take at least 6 credits from the following (RESEARCH)'), -- Research requirement under thesis
+(10, 1, 'misc', 8, 6, 'Take at least 6 credits from the following (3-4 semesters)'); -- Misc requirement under thesis
 
--- TODO: insert other flexible requirements if needed (thesis, etc.)
 
--- Insert requirement courses
+-- Insert requirement courses for OPWL MS Program
 INSERT INTO requirement_courses (requirement_id, course_id) VALUES
-(1, 1), -- OPWL-536 is a core course for OPWL MS
-(2, 1), -- OPWL-536 is a core course for OD certificate
-(5, 2), -- OPWL-506 counts towards research requirement
-(5, 6), -- OPWL-507 counts towards research requirement
-(5, 7); -- OPWL-531 counts towards research requirement
+-- Core courses for OPWL MS (requirement_id = 1)
+(1, 1), -- OPWL-536
+(1, 3), -- OPWL-560
+(1, 8), -- OPWL-529
+(1, 9), -- OPWL-530
+(1, 10), -- OPWL-535
+(1, 11), -- OPWL-537
 
--- TODO: Add more requirement courses as needed
+-- Culminating activity -> Portfolio (requirement_id = 4)
+-- Take at least 3 credits from the following (RESEARCH) (requirement_id = 5)
+(5, 2), -- OPWL-506
+(5, 6), -- OPWL-507
+(5, 7), -- OPWL-531
+(5, 12), -- OPWL-508
+
+-- Take at least 8 credits from the following (ELECTIVE) (requirement_id = 6)
+-- OPWL-XXX courses not listed as core or research
+(6, 14), -- OPWL-571
+(6, 15), -- OPWL-577
+(6, 16), -- OPWL-573
+(6, 17), -- OPWL-575
+(6, 18), -- OPWL-523
+(6, 19), -- OPWL-525
+(6, 20), -- OPWL-527
+(6, 21), -- OPWL-551
+(6, 22), -- OPWL-547
+(6, 23), -- OPWL-545
+(6, 4), -- OPWL-518
+-- Take at least 1 credits from the following (MISC) (requirement_id = 7)
+(7, 5), -- OPWL-592
+
+-- Culminating activity -> Thesis (requirement_id = 8)
+-- Take at least 6 credits from the following (RESEARCH) (requirement_id = 9)
+(9, 2), -- OPWL-506
+(9, 6), -- OPWL-507
+(9, 7), -- OPWL-531
+(9, 12), -- OPWL-508
+-- Take at least 6 credits from the following (MISC) (requirement_id = 10)
+(10, 13); -- OPWL-593
+
+-- Insert requirement for OD Certificate Program
+INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description) VALUES
+(11, 2, 'core', NULL, 10, 'Required to take the following (10 Credits)'), -- Core requirement for OD certificate
+(12, 2, 'elective', NULL, 6, 'Take 6 credits from the following'); -- Elective requirement for OD certificate
+
+-- Insert requirement courses for OD Certificate Program
+INSERT INTO requirement_courses (requirement_id, course_id) VALUES
+-- Core courses for OD certificate (requirement_id = 11)
+(11, 1), -- OPWL-536
+(11, 14), -- OPWL-571
+(11, 15), -- OPWL-577
+-- Elective courses for OD certificate (requirement_id = 12)
+(12, 4), -- OPWL-518
+(12, 16), -- OPWL-573
+(12, 17), -- OPWL-575
+(12, 5), -- OPWL-506
+(12, 6), -- OPWL-507
+(12, 12), -- OPWL-508
+(12, 7), -- OPWL-531
+(12, 3); -- OPWL-560
+-- Students can choose other OPWL courses as electives as well
+-- OPWL-XXX courses not listed as core
 
 -- Insert degree plan entries for Alice Johnson (student1)
 INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
@@ -201,3 +305,20 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (1, 1, 1, 7, NULL), -- Alice Johnson enrolled in OPWL-536 in Fall 2025
 (2, 1, 6, 7, NULL), -- Alice Johnson enrolled in OPWL-507 in Fall 2025
 (3, 2, 2, 1, NULL); -- Bob Williams enrolled in OPWL-536 in Fall 2025
+
+-- Insert into certificates
+INSERT INTO certificates (certificate_id, certificate_name, program_id) VALUES
+(1, 'Graduate Certificate in Organizational Development (OD)', 2);
+
+-- Insert into student_certificates
+INSERT INTO student_certificates (student_id, certificate_id, cert_status) VALUES
+(1, 1, 'in_progress'), -- Alice Johnson pursuing OD certificate
+(2, 1, 'in_progress'); -- Bob Williams pursuing OD certificate
+
+-- Insert into certificate_courses for OD Certificate Program (certificate overlap with program requirements)
+INSERT INTO certificate_courses (certificate_id, course_id) VALUES
+(1, 1), -- OPWL-536
+(1, 2), -- OPWL-506
+(1, 6), -- OPWL-507
+(1, 12), -- OPWL-508
+(1, 7); -- OPWL-531
