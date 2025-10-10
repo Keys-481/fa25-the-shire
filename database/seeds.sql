@@ -322,3 +322,5 @@ INSERT INTO certificate_courses (certificate_id, course_id) VALUES
 (1, 6), -- OPWL-507
 (1, 12), -- OPWL-508
 (1, 7); -- OPWL-531
+
+SELECT setval('courses_course_id_seq', (SELECT MAX(course_id) FROM courses));

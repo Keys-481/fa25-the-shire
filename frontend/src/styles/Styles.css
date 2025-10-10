@@ -134,6 +134,17 @@
   font-size: 14px;
   width: 300px;
   margin-left: 10px;
+  color: var(--accent);
+}
+
+.search-textbox {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 50px;
+  border: 1px solid var(--main);
+  color: var(--accent);
+  margin-top: 5px;
+  margin-left: 10px;
 }
 
 .horizontal-line-half {
