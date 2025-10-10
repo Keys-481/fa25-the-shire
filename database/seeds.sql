@@ -322,3 +322,6 @@ INSERT INTO certificate_courses (certificate_id, course_id) VALUES
 (1, 6), -- OPWL-507
 (1, 12), -- OPWL-508
 (1, 7); -- OPWL-531
+
+-- Sets the 'courses_course_id_seq' sequence to the current max course_id in 'courses' to prevent ID conflicts when inserting.
+SELECT setval('courses_course_id_seq', (SELECT MAX(course_id) FROM courses));
