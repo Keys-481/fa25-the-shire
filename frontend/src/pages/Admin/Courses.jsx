@@ -15,7 +15,7 @@ export default function AdminCourses() {
   });
   const searchRef = useRef();
 
-  const searchEndpoint = '/courses/lookup';
+  const searchEndpoint = '/courses/search';
 
   /**
    * Handles search results returned from the SearchBar component.

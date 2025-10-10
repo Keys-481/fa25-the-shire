@@ -12,7 +12,7 @@ const courseRoutes = require('../../src/routes/courses');
 
 // Reset and seed the database before all tests
 beforeAll(async () => {
-    console.log('🔄 Resetting and seeding test database...');
+    console.log('Resetting and seeding test database...');
     await runSchemaAndSeeds();
 });
 
@@ -32,12 +32,12 @@ function makeApp() {
 }
 
 /**
- * Tests for /courses/lookup route
+ * Tests for /courses/search route
  */
-describe('GET /courses/lookup', () => {
+describe('GET /courses/search', () => {
     test('returns enriched course data for valid name and code', async () => {
         const app = makeApp();
-        const res = await request(app).get('/courses/lookup').query({
+        const res = await request(app).get('/courses/search').query({
             q1: 'Organizational Performance and Workplace Learning',
             q2: 'OPWL-536'
         });
@@ -53,13 +53,13 @@ describe('GET /courses/lookup', () => {
 
     test('returns 400 for missing parameters', async () => {
         const app = makeApp();
-        const res = await request(app).get('/courses/lookup');
+        const res = await request(app).get('/courses/search');
         expect(res.status).toBe(400);
     });
 
     test('returns 404 for no matching courses', async () => {
         const app = makeApp();
-        const res = await request(app).get('/courses/lookup').query({ q1: 'Nonexistent' });
+        const res = await request(app).get('/courses/search').query({ q1: 'Nonexistent' });
         expect(res.status).toBe(404);
     });
 });

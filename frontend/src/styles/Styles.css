@@ -76,7 +76,7 @@
   left: 0px;
   border-right: 2px solid var(--main);
   margin-top: 10px;
-  overflow-y:auto;
+  overflow-y: auto;
 }
 
 /* In container next to side-bar */
@@ -190,7 +190,7 @@
   margin-top: 20px;
 }
 
-.header-row{
+.header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
