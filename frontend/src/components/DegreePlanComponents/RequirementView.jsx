@@ -98,64 +98,74 @@ export default function RequirementsView( { courses, program } ) {
     const requirementHierarchy = buildHierarchy(uniqueReqs);
 
     function renderRequirement(req, level = 0) {
-        const indent = { marginLeft: `${level * 20}px` };
 
-        return (
-            <div key={req.requirement_id} style={indent} className='requirement-item'>
-                <h4>{req.req_description}</h4>
-                <div className='table-horizontal-line'></div>
+        const isChild = level > 0;
+        const rows = [];
 
-                {req.courses && req.courses.length > 0 && (
-                    <div className="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Course Code</th>
-                                    <th>Course Title</th>
-                                    {program.program_type !== 'certificate' && (
-                                        <th>Certificate Overlap</th>
-                                    )}
-                                    <th>Prerequisites</th>
-                                    <th>Offered</th>
-                                    <th>Credits</th>
-                                    <th>Completed</th>
-                                    <th>In Progress</th>
-                                    <th>Planned</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {req.courses.map(course => (
-                                    <tr key={`${req.requirement_id}-${course.course_id}`}>
-                                        <td><strong>{course.course_code || '-'}</strong></td>
-                                        <td>{course.course_name || '-'}</td>
-                                        {program.program_type !== 'certificate' && (
-                                            <td>N/A</td>
-                                        )}
-                                        <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
-                                        <td>{course.offered_semesters || 'N/A'}</td>
-                                        <td>{course.credits || '-'}</td>
-                                        <td>{renderStatus(course, 'Completed')}</td>
-                                        <td>{renderStatus(course, 'In Progress')}</td>
-                                        <td>{renderStatus(course, 'Planned')}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-
-                {req.children && req.children.length > 0 && (
-                    <div className="requirement-children">
-                        {req.children.map(child => renderRequirement(child, level + 1))}
-                    </div>
-                )}
-            </div>
+        rows.push(
+            <tr key={`req=${req.requirement_id}`} className={isChild ? "child-req-row" : "req-row"}>
+                <td colSpan={program.program_type !== 'certificate' ? 9 : 8} className="requirement-header-cell">
+                    <strong>{req.req_description}</strong>
+                </td>
+            </tr>
         );
+
+        if (req.courses?.length > 0) {
+            req.courses
+            .filter(course => course?.course_id)
+            .forEach(course => {
+                rows.push(
+                    <tr key={`${req.requirement_id}-${course.course_id}`}>
+                        <td><strong>{course.course_code || '-'}</strong></td>
+                        <td>{course.course_name || '-'}</td>
+                        {program.program_type !== 'certificate' && (
+                            <td>N/A</td>
+                        )}
+                        <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
+                        <td>{course.offered_semesters || 'N/A'}</td>
+                        <td>{course.credits || '-'}</td>
+                        <td>{renderStatus(course, 'Completed')}</td>
+                        <td>{renderStatus(course, 'In Progress')}</td>
+                        <td>{renderStatus(course, 'Planned')}</td>
+                    </tr>
+                );
+            });
+        }
+
+        if (req.children?.length > 0) {
+            req.children.forEach(child => {
+                rows.push(...renderRequirement(child, level + 1));
+            });
+        }
+
+        return rows;
     }
 
     return (
         <div>
-            {hierarchy.map(req => renderRequirement(req))}
+            <div className="requirements-view">
+                <table className="requirements-table">
+                    <thead>
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Title</th>
+                            {program.program_type !== 'certificate' && (
+                                <th>Certificate Overlap</th>
+                            )}
+                            <th>Prerequisites</th>
+                            <th>Offered</th>
+                            <th>Credits</th>
+                            <th>Completed</th>
+                            <th>In Progress</th>
+                            <th>Planned</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {hierarchy.map(req => renderRequirement(req))}
+                    </tbody>
+                </table>
+            </div>
         </div>
+        
     );
 }

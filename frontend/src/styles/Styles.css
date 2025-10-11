@@ -360,7 +360,7 @@ span {
 }
 
 table {
-  width: 90%;
+  width: 100%;
   border-collapse: collapse;
 }
 
@@ -369,3 +369,67 @@ th, td {
   text-align: left;
   width: 16.6%
 }
+
+/** Degree Plan Requirement View **/
+.requirements-table thead th {
+  background-color: var(--accent);
+  color: white;
+  font-weight: 600;
+}
+
+.requirement-header-cell {
+  background-color: #dfe7f5;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: left;
+  padding: 8px 10px;
+  border-top: 2px solid #b9c9e0;
+  border-bottom: 1px solid #ccd4e4;
+  border-left: 1px solid #e6e9ef;
+  border-right: 1px solid #e6e9ef;
+}
+
+.child-req-row .requirement-header-cell {
+  background-color: #f2f5fb;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.requirements-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.requirements-table th,
+.requirements-table td {
+  border-bottom: 1px solid #e5e8ee;
+  border-right: 1px solid #e6e9ef;
+  text-align: left;
+  vertical-align: middle;
+  line-height: 1.4;
+  padding-left: 12px;
+}
+
+requirements-table th {
+  background-color: #f5f7fb;
+  font-weight: 600;
+  border-bottom: 2px solid #cfd8e6;
+  vertical-align: middle;
+}
+
+requirements-table td {
+  background-color: #ffffff;
+  padding: 6px 10px;
+  border-bottom: 1px solid #e5e8ee;
+  text-align: left;
+}
+
+.requirements-table td:first-child,
+.requirements-table th:first-child {
+  border-left: 1px solid #e6e9ef;
+}
+
+
