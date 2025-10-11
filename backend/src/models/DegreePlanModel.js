@@ -48,32 +48,37 @@ async function getDegreePlanByRequirements(studentId, programId) {
         const query = `
         WITH reqs AS (
             SELECT
-                pr.requirement_id, pr.program_id, pr.req_description, pr.required_credits, pr.parent_requirement_id, pr.requirement_type,
+                pr.requirement_id, pr.program_id, pr.req_description, pr.required_credits, pr.parent_requirement_id, pr.requirement_type, pr.display_order,
                 parent.req_description AS parent_description,
+                parent.display_order AS parent_order,
                 CASE WHEN pr.parent_requirement_id IS NOT NULL THEN parent.req_description
                 ELSE pr.req_description END AS requirement_label
             FROM program_requirements pr
             LEFT JOIN program_requirements parent
                 ON parent.requirement_id = pr.parent_requirement_id
             WHERE pr.program_id = $2
-            )
-            SELECT
-                r.requirement_id, r.requirement_type, r.req_description, r.parent_requirement_id, r.parent_description, r.required_credits, r.requirement_label,
-                c.course_id, c.course_code, c.course_name, c.credits,
-                dp.course_status, dp.catalog_year, s.semester_name
-            FROM reqs r
-            LEFT JOIN requirement_courses rc
-                ON rc.requirement_id = r.requirement_id
-            LEFT JOIN courses c
-                ON c.course_id = rc.course_id
-            LEFT JOIN degree_plans dp
-                ON dp.course_id = c.course_id
-                AND dp.student_id = $1
-                AND dp.program_id = r.program_id
-            LEFT JOIN semesters s
-                ON s.semester_id = dp.semester_id
-            ORDER BY r.requirement_label, r.requirement_type, c.course_code`;
-        
+        )
+        SELECT
+            r.requirement_id, r.requirement_type, r.req_description, r.parent_requirement_id, r.parent_description, r.required_credits, r.requirement_label, r.display_order, r.parent_order,
+            c.course_id, c.course_code, c.course_name, c.credits,
+            dp.course_status, dp.catalog_year, s.semester_name
+        FROM reqs r
+        LEFT JOIN requirement_courses rc
+            ON rc.requirement_id = r.requirement_id
+        LEFT JOIN courses c
+            ON c.course_id = rc.course_id
+        LEFT JOIN degree_plans dp
+            ON dp.course_id = c.course_id
+            AND dp.student_id = $1
+            AND dp.program_id = r.program_id
+        LEFT JOIN semesters s
+            ON s.semester_id = dp.semester_id
+        ORDER BY
+            COALESCE(r.parent_order, r.display_order),
+            r.display_order,
+            c.course_code;
+        `;
+
         const { rows } = await pool.query(query, [studentId, programId]);
         return rows;
     } catch (error) {

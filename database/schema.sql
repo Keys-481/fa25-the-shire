@@ -183,7 +183,8 @@ CREATE TABLE program_requirements (
     requirement_type requirement_type NOT NULL,
     req_description TEXT NOT NULL,
     required_credits INT,
-    parent_requirement_id INT REFERENCES program_requirements(requirement_id) ON DELETE CASCADE
+    parent_requirement_id INT REFERENCES program_requirements(requirement_id) ON DELETE CASCADE,
+    display_order INT NOT NULL DEFAULT 0
 );
 
 CREATE INDEX idx_program_requirements_program_id ON program_requirements(program_id);
