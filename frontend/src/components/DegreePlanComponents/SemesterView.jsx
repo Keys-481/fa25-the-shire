@@ -27,7 +27,7 @@ export default function SemesterView( { courses, program } ) {
         return acc;
     }, {});
 
-    const sortedSemesters = Object.keys(grouped).sort();
+    const sortedSemesters = Object.keys(grouped);
 
     return (
         <div>
