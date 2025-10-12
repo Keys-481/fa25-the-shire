@@ -5,6 +5,7 @@ set -Eeuo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FRONTEND_DIR="${ROOT_DIR}/frontend"
 BACKEND_DIR="${ROOT_DIR}/backend"
+MODE="${1:-all}"
 
 # Function to load user .env file
 load_dotenv() {
@@ -212,51 +213,55 @@ fi
 
 #---BACKEND: JEST TESTS---#
 
-echo "========================================"
-echo "    Backend: Running Jest tests..."
-echo "========================================"
+if [ "$MODE" != "frontend-only" ]; then
+    echo "========================================"
+    echo "    Backend: Running Jest tests..."
+    echo "========================================"
 
-if run_if_script "$BACKEND_DIR" test -- --coverage; then
-    :
-elif [ -f "${BACKEND_DIR}/package.json" ]; then
-    echo "No 'test' script found in ${BACKEND_DIR}/package.json, invoking npx jest directly."
-    (cd "$BACKEND_DIR" && npx jest --runInBand --coverage)
-else
-    echo "${BACKEND_DIR}/package.json not found, skipping backend tests." >&2
+    if run_if_script "$BACKEND_DIR" test -- --coverage; then
+        :
+    elif [ -f "${BACKEND_DIR}/package.json" ]; then
+        echo "No 'test' script found in ${BACKEND_DIR}/package.json, invoking npx jest directly."
+        (cd "$BACKEND_DIR" && npx jest --coverage)
+    else
+        echo "${BACKEND_DIR}/package.json not found, skipping backend tests." >&2
+    fi
 fi
 
 #---FRONTEND: PLAYWRIGHT TESTS---#
 
-echo "========================================"
-echo "    Frontend: Running Playwright tests..."
-echo "========================================"
+if [ "$MODE" != "backend-only" ]; then
+    echo "========================================"
+    echo "    Frontend: Running Playwright tests..."
+    echo "========================================"
 
-if [ -f "${FRONTEND_DIR}/package.json" ]; then
-    # Ensure Playwright is installed and browsers are set up
-    if ! jq -e '.devDependencies["@playwright/test"]' < "${FRONTEND_DIR}/package.json" >/dev/null; then
-        echo "@playwright/test not found in frontend devDependencies."
-        echo "Run: cd frontend && npm i -D @playwright/test && npx playwright install --with-deps" >&2
-        exit 1
+    if [ -f "${FRONTEND_DIR}/package.json" ]; then
+        # Ensure Playwright is installed and browsers are set up
+        if ! jq -e '.devDependencies["@playwright/test"]' < "${FRONTEND_DIR}/package.json" >/dev/null; then
+            echo "@playwright/test not found in frontend devDependencies."
+            echo "Run: cd frontend && npm i -D @playwright/test && npx playwright install --with-deps" >&2
+            exit 1
+        fi
+
+        (cd "$FRONTEND_DIR" && npx playwright install --with-deps >/dev/null)
+
+        # Start vite preview server
+        echo "Building frontend..."
+        (cd ${FRONTEND_DIR} && npm run build --silent)
+
+        echo "Starting vite preview server on port ${FRONTEND_PORT}..."
+        (cd "$FRONTEND_DIR" && npx vite preview --port "${FRONTEND_PORT}" --host 127.0.0.1 >/dev/null 2>&1) &
+        FRONTEND_PID=$!
+        sleep 0.5
+
+        wait_for_http "$WEB_URL"
+
+        # Run Playwright tests
+        echo "Running Playwright tests against ${WEB_URL}..."
+        (cd "$FRONTEND_DIR" && BASE_URL="${WEB_URL}" FRONTEND_PORT="${FRONTEND_PORT}" npx playwright test)
+    else
+        echo "${FRONTEND_DIR}/package.json not found, skipping frontend tests." >&2
     fi
-
-    (cd "$FRONTEND_DIR" && npx playwright install --with-deps >/dev/null)
-
-    # Start vite preview server
-    echo "Building frontend..."
-    (cd ${FRONTEND_DIR} && npm run build --silent)
-
-    echo "Starting vite preview server on port ${FRONTEND_PORT}..."
-    (cd "$FRONTEND_DIR" && npx vite preview --port "${FRONTEND_PORT}" --host 127.0.0.1 >/dev/null 2>&1) &
-    FRONTEND_PID=$!
-    sleep 0.5
-
-    wait_for_http "$WEB_URL"
-
-    # Run Playwright tests
-    echo "Running Playwright tests against ${WEB_URL}..."
-    (cd "$FRONTEND_DIR" && BASE_URL="${WEB_URL}" FRONTEND_PORT="${FRONTEND_PORT}" npx playwright test)
-else
-    echo "${FRONTEND_DIR}/package.json not found, skipping frontend tests." >&2
 fi
 
 echo "All tests finished."
