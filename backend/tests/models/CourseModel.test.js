@@ -7,6 +7,7 @@
 const CourseModel = require('../../src/models/CourseModel');
 const { runSchemaAndSeeds } = require('../../db_setup');
 const pool = require('../../src/db');
+const { getPrerequisitesForCourse, getCourseOfferings, createCourse, updateCourse, deleteCourse } = require('../../src/models/CourseModel');
 
 // Reset and seed the database before each test
 beforeAll(async () => {
@@ -95,4 +96,105 @@ describe('CourseModel', () => {
         expect(results.length).toBeGreaterThan(0);
         expect(results[0].course_code).toBe('OPWL-536');
     });
+});
+
+/**
+ * Tests for CourseModel (createCourse)
+ */
+describe('CourseModel - createCourse', () => {
+  test('creates a course with offerings and prerequisites', async () => {
+    // Create a new course with specified name, code, credits, prerequisites, and offerings
+    const course = await createCourse({
+      name: 'Model Test Course',
+      code: 'MOD101',
+      credits: 3,
+      prerequisites: 'OPWL-536',
+      offerings: 'FA, SP'
+    });
+
+    // Verify that the returned course object has correct basic properties
+    expect(course.course_name).toBe('Model Test Course');
+    expect(course.course_code).toBe('MOD101');
+    expect(course.credits).toBe(3);
+
+    // Check that the course offerings were correctly saved
+    const offerings = await getCourseOfferings(course.course_id);
+    expect(offerings).toContain('FA');
+    expect(offerings).toContain('SP');
+
+    // Check that the prerequisite course was corrctly linked
+    const prereqs = await getPrerequisitesForCourse(course.course_id);
+    expect(Array.isArray(prereqs)).toBe(true);
+    expect(prereqs.length).toBeGreaterThan(0);
+    expect(prereqs[0]).toHaveProperty('course_code', 'OPWL-536');
+
+    // Clean up by deleting the test course
+    deleteCourse(course.course_id);
+  });
+});
+
+/**
+ * Tests for CourseModel (updateCourse)
+ */
+describe('CourseModel - updateCourse', () => {
+  test('updates course details, offerings, and prerequisites', async () => {
+    // Create a temporary course to be updated
+    const course = await createCourse({
+      name: 'Update Target',
+      code: 'UPD102',
+      credits: 2,
+      prerequisites: '',
+      offerings: 'FA'
+    });
+
+    // Update the course with new name, credits, prerequisites, and offerings
+    const updated = await updateCourse(course.course_id, {
+      name: 'Updated Model Course',
+      code: 'UPD102',
+      credits: 4,
+      prerequisites: 'OPWL-536',
+      offerings: 'SP'
+    });
+
+    // Validate that the course details were updated correctly
+    expect(updated.course_name).toBe('Updated Model Course');
+    expect(updated.credits).toBe(4);
+
+    // Ensure the offerings were updated (FA removed, SP added)
+    const offerings = await getCourseOfferings(course.course_id);
+    expect(offerings).toContain('SP');
+    expect(offerings).not.toContain('FA');
+
+    // Ensure the new prerequisite was correclty linked
+    const prereqs = await getPrerequisitesForCourse(course.course_id);
+    expect(prereqs.length).toBeGreaterThan(0);
+    expect(prereqs[0].course_code).toBe('OPWL-536');
+
+    // Clean up by deleting the test course
+    deleteCourse(course.course_id);
+  });
+});
+
+/**
+ * Tests for CourseModel (deleteCourse)
+ */
+describe('CourseModel - deleteCourse', () => {
+  test('deletes a course by ID', async () => {
+    // Create a temporary course to be deleted
+    const course = await createCourse({
+      name: 'Delete Target',
+      code: 'DEL102',
+      credits: 1,
+      prerequisites: '',
+      offerings: ''
+    });
+
+    // Delete the course and verify the success message
+    const result = await deleteCourse(course.course_id);
+    expect(result.message).toBe('Course deleted successfully');
+
+    // Confirm that the course no loger exists in the database
+    const res = await pool.query('SELECT * FROM courses WHERE course_id = $1', [course.course_id]);
+    expect(res.rows.length).toBe(0);
+  });
 });

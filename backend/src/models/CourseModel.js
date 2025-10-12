@@ -114,11 +114,167 @@ async function searchCourses({ name, code }) {
     }
 }
 
+/**
+ * Create a new course with optional prerequisites and offerings.
+ * 
+ * This function inserts a new course into the `courses` table and optionally links it to:
+ * - prerequisite courses via the `course_prerequisites` table
+ * - semester offerings via the `course_offerings` table
+ * 
+ * It uses a transaction to ensure atomicity—if any part fails, all changes are rolled back.
+ * 
+ * @param {Object} params - Course creation parameters.
+ * @param {string} params.name - Name of the course.
+ * @param {string} params.code - Unique course code.
+ * @param {number} params.credits - Credit value of the course.
+ * @param {string} [params.prerequisites] - Comma-separated course codes for prerequisites.
+ * @param {string} [params.offerings] - Comma-separated semester types (e.g., "FA, SP").
+ * @returns {Promise<Object>} - The newly created course object.
+ */
+async function createCourse({ name, code, credits, prerequisites = '', offerings = '' }) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const result = await client.query(
+      `INSERT INTO courses (course_name, course_code, credits)
+       VALUES ($1, $2, $3) RETURNING course_id, course_name, course_code, credits`,
+      [name, code, credits]
+    );
+    const newCourse = result.rows[0];
+
+    const prereqCodes = prerequisites.split(',').map(c => c.trim()).filter(Boolean);
+    for (const prereqCode of prereqCodes) {
+      const prereqRes = await client.query(
+        `SELECT course_id FROM courses WHERE course_code = $1`,
+        [prereqCode]
+      );
+      if (prereqRes.rows.length > 0) {
+        await client.query(
+          `INSERT INTO course_prerequisites (course_id, prerequisite_course_id)
+           VALUES ($1, $2)`,
+          [newCourse.course_id, prereqRes.rows[0].course_id]
+        );
+      }
+    }
+
+    const offeringTerms = offerings.split(',').map(term => term.trim()).filter(Boolean);
+    for (const term of offeringTerms) {
+      await client.query(
+        `INSERT INTO course_offerings (course_id, semester_type) VALUES ($1, $2)`,
+        [newCourse.course_id, term]
+      );
+    }
+
+    await client.query('COMMIT');
+    return newCourse;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error creating course:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Update an existing course.
+ * 
+ * This function modifies the course's core details (name, code, credits) and replaces:
+ * - all existing semester offerings with new ones
+ * - all existing prerequisites with new ones
+ * 
+ * It uses a transaction to ensure consistency—if any part fails, all changes are rolled back.
+ * 
+ * @param {number} courseId - Internal ID of the course to update.
+ * @param {Object} params - Updated course data.
+ * @param {string} params.name - New course name.
+ * @param {string} params.code - New course code.
+ * @param {number} params.credits - New credit value.
+ * @param {string} [params.prerequisites] - Comma-separated course codes for new prerequisites.
+ * @param {string} [params.offerings] - Comma-separated semester types for new offerings.
+ * @returns {Promise<Object>} - The updated course object.
+ */
+async function updateCourse(courseId, { name, code, credits, prerequisites = '', offerings = '' }) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    await client.query(
+      `UPDATE courses SET course_name = $1, course_code = $2, credits = $3 WHERE course_id = $4`,
+      [name, code, credits, courseId]
+    );
+
+    await client.query(`DELETE FROM course_offerings WHERE course_id = $1`, [courseId]);
+    const offeringTerms = offerings.split(',').map(term => term.trim()).filter(Boolean);
+    for (const term of offeringTerms) {
+      await client.query(
+        `INSERT INTO course_offerings (course_id, semester_type) VALUES ($1, $2)`,
+        [courseId, term]
+      );
+    }
+
+    await client.query(`DELETE FROM course_prerequisites WHERE course_id = $1`, [courseId]);
+    const prereqCodes = prerequisites.split(',').map(c => c.trim()).filter(Boolean);
+    for (const prereqCode of prereqCodes) {
+      const prereqRes = await client.query(
+        `SELECT course_id FROM courses WHERE course_code = $1`,
+        [prereqCode]
+      );
+      if (prereqRes.rows.length > 0) {
+        await client.query(
+          `INSERT INTO course_prerequisites (course_id, prerequisite_course_id)
+           VALUES ($1, $2)`,
+          [courseId, prereqRes.rows[0].course_id]
+        );
+      }
+    }
+
+    const updatedCourse = await client.query(
+      `SELECT course_id, course_name, course_code, credits FROM courses WHERE course_id = $1`,
+      [courseId]
+    );
+
+    await client.query('COMMIT');
+    return updatedCourse.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error updating course:', error);
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Delete a course by ID.
+ * 
+ * This function removes a course from the `courses` table using its internal ID.
+ * 
+ * Note: It assumes cascading deletes or foreign key constraints are handled at the database level
+ * for related entries in `course_prerequisites` and `course_offerings`.
+ * 
+ * @param {number} courseId - Internal ID of the course to delete.
+ * @returns {Promise<Object>} - A success message upon deletion.
+ */
+async function deleteCourse(courseId) {
+  try {
+    await pool.query(`DELETE FROM courses WHERE course_id = $1`, [courseId]);
+    return { message: 'Course deleted successfully' };
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   findByName,
   findById,
   findByNameAndId,
   getPrerequisitesForCourse,
   getCourseOfferings,
-  searchCourses
+  searchCourses,
+  createCourse,
+  updateCourse,
+  deleteCourse
 };

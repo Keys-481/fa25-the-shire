@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
 
@@ -9,10 +9,13 @@ export default function AdminCourses() {
   const [courseForm, setCourseForm] = useState({
     name: '',
     code: '',
-    credits: ''
+    credits: '',
+    offerings: '',
+    prerequisites: '',
   });
+  const searchRef = useRef();
 
-  const searchEndpoint = '/courses/lookup';
+  const searchEndpoint = '/courses/search';
 
   /**
    * Handles search results returned from the SearchBar component.
@@ -24,9 +27,9 @@ export default function AdminCourses() {
     resetForm();
   };
 
-   /**
-   * Clears selected course on initial load.
-   */
+  /**
+  * Clears selected course on initial load.
+  */
   useEffect(() => {
     setSelectedCourse(null);
   }, []);
@@ -39,9 +42,14 @@ export default function AdminCourses() {
   useEffect(() => {
     if (selectedCourse) {
       setCourseForm({
+        id: selectedCourse.id,
         name: selectedCourse.name || '',
         code: selectedCourse.code || '',
-        credits: selectedCourse.credits || ''
+        credits: selectedCourse.credits || '',
+        offerings: Array.isArray(selectedCourse.offerings)
+          ? selectedCourse.offerings.join(', ')
+          : selectedCourse.offerings || '',
+        prerequisites: selectedCourse.prerequisites?.map(p => p.course_code).join(', ') || '',
       });
       setIsAddingCourse(true);
     }
@@ -62,8 +70,8 @@ export default function AdminCourses() {
       if (!response.ok) throw new Error('Failed to add course');
 
       const addedCourse = await response.json();
-      setResults([...results, addedCourse]);
       resetForm();
+      searchRef.current?.triggerSearch();
     } catch (error) {
       console.error('Error adding course:', error);
     }
@@ -86,14 +94,32 @@ export default function AdminCourses() {
       const updatedCourse = await response.json();
       setResults(results.map(c => c.id === updatedCourse.id ? updatedCourse : c));
       resetForm();
+      searchRef.current?.triggerSearch();
     } catch (error) {
       console.error('Error updating course:', error);
     }
   };
 
-   /**
-   * Resets the form and exits add/edit mode.
-   */
+
+  const handleDeleteCourse = async () => {
+    try {
+      const response = await fetch(`/courses/${selectedCourse.id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) throw new Error('Failed to delete course');
+
+      setResults(results.filter(c => c.id !== selectedCourse.id));
+      resetForm();
+    } catch (error) {
+      console.error('Error deleting course:', error);
+    }
+  };
+
+
+  /**
+  * Resets the form and exits add/edit mode.
+  */
   const resetForm = () => {
     setIsAddingCourse(false);
     setSelectedCourse(null);
@@ -101,6 +127,8 @@ export default function AdminCourses() {
       name: '',
       code: '',
       credits: '',
+      offerings: '',
+      prerequisites: '',
     });
   };
 
@@ -115,6 +143,7 @@ export default function AdminCourses() {
         <div className="container">
           <div className="side-panel">
             <SearchBar
+              ref={searchRef}
               onSearch={handleSearchResults}
               searchEndpoint={searchEndpoint}
               placeholder1="Course Name"
@@ -157,7 +186,7 @@ export default function AdminCourses() {
                   </button>
                   <button onClick={resetForm}>Cancel</button>
                   {selectedCourse && (
-                    <button className="error-message">Delete</button>
+                    <button className="error-message" onClick={handleDeleteCourse}>Delete</button>
                   )}
                 </div>
                 <div className="horizontal-line"></div>
@@ -166,6 +195,7 @@ export default function AdminCourses() {
                   { label: 'Course Name', key: 'name' },
                   { label: 'Course Code', key: 'code' },
                   { label: 'Course Credits', key: 'credits' },
+                  { label: 'Course Offerings', key: 'offerings' },
                 ].map(({ label, key }) => (
                   <div className="textbox-row" key={key}>
                     <p className="layout">{label}:</p>
@@ -180,6 +210,19 @@ export default function AdminCourses() {
                     />
                   </div>
                 ))}
+                <div className="textbox-row">
+                  <p className="layout">Course Pre-requisites:</p>
+                  <input
+                    type="text"
+                    className="textbox"
+                    value={courseForm.prerequisites}
+                    onChange={(e) =>
+                      setCourseForm({ ...courseForm, prerequisites: e.target.value })
+                    }
+                    placeholder="e.g. OPWL-536, OPWL-530"
+                  />
+                </div>
+
               </div>
             ) : (
               <div className="section-results-side">
