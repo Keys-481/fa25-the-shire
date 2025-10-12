@@ -47,6 +47,9 @@ jobs:
       - name: Create .env.test from secret
         run: printf "%s" "${{ secrets.ENV_TEST }}" > .env.test
 
+      - name: Mirror .env.test to backend/.env
+        run: cp .env.test backend/.env
+
       - name: Install backend deps
         if: hashFiles('backend/package-lock.json') != ''
         run: cd backend && npm ci
