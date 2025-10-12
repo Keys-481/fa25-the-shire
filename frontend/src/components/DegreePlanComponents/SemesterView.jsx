@@ -9,9 +9,13 @@
  * @param {*} courses - array of course objects to display
  * @returns {JSX.Element} - The rendered semester view
  */
-export default function SemesterView( { courses } ) {
+export default function SemesterView( { courses, program } ) {
     if (!courses || courses.length === 0) {
-        return <p>No courses found</p>
+        return <p>No courses found</p>;
+    }
+
+    if (!program?.program_type) {
+        return <p>No program selected</p>;
     }
 
     const grouped = courses.reduce((acc, course) => {
@@ -23,7 +27,7 @@ export default function SemesterView( { courses } ) {
         return acc;
     }, {});
 
-    const sortedSemesters = Object.keys(grouped).sort();
+    const sortedSemesters = Object.keys(grouped);
 
     return (
         <div>
@@ -38,7 +42,9 @@ export default function SemesterView( { courses } ) {
                                 <tr>
                                     <th>Course Code</th>
                                     <th>Course Title</th>
-                                    <th>Certificate Overlap</th>
+                                    {program.program_type !== 'certificate' && (
+                                        <th>Certificate Overlap</th>
+                                    )}
                                     <th>Prerequisites</th>
                                     <th>Offered</th>
                                     <th>Credits</th>
@@ -49,7 +55,9 @@ export default function SemesterView( { courses } ) {
                                     <tr key={`${semester}-${course.course_id || course.course_code}`}>
                                         <td><strong>{course.course_code}</strong></td>
                                         <td>{course.course_name}</td>
-                                        <td>N/A</td>
+                                        {program.program_type !== 'certificate' && (
+                                            <td>N/A</td>
+                                        )}
                                         <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
                                         <td>{course.offered_semesters || 'N/A'}</td>
                                         <td>{course.credits}</td>

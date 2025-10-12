@@ -204,17 +204,17 @@ INSERT INTO course_offerings (course_id, semester_type) VALUES
 
 -- Insert program requirements
 -- Note: Some requirements are hierarchical (e.g., culminating activity with sub-requirements)
-INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description) VALUES
+INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description, display_order) VALUES
 -- OPWL MS Program Requirement Structure
-(1, 1, 'core', NULL, 12, 'Core Courses for OPWL MS'), -- Core requirement for OPWL MS
-(3, 1, 'culminating_activity', NULL, NULL, 'Complete one (1) of the following'), -- Culminating activity for OPWL MS (Parent requirement)
-(4, 1, 'portfolio', 3, 12, 'Complete all of the following'), -- Portfolio requirement under culminating activity
-(5, 1, 'research', 4, 3, 'Take at least 3 credits from the following (RESEARCH)'), -- Research requirement under portfolio
-(6, 1, 'elective', 4, 8, 'Take at least 8 credits from the following'), -- Elective requirement under portfolio
-(7, 1, 'misc', 4, 1, 'Take at least 1 credits from the following'), -- Misc requirement under portfolio
-(8, 1, 'thesis', 3, 12, 'Complete all of the following'), -- Thesis requirement under culminating activity
-(9, 1, 'research', 8, 6, 'Take at least 6 credits from the following (RESEARCH)'), -- Research requirement under thesis
-(10, 1, 'misc', 8, 6, 'Take at least 6 credits from the following (3-4 semesters)'); -- Misc requirement under thesis
+(1, 1, 'core', NULL, 12, 'Core Courses for OPWL MS', 1), -- Core requirement for OPWL MS
+(3, 1, 'culminating_activity', NULL, NULL, 'Culminating Activity: Complete one (1) of the following', 2), -- Culminating activity for OPWL MS (Parent requirement)
+(4, 1, 'portfolio', 3, 12, 'Portfolio Option: Complete all of the following', 3), -- Portfolio requirement under culminating activity
+(5, 1, 'research', 4, 3, 'Take at least 3 credits from the following (RESEARCH)', 4), -- Research requirement under portfolio
+(6, 1, 'elective', 4, 8, 'Take at least 8 credits from the following (ELECTIVES)', 5), -- Elective requirement under portfolio
+(7, 1, 'misc', 4, 1, 'Take at least 1 credits from the following', 6), -- Misc requirement under portfolio
+(8, 1, 'thesis', 3, 12, 'Thesis Option: Complete all of the following', 7), -- Thesis requirement under culminating activity
+(9, 1, 'research', 8, 6, 'Take at least 6 credits from the following (RESEARCH)', 8), -- Research requirement under thesis
+(10, 1, 'misc', 8, 6, 'Take at least 6 credits from the following (3-4 semesters)', 9); -- Misc requirement under thesis
 
 
 -- Insert requirement courses for OPWL MS Program
@@ -262,7 +262,7 @@ INSERT INTO requirement_courses (requirement_id, course_id) VALUES
 -- Insert requirement for OD Certificate Program
 INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description) VALUES
 (11, 2, 'core', NULL, 10, 'Required to take the following (10 Credits)'), -- Core requirement for OD certificate
-(12, 2, 'elective', NULL, 6, 'Take 6 credits from the following'); -- Elective requirement for OD certificate
+(12, 2, 'elective', NULL, 6, 'Take 6 credits from the following (ELECTIVES)'); -- Elective requirement for OD certificate
 
 -- Insert requirement courses for OD Certificate Program
 INSERT INTO requirement_courses (requirement_id, course_id) VALUES
