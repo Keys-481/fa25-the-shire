@@ -49,7 +49,7 @@ describe('GET /students/search', () => {
     // Test searching for a student by school ID as an admin user
     // admin user with user ID 1 should exist in seed data as admin
     test('returns student for valid school ID as admin', async () => {
-        const app = makeAppWithUser({ user_id: 1 }); 
+        const app = makeAppWithUser({ user_id: 1 });
         const res = await request(app).get('/students/search').query({ q1: '112299690' });
         expect(res.status).toBe(200);
         expect(res.body.length).toBe(1);
@@ -65,6 +65,42 @@ describe('GET /students/search', () => {
         expect(res.status).toBe(200);
         expect(res.body.length).toBe(1);
         expect(res.body[0].id).toBe('113601927');
+    });
+
+    // Test searching for a student by first name only as an admin user
+    test('returns students for valid first name as admin', async () => {
+        const app = makeAppWithUser({ user_id: 1 });
+        const res = await request(app).get('/students/search').query({ q2: 'Alice' });
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].id).toBe('112299690');
+    });
+
+    // Test searching for a student by last name only as an admin user
+    test('returns students for valid last name as admin', async () => {
+        const app = makeAppWithUser({ user_id: 1 });
+        const res = await request(app).get('/students/search').query({ q2: 'Williams' });
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].id).toBe('113601927');
+    });
+
+    // Test searching for a student by full name only as an admin user
+    test('returns students for valid full name as admin', async () => {
+        const app = makeAppWithUser({ user_id: 1 });
+        const res = await request(app).get('/students/search').query({ q2: 'Alice Johnson' });
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].id).toBe('112299690');
+    });
+
+    // Test searching for a student by partial name and school ID as an admin user
+    test('returns student for valid school ID and partial name as admin', async () => {
+        const app = makeAppWithUser({ user_id: 1 });
+        const res = await request(app).get('/students/search').query({ q1: '112299690', q2: 'Alice' });
+        expect(res.status).toBe(200);
+        expect(res.body.length).toBe(1);
+        expect(res.body[0].id).toBe('112299690');
     });
 
     // Test searching for a student by school ID as an advisor not assigned to that student

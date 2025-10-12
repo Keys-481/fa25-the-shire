@@ -11,17 +11,23 @@ const DegreePlanModel = require('../models/DegreePlanModel');
 const CourseModel = require('../models/CourseModel');
 
 
+const { log, error } = require('console');
+
+
 /**
  * Route: GET /students/search
- * Supports searching for a student by their school ID (q1)
- * Will implement flexible search later (name, phone)
+ * Supports searching for a student by their school ID, and partial or full name (q1, q2).
+ * Will implement search by phone later.
+ * 
+ * @response 400 - Missing search parameters
+ * @response 401 - Unauthorized: No user info
+ * @response 404 - Student not found
+ * @response 500 - Internal server error
+ * @response 200 - OK
+ * @returns A list of students matching the search criteria
  */
 router.get('/search', async (req, res) => {
-    const { q1 } = req.query;
-
-    if (!q1) {
-        return res.status(400).json({ message: 'Missing school ID (q1)' });
-    }
+    const { q1, q2 } = req.query;
 
     try {
         // Expect req.user to be set by middleware (mock or real auth)
@@ -31,38 +37,57 @@ router.get('/search', async (req, res) => {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
         }
 
-        // get student by schoolId
-        const student = await StudentModel.getStudentBySchoolId(q1);
+
+        let students = [];
+        if (q1 && q2) {
+            // Both school ID and name provided
+            students = await StudentModel.getStudentBySchoolIdAndName(q1, q2);
+        } else if (q1) {
+            students = await StudentModel.getStudentBySchoolId(q1);
+        } else if (q2) {
+            students = await StudentModel.getStudentByName(q2);
+        } else {
+            return res.status(400).json({ message: 'Missing search parameters: school ID or name' });
+        }
 
         // check if student exists
-        if (!student) {
+        if (!students || students.length === 0) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        // check access permissions
+        // get user roles
         const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
-        let hasAccess = true; // default to false (true for testing, change to false)
+        const isAdmin = userRoles.includes('admin');
+        const isAdvisor = userRoles.includes('advisor');
 
-        if (userRoles.includes('admin')) {
-            hasAccess = true;
-        } else if (userRoles.includes('advisor')) {
-            hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
-        }
+        // check access permissions
+        const accessChecks = students.map(async (student) => {
+            if (isAdmin) {
+                return true;
+            } else if (isAdvisor) {
+                return await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+            }
+            return false;
+        });
 
-        if (!hasAccess) {
+        const accessResults = await Promise.all(accessChecks);
+
+        // Filter students based on access results
+        let accessibleStudents = students.filter((_, index) => accessResults[index]);
+
+        if (accessibleStudents.length === 0) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
         // user has access, return student info
-        const formatted_student = [
-            {
-                id: student.school_student_id,
-                name: `${student.first_name} ${student.last_name}`,
-                email: student.email,
-                phone: student.phone_number
-            },
-        ];
+        const formatted_student = accessibleStudents.map(student => ({
+            id: student.school_student_id,
+            name: `${student.first_name} ${student.last_name}`,
+            email: student.email,
+            phone: student.phone_number
+        }));
         return res.json(formatted_student);
+        
     } catch (error) {
         console.error('Error fetching student:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -83,7 +108,8 @@ router.get('/:schoolId', async (req, res) => {
         }
 
         // get student by schoolId
-        const student = await StudentModel.getStudentBySchoolId(schoolId);
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
 
         // check if student exists
         if (!student) {
@@ -129,7 +155,8 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         }
 
         // get student by schoolId
-        const student = await StudentModel.getStudentBySchoolId(schoolId);
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
 
         // check if student exists
         if (!student) {
@@ -194,7 +221,8 @@ router.get('/:schoolId/programs', async (req, res) => {
         }
 
         // get student by schoolId
-        const student = await StudentModel.getStudentBySchoolId(schoolId);
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
 
         // check if student exists
         if (!student) {

@@ -27,7 +27,10 @@ describe('StudentModel', () => {
     // (student with school_student_id '112299690' should exist in seed data)
     test('getStudentBySchoolId returns a student if exists', async () => {
         const schoolId = '112299690'; // should match your seed data
-        const student = await StudentModel.getStudentBySchoolId(schoolId);
+        const studentResponse = await StudentModel.getStudentBySchoolId(schoolId);
+        expect(Array.isArray(studentResponse)).toBe(true);
+        expect(studentResponse.length).toBe(1);
+        const student = studentResponse[0];
         expect(student).toBeDefined();
         expect(student.school_student_id).toBe(schoolId);
         expect(student.first_name).toBe('Alice'); // should match seed data
@@ -36,8 +39,9 @@ describe('StudentModel', () => {
 
     // Test for getting student with invalid school ID
     test('getStudentBySchoolId returns undefined for non-existent student', async () => {
-        const student = await StudentModel.getStudentBySchoolId('invalid_id');
-        expect(student).toBeUndefined();
+        const studentResponse = await StudentModel.getStudentBySchoolId('invalid_id');
+        expect(Array.isArray(studentResponse)).toBe(true);
+        expect(studentResponse.length).toBe(0);
     });
 
     // Test for getting programs for a valid student ID
@@ -56,4 +60,53 @@ describe('StudentModel', () => {
         expect(programIds).toContain(1); // should match seed data
         expect(programIds).toContain(2); // should match seed data
     });
+
+    // Test for getting a student by school ID and name
+    test('getStudentBySchoolIdAndName returns student for valid school ID and name', async () => {
+        const schoolId = '112299690'; // should match your seed data
+        const name = 'Alice'; // should match your seed data
+        const students = await StudentModel.getStudentBySchoolIdAndName(schoolId, name);
+        expect(students).toBeDefined();
+        expect(students.length).toBeGreaterThan(0);
+        expect(students[0].school_student_id).toBe(schoolId);
+        expect(students[0].first_name).toBe('Alice'); // should match seed data
+        expect(students[0].last_name).toBe('Johnson'); // should match seed data
+    });
+
+    // Test for getting a student by school ID and name that does not exist
+    test('getStudentBySchoolIdAndName returns empty array for non-existent student', async () => {
+        const students = await StudentModel.getStudentBySchoolIdAndName('invalid_id', 'NonExistent');
+        expect(students).toBeDefined();
+        expect(students.length).toBe(0);
+    });
+
+    // Test for getting a student by valid school ID and name that does not exist
+    test('getStudentBySchoolIdAndName returns empty array for non-existent student', async () => {
+        const students = await StudentModel.getStudentBySchoolIdAndName('112299690', 'NonExistent');
+        expect(students).toBeDefined();
+        expect(students.length).toBe(0);
+    });
+
+    // Test for getting a student by invalid school ID and valid name
+    test('getStudentBySchoolIdAndName returns empty array for non-existent student', async () => {
+        const students = await StudentModel.getStudentBySchoolIdAndName('invalid_id', 'Alice');
+        expect(students).toBeDefined();
+        expect(students.length).toBe(0);
+    });
+
+    // Test for getting students by partial name match
+    test('getStudentsByName returns students matching partial name', async () => {
+        const name = 'Alice'; // should match your seed data
+        const students = await StudentModel.getStudentByName(name);
+        expect(students).toBeDefined();
+        expect(students.length).toBeGreaterThan(0);
+        expect(students[0]).toHaveProperty('school_student_id');
+        expect(students[0]).toHaveProperty('first_name');
+        expect(students[0]).toHaveProperty('last_name');
+
+        // Check that at least one returned student matches the search name
+        const matchingStudents = students.filter(s => s.first_name.includes(name) || s.last_name.includes(name));
+        expect(matchingStudents.length).toBeGreaterThan(0);
+    });
+
 });
