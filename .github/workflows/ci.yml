@@ -45,7 +45,7 @@ jobs:
             package-lock.json
           
       - name: Create .env.test from secret
-        run: printf "%s" "${{ secrets.ENV_TEST }}" > env.test
+        run: printf "%s" "${{ secrets.ENV_TEST }}" > .env.test
 
       - name: Install backend deps
         if: hashFiles('backend/package-lock.json') != ''
@@ -86,7 +86,7 @@ jobs:
             package-lock.json
         
       - name: Create .env.test from secret
-        run: printf "%s" "${{ secrets.ENV_TEST }}" > env.test
+        run: printf "%s" "${{ secrets.ENV_TEST }}" > .env.test
 
       - name: Install frontend deps
         if: hashFiles('frontend/package-lock.json') != ''
