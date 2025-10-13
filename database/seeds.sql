@@ -207,7 +207,7 @@ INSERT INTO course_offerings (course_id, semester_type) VALUES
 -- Note: Some requirements are hierarchical (e.g., culminating activity with sub-requirements)
 INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description, display_order) VALUES
 -- OPWL MS Program Requirement Structure
-(1, 1, 'core', NULL, 12, 'Core Courses for OPWL MS', 1), -- Core requirement for OPWL MS
+(1, 1, 'core', NULL, 24, 'Core Courses for OPWL MS', 1), -- Core requirement for OPWL MS
 (3, 1, 'culminating_activity', NULL, 12, 'Culminating Activity: Complete one (1) of the following', 2), -- Culminating activity for OPWL MS (Parent requirement)
 (4, 1, 'portfolio', 3, 12, 'Portfolio Option: Complete all of the following', 3), -- Portfolio requirement under culminating activity
 (5, 1, 'research', 4, 3, 'Take at least 3 credits from the following (RESEARCH)', 4), -- Research requirement under portfolio
