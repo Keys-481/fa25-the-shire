@@ -67,6 +67,15 @@ export default function DegreePlan({ student, program }) {
     const { name, id, email, phone } = student;
     const catalogYear = planData.degreePlan.find(c => c.catalog_year)?.catalog_year || 'N/A';
 
+    // Sum total required credits from planData
+    const totalCredits = planData.degreePlan.reduce((sum, course) => sum + (course.credits || 0), 0);
+
+    // sum total completed credits from planData
+    const completedCredits = planData.degreePlan.reduce((sum, course) => {
+        const isCompleted = course.course_status === 'Completed';
+        return sum + (isCompleted ? (course.credits || 0) : 0);
+    }, 0);
+
     return (
         <div className="degree-plan-container">
             {/* Student Info Section */}
@@ -90,13 +99,18 @@ export default function DegreePlan({ student, program }) {
                 <p><span>Program:</span> {program.program_name}</p>
 
                 {/* View Toggle */}
-                <div className="view-toggle" style={{ marginTop: '10px', background: '#eee', padding: '5px' }}>
-                    <button onClick={() => { setViewType('semester') }} className={viewType === 'semester' ? 'active' : 'inactive'}>
-                        Semester View
-                    </button>
-                    <button onClick={() => { setViewType('requirements') }} className={viewType === 'requirements' ? 'active' : 'inactive'}>
-                        Requirements View
-                    </button>
+                <div className="view-toggle">
+                    <div>
+                        <button onClick={() => { setViewType('semester') }} className={viewType === 'semester' ? 'active' : 'inactive'}>
+                            Semester View
+                        </button>
+                        <button onClick={() => { setViewType('requirements') }} className={viewType === 'requirements' ? 'active' : 'inactive'}>
+                            Requirements View
+                        </button>
+                    </div>
+                    <span className="degree-plan-content" style={{ marginLeft: '20px' }}>
+                        <strong>Credit Count:</strong> {completedCredits} / {totalCredits}
+                    </span>
                 </div>
             </div>
 

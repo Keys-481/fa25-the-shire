@@ -3,7 +3,6 @@
  * This file defines the ProgramSelector component to select a program for a student.
  */
 
-import { useEffect, useState } from "react";
 import DegreePlan from "./DegreePlanComponents/DegreePlan";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram }) {

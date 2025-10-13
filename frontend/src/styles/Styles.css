@@ -443,4 +443,11 @@ requirements-table td {
   border-left: 1px solid #e6e9ef;
 }
 
-
+.view-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    background: #eee;
+    margin-top: 10px;
+}
