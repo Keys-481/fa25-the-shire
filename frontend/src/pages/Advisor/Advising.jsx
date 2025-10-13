@@ -89,7 +89,7 @@ export default function Advising() {
               onSearch={handleSearchResults}
               searchEndpoint={searchStudentEndpoint}
               placeholder1="School ID"
-              placeholder2="Not Implemented"
+              placeholder2="Name"
             />
             <div className="horizontal-line-half"></div>
             <div className="side-panel-results">
