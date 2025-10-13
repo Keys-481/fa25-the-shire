@@ -85,4 +85,11 @@ describe('DegreePlanModel', () => {
         expect(degreePlan[0]).toHaveProperty('course_status');
         expect(degreePlan[0]).toHaveProperty('semester_name');
     });
+
+    // Test for getting total required credits for a program
+    test('getTotalProgramRequiredCredits returns correct total credits for a program', async () => {
+        const programId = 1; // OPWL MS
+        const totalCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
+        expect(totalCredits).toBe(36); // should match sum of required_credits in seed data for program_id 1
+    });
 });

@@ -7,7 +7,8 @@ TRUNCATE TABLE users, roles, permissions, user_roles, role_permissions,
             advisors, students, programs, courses, semesters,
             course_offerings, course_prerequisites, program_requirements,
             requirement_courses, degree_plans, advising_relations,
-            student_certificates, enrollments, notifications, degree_plan_comments
+            student_certificates, enrollments, notifications, degree_plan_comments,
+            student_programs, certificates, certificate_courses
 CASCADE;
 
 INSERT INTO roles (role_id, role_name) VALUES
@@ -206,8 +207,8 @@ INSERT INTO course_offerings (course_id, semester_type) VALUES
 -- Note: Some requirements are hierarchical (e.g., culminating activity with sub-requirements)
 INSERT INTO program_requirements (requirement_id, program_id, requirement_type, parent_requirement_id, required_credits, req_description, display_order) VALUES
 -- OPWL MS Program Requirement Structure
-(1, 1, 'core', NULL, 12, 'Core Courses for OPWL MS', 1), -- Core requirement for OPWL MS
-(3, 1, 'culminating_activity', NULL, NULL, 'Culminating Activity: Complete one (1) of the following', 2), -- Culminating activity for OPWL MS (Parent requirement)
+(1, 1, 'core', NULL, 24, 'Core Courses for OPWL MS', 1), -- Core requirement for OPWL MS
+(3, 1, 'culminating_activity', NULL, 12, 'Culminating Activity: Complete one (1) of the following', 2), -- Culminating activity for OPWL MS (Parent requirement)
 (4, 1, 'portfolio', 3, 12, 'Portfolio Option: Complete all of the following', 3), -- Portfolio requirement under culminating activity
 (5, 1, 'research', 4, 3, 'Take at least 3 credits from the following (RESEARCH)', 4), -- Research requirement under portfolio
 (6, 1, 'elective', 4, 8, 'Take at least 8 credits from the following (ELECTIVES)', 5), -- Elective requirement under portfolio
@@ -282,29 +283,53 @@ INSERT INTO requirement_courses (requirement_id, course_id) VALUES
 -- Students can choose other OPWL courses as electives as well
 -- OPWL-XXX courses not listed as core
 
--- Insert degree plan entries for Alice Johnson (student1)
+-- Insert degree plan entries
 INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(1, 1, 1, 1, 7, 'In Progress', '2025-2026'), -- OPWL-536 in Fall 2025 for Alice Johnson in OPWL MS
-(2, 1, 1, 6, 7, 'In Progress', '2025-2026'), -- OPWL-507 in Fall 2025 for Alice Johnson in OPWL MS
-(3, 1, 1, 3, 10, 'Planned', '2025-2026'), -- OPWL-560 in Fall 2026 for Alice Johnson in OPWL MS
-(4, 1, 1, 9, 8, 'Planned', '2025-2026'), -- OPWL-530 in Spring 2026 for Alice Johnson in OPWL MS
-(5, 1, 1, 5, 11, 'Planned', '2025-2026'); -- OPWL-592 in Spring 2027 for Alice Johnson in OPWL MS
+-- Alice Johnson's degree plan for OPWL MS program
+(1, 1, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024
+(2, 1, 1, 10, 4, 'Completed', '2025-2026'),  -- OPWL-535 (Core) in Fall 2024
+(3, 1, 1, 11, 5, 'Completed', '2025-2026'),  -- OPWL-537 (Core) in Spring 2025
+(4, 1, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Elective) in Spring 2025
+(5, 1, 1, 6, 7, 'In Progress', '2025-2026'), -- OPWL-507 (Research) in Fall 2025
+(6, 1, 1, 3, 10, 'Planned', '2025-2026'),    -- OPWL-560 (Core) in Fall 2026
+(7, 1, 1, 9, 8, 'Planned', '2025-2026'),     -- OPWL-530 (Core) in Spring 2026
+(8, 1, 1, 5, 11, 'Planned', '2025-2026');    -- OPWL-592 (Portfolio) in Spring 2027
 
+-- Alice Johnson's degree plan for OD certificate program
 INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(6, 2, 1, 2, 8, 'Planned', '2025-2026'), -- OPWL-506 in Spring 2026 for Alice Johnson in OD certificate
-(7, 2, 1, 4, 8, 'Planned', '2025-2026'); -- OPWL-518 in Spring 2026 for Alice Johnson in OD certificate
+(9, 2, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024 (Overlap Fix)
+(10, 2, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Core) in Spring 2025
+(11, 2, 1, 2, 7, 'In Progress', '2025-2026'), -- OPWL-506 (Elective) in Fall 2025
+(12, 2, 1, 4, 8, 'Planned', '2025-2026');     -- OPWL-518 (Elective) in Spring 2026
 
--- Insert degree plan entries for Bob Williams (student2)
+-- Bob Williams's degree plan for OD certificate program
 INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(10, 2, 2, 1, 7, 'In Progress', '2025-2026'), -- OPWL-536 in Fall 2025 for Bob Williams in OD certificate
-(11, 2, 2, 4, 8, 'Planned', '2025-2026'), -- OPWL-518 in Spring 2026 for Bob Williams in OD certificate
-(12, 2, 2, 5, 9, 'Planned', '2025-2026'); -- OPWL-592 in Summer 2026 for Bob Williams in OD certificate
+(13, 2, 2, 1, 4, 'Completed', '2025-2026'),  -- OPWL-536 (Core) in Fall 2024
+(14, 2, 2, 15, 5, 'Completed', '2025-2026'), -- OPWL-577 (Core) in Spring 2025
+(15, 2, 2, 17, 7, 'In Progress', '2025-2026'),-- OPWL-575 (Elective) in Fall 2025
+(16, 2, 2, 4, 8, 'Planned', '2025-2026');   -- OPWL-518 (Elective) in Spring 2026
 
 -- Insert into enrollments
 INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grade) VALUES
-(1, 1, 1, 7, NULL), -- Alice Johnson enrolled in OPWL-536 in Fall 2025
-(2, 1, 6, 7, NULL), -- Alice Johnson enrolled in OPWL-507 in Fall 2025
-(3, 2, 2, 1, NULL); -- Bob Williams enrolled in OPWL-536 in Fall 2025
+-- Alice Johnson Completed enrollments (Fall 2024 and Spring 2025)
+(1, 1, 1, 4, 'A'), -- Alice Johnson completed OPWL-536 in Fall 2024
+(2, 1, 10, 4, 'A-'), -- Alice Johnson completed OPWL-535 in Fall 2024
+(3, 1, 11, 5, 'B+'), -- Alice Johnson completed OPWL-537 in Spring 2025
+(4, 1, 14, 5, 'A'), -- Alice Johnson completed OPWL-571 in Spring 2025
+
+-- Alice Johnson in-progress enrollments (Fall 2025)
+(5, 1, 6, 7, NULL), -- Alice Johnson in-progress OPWL-507 in Fall 2025
+(6, 1, 2, 8, NULL), -- Alice Johnson in-progress OPWL-506 in Fall 2025
+
+-- Bob Williams Completed enrollments (Fall 2024 and Spring 2025)
+(7, 2, 1, 4, 'A'), -- Bob Williams completed OPWL-536 in Fall 2024
+(8, 2, 15, 5, 'A-'), -- Bob Williams completed OPWL-577 in Spring 2025
+
+-- Bob Williams in-progress enrollments (Fall 2025)
+(9, 2, 17, 7, NULL), -- Bob Williams in-progress OPWL-575 in Fall 2025
+
+-- Bob Williams planned enrollments (Spring 2026)
+(10, 2, 4, 8, NULL); -- Bob Williams planned OPWL-518 in Spring 2026
 
 -- Insert into certificates
 INSERT INTO certificates (certificate_id, certificate_name, program_id) VALUES
