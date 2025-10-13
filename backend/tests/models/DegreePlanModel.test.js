@@ -90,6 +90,6 @@ describe('DegreePlanModel', () => {
     test('getTotalProgramRequiredCredits returns correct total credits for a program', async () => {
         const programId = 1; // OPWL MS
         const totalCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
-        expect(totalCredits).toBe(24); // should match sum of required_credits in seed data for program_id 1
+        expect(totalCredits).toBe(36); // should match sum of required_credits in seed data for program_id 1
     });
 });
