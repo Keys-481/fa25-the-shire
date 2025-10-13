@@ -68,7 +68,7 @@ export default function DegreePlan({ student, program }) {
     const catalogYear = planData.degreePlan.find(c => c.catalog_year)?.catalog_year || 'N/A';
 
     // Sum total required credits from planData
-    const totalCredits = planData.degreePlan.reduce((sum, course) => sum + (course.credits || 0), 0);
+    const totalCredits = planData.totalRequiredCredits;
 
     // sum total completed credits from planData
     const completedCredits = planData.degreePlan.reduce((sum, course) => {

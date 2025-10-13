@@ -115,6 +115,9 @@ router.get('/:schoolId', async (req, res) => {
 /**
  * Route: GET /students/:schoolId/degree-plan
  * Retrieves the degree plan for a student and program by their school ID.
+ * Query params:
+ *   - programId: internal program ID
+ *   - viewType: 'semester' or 'requirements'
  */
 router.get('/:schoolId/degree-plan', async (req, res) => {
     const { schoolId } = req.params;
@@ -127,6 +130,8 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
         if (!currentUser || !currentUser.user_id) {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
         }
+
+        const totalRequiredCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
 
         // get student by schoolId
         const student = await StudentModel.getStudentBySchoolId(schoolId);
@@ -155,6 +160,13 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                 degreePlan = await DegreePlanModel.getDegreePlanByStudentId(student.student_id, programId);
             }
 
+            if (!programId) {
+                return res.status(400).json({ message: 'Missing programId query parameter' });
+            }
+
+            // Get total required credits for the program
+            const totalRequiredCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
+
             // add prerequisites and course offerings to each course in the degree plan
             degreePlan = await Promise.all(
                 degreePlan.map(async (course) => {
@@ -168,7 +180,7 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                 })
             );
             console.log(viewType, degreePlan);
-            return res.json({ student, programId, viewType, degreePlan });
+            return res.json({ student, programId, viewType, degreePlan, totalRequiredCredits });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
         }

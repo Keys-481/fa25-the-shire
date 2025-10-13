@@ -87,8 +87,28 @@ async function getDegreePlanByRequirements(studentId, programId) {
     }
 }
 
+/** Get the total required credits for a program
+ * @param {*} programId - internal program ID
+ * @returns total required credits for the program
+ */
+async function getTotalProgramRequiredCredits(programId) {
+    try {
+        const result = await pool.query(
+            `SELECT SUM(required_credits) AS total_required_credits
+            FROM program_requirements
+            WHERE program_id = $1 AND parent_requirement_id IS NULL`,
+            [programId]
+        );
+        return parseInt(result.rows[0]?.total_required_credits) || 0;
+    } catch (error) {
+        console.error('Error fetching total program required credits:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     getDegreePlanByStudentId,
     getDegreePlanByRequirements,
+    getTotalProgramRequiredCredits,
 }
 
