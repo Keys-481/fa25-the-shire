@@ -1,21 +1,58 @@
-import StudentNavBar from "../../components/NavBars/StudentNavBar"
+// File: frontend/src/pages/Student/DegreeTracking.jsx
+import { useEffect, useState } from "react";
+import DegreePlan from "../../components/DegreePlanComponents/DegreePlan.jsx";
+import ProgramSelector from "../../components/ProgramSelector.jsx";
+import "../../styles/Styles.css";
 
-/**
- * StudentDegreeTracking component displays the Degree Tracking page for students.
- * 
- * @component
- * @returns {JSX.Element}   A simple admin view for managing or viewing courses
- */
 export default function StudentDegreeTracking() {
-   return (
-    <div>
-      {/* Student Navigation Bar */}
-      <StudentNavBar />
-      <div className='window'>
-        <div className='title-bar'>
-          <h1>Degree Tracking</h1>
-        </div>
-      </div>
+  const [student, setStudent] = useState(null);
+  const [programs, setPrograms] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const studentId = 1; 
+        const resStudent = await fetch(`/api/students/${studentId}`);
+        if (!resStudent.ok) throw new Error("Student not found");
+        const studentData = await resStudent.json();
+
+
+        const resPrograms = await fetch(`/api/students/${studentId}/programs`);
+        if (!resPrograms.ok) throw new Error("Programs not found");
+        const programsData = await resPrograms.json();
+
+        setStudent(studentData);
+        setPrograms(programsData.programs || []);
+        setSelectedProgram(programsData.programs?.[0] || null);
+      } catch (err) {
+        console.error("Error loading student data:", err);
+      }
+    };
+
+    fetchStudentData();
+  }, []);
+
+  if (!student) return <p>Loading degree plan...</p>;
+
+  return (
+    <div className="student-degree-tracking-container">
+      <h1>{student.name}'s Degree Plan</h1>
+
+      <ProgramSelector
+        student={student}
+        programs={programs}
+        selectedStudentProgram={selectedProgram}
+        setSelectedProgram={setSelectedProgram}
+      />
+
+      {selectedProgram && (
+        <DegreePlan
+          student={student}
+          program={selectedProgram}
+          degreePlan={student.degreePlan || []}
+        />
+      )}
     </div>
-   )
- }
+  );
+}
