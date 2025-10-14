@@ -1,58 +1,59 @@
-// File: frontend/src/pages/Student/DegreeTracking.jsx
-import { useEffect, useState } from "react";
-import DegreePlan from "../../components/DegreePlanComponents/DegreePlan.jsx";
-import ProgramSelector from "../../components/ProgramSelector.jsx";
-import "../../styles/Styles.css";
+import { useState, useEffect } from "react";
+import StudentNavBar from "../../components/NavBars/StudentNavBar";
+import ProgramSelector from "../../components/ProgramSelector";
 
 export default function StudentDegreeTracking() {
-  const [student, setStudent] = useState(null);
-  const [programs, setPrograms] = useState([]);
-  const [selectedProgram, setSelectedProgram] = useState(null);
+    // Hardcoded single student (use the correct school_student_id)
+    const student = { id: "112299690", name: "Alice Johnson" };  // Hardccoded to alice for now as a placeholder student. Will update when we have log in functionality.
 
-  useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        const studentId = 1; 
-        const resStudent = await fetch(`/api/students/${studentId}`);
-        if (!resStudent.ok) throw new Error("Student not found");
-        const studentData = await resStudent.json();
+    const [programs, setPrograms] = useState([]);
+    const [selectedProgram, setSelectedProgram] = useState(null);
 
+    useEffect(() => {
+        const fetchPrograms = async () => {
+            try {
+                const response = await fetch(`/students/${student.id}/programs`);
+                if (!response.ok) {
+                    console.error("Failed to fetch programs:", response.statusText);
+                    setPrograms([]);
+                    return;
+                }
 
-        const resPrograms = await fetch(`/api/students/${studentId}/programs`);
-        if (!resPrograms.ok) throw new Error("Programs not found");
-        const programsData = await resPrograms.json();
+                const data = await response.json();
 
-        setStudent(studentData);
-        setPrograms(programsData.programs || []);
-        setSelectedProgram(programsData.programs?.[0] || null);
-      } catch (err) {
-        console.error("Error loading student data:", err);
-      }
-    };
+                // Ensure programs array exists
+                const studentPrograms = data.programs || [];
+                setPrograms(studentPrograms);
 
-    fetchStudentData();
-  }, []);
+                // Auto-select the first program if available
+                if (studentPrograms.length > 0) {
+                    setSelectedProgram(studentPrograms[0]);
+                }
+            } catch (error) {
+                console.error("Error fetching student programs:", error);
+                setPrograms([]);
+            }
+        };
 
-  if (!student) return <p>Loading degree plan...</p>;
+        fetchPrograms();
+    }, [student.id]);
 
-  return (
-    <div className="student-degree-tracking-container">
-      <h1>{student.name}'s Degree Plan</h1>
-
-      <ProgramSelector
-        student={student}
-        programs={programs}
-        selectedStudentProgram={selectedProgram}
-        setSelectedProgram={setSelectedProgram}
-      />
-
-      {selectedProgram && (
-        <DegreePlan
-          student={student}
-          program={selectedProgram}
-          degreePlan={student.degreePlan || []}
-        />
-      )}
-    </div>
-  );
+    return (
+        <div>
+            <StudentNavBar />
+            <div className="window">
+                <div className="title-bar">
+                    <h1>Degree Tracking</h1>
+                </div>
+                <div className="container">
+                    <ProgramSelector
+                        student={student}
+                        programs={programs}
+                        selectedStudentProgram={selectedProgram}
+                        setSelectedProgram={setSelectedProgram}
+                    />
+                </div>
+            </div>
+        </div>
+    );
 }
