@@ -206,7 +206,6 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     };
                 })
             );
-            console.log(viewType, degreePlan);
             return res.json({ student, programId, viewType, degreePlan, totalRequiredCredits });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });

@@ -62,6 +62,16 @@ describe('CourseModel', () => {
         expect(offerings.length).toBeGreaterThan(0);
     });
 
+    // Test for getting certificate overlaps for a valid course ID
+    test('getCertificateOverlaps returns certificates if exists', async () => {
+        const courseId = 1; // course_id 1 = OPWL-536 in seed data
+        const certificates = await CourseModel.getCertificateOverlaps(courseId);
+        expect(certificates).toBeDefined();
+        expect(Array.isArray(certificates)).toBe(true);
+        expect(certificates.length).toBeGreaterThan(0);
+        expect(certificates[0]).toHaveProperty('certificate_name', 'Graduate Certificate in Organizational Development (OD)');
+    });
+
     // Partial or full course code queries return expected matches
     test('searchCourses returns correct course by code', async () => {
         const results = await CourseModel.searchCourses({ code: 'OPWL-536' });
