@@ -92,7 +92,7 @@ async function getCourseOfferings(courseId) {
 async function getCertificateOverlaps(courseId) {
   try {
     const result = await pool.query(
-      `SELECT cert.certificate_id, cert.certificate_name
+      `SELECT cert.certificate_id, cert.certificate_name, cert.certificate_short_name
       FROM certificate_courses cc
       JOIN certificates cert ON cc.certificate_id = cert.certificate_id
       WHERE cc.course_id = $1`,

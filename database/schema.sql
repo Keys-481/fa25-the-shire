@@ -206,6 +206,7 @@ CREATE INDEX idx_requirement_courses_course_id ON requirement_courses(course_id)
 CREATE TABLE certificates (
     certificate_id SERIAL PRIMARY KEY,
     certificate_name VARCHAR(255) NOT NULL,
+    certificate_short_name VARCHAR(50) UNIQUE NOT NULL,
     program_id INT REFERENCES programs(program_id) ON DELETE CASCADE
 );
 
