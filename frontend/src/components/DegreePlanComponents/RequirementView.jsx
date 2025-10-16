@@ -47,6 +47,25 @@ function flattenHierarchy(node, arr = []) {
 }
 
 /**
+ * Calculates the total completed credits for a requirement and its children.
+ * Recursively sums completed credits from courses and child requirements.
+ * @param {*} req - The requirement object
+ * @returns {number} - The total completed credits
+ */
+function calculateCompletedCredits(req) {
+    let completedCredits = req.courses.reduce((sum, course) => {
+        return sum + (course.course_status === 'Completed' ? (course.credits || 0) : 0);
+    }, 0);
+
+    req.children.forEach(child => {
+        completedCredits += calculateCompletedCredits(child);
+    });
+
+    req.completedCredits = completedCredits;
+    return completedCredits;
+}
+
+/**
  * RequirementsView component displays courses grouped by program requirements.
  * @param {*} courses - array of course objects to display
  * @returns {JSX.Element} - The rendered requirements view
@@ -95,17 +114,26 @@ export default function RequirementsView( { courses, program } ) {
         return "";
     }
 
-    const requirementHierarchy = buildHierarchy(uniqueReqs);
+    hierarchy.forEach(req => calculateCompletedCredits(req));
 
     function renderRequirement(req, level = 0) {
 
-        const isChild = level > 0;
+        const completedReqCredits = req.completedCredits || 0;
+        const requiredReqCredits = req.required_credits || 0;
+        
         const rows = [];
+        const rowStyle = { '--level': level };
 
         rows.push(
-            <tr key={`req=${req.requirement_id}`} className={isChild ? "child-req-row" : "req-row"}>
+            <tr key={`req=${req.requirement_id}`} className={`req-row req-level-${level}`} style={rowStyle}>
                 <td colSpan={program.program_type !== 'certificate' ? 9 : 8} className="requirement-header-cell">
-                    <strong>{req.req_description}</strong>
+                    <div className="requirement-header-content">
+                        <strong>{req.req_description}</strong>
+                        {requiredReqCredits > 0 && (
+                            <span style={{ marginLeft: '20px' }}>{completedReqCredits} / {requiredReqCredits}</span>
+                        )}
+                    </div>
+                    
                 </td>
             </tr>
         );
@@ -142,7 +170,7 @@ export default function RequirementsView( { courses, program } ) {
     }
 
     return (
-        <div>
+        <div className="requirements-view-container">
             <div className="requirements-view">
                 <table className="requirements-table">
                     <thead>
