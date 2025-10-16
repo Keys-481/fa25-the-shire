@@ -106,9 +106,35 @@ async function getTotalProgramRequiredCredits(programId) {
     }
 }
 
+/**
+ * Update the status of a course in a student's degree plan
+ * @param {*} studentId - internal student ID
+ * @param {*} courseId - internal course ID
+ * @param {*} newStatus - new status for the course
+ * @param {*} semesterId - internal semester ID
+ * @param {*} programId - internal program ID
+ * @returns The updated degree plan entry
+ */
+async function updateCourseStatus(studentId, courseId, newStatus, semesterId, programId) {
+    try {
+        const result = await pool.query(
+            `UPDATE degree_plans
+            SET course_status = $3, semester_id = $4
+            WHERE student_id = $1 AND course_id = $2 AND program_id = $5
+            RETURNING *`,
+            [studentId, courseId, newStatus, semesterId, programId]
+        );
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error updating course status:', error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     getDegreePlanByStudentId,
     getDegreePlanByRequirements,
     getTotalProgramRequiredCredits,
+    updateCourseStatus
 }
 

@@ -51,7 +51,7 @@ CREATE TYPE notif_type AS ENUM('info', 'warning', 'alert');
 CREATE TYPE cert_status AS ENUM('in_progress', 'completed');
 CREATE TYPE role_name AS ENUM('admin', 'advisor', 'student', 'accounting');
 CREATE TYPE semester_type AS ENUM('FA', 'SP', 'SU');
-CREATE TYPE course_status AS ENUM('Planned', 'In Progress', 'Completed', 'Dropped', 'Failed', 'Withdrawn');
+CREATE TYPE course_status AS ENUM('Unplanned', 'Planned', 'In Progress', 'Completed', 'Dropped', 'Failed', 'Withdrawn');
 CREATE TYPE permission_name AS ENUM('view_all_students', 'view_assigned_students',
                                     'view_own_data', 'edit_degree_plan', 'comment_create',
                                     'comment_edit', 'comment_delete', 'enrollment_reporting',

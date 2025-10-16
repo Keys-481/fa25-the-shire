@@ -264,5 +264,87 @@ router.get('/:schoolId/programs', async (req, res) => {
     }
 });
 
-module.exports = router;
+/**
+ * Route: PATCH /students/:schoolId/degree-plan/course/:courseId
+ * Updates the status of a course in a student's degree plan (e.g., mark as completed, in-progress).
+ * If status set to 'Planned', semesterId must be provided.
+ *
+ * Body params:
+ *  - status: 'Completed', 'In Progress', 'Planned'
+ *  - courseId: internal course ID
+ *  - semesterId: internal semester ID (required if status is 'Planned')
+ *  - programId: internal program ID
+ *
+ * @returns Updated course info in the degree plan
+ * @response 400 - Missing parameters
+ * @response 401 - Unauthorized: No user info
+ * @response 403 - Forbidden: No access to student
+ * @response 404 - Student or course not found
+ * @response 500 - Internal server error
+ * @response 200 - OK
+ */
+router.patch('/:schoolId/degree-plan/course', async (req, res) => {
+    const { schoolId } = req.params;
+    const { courseId, status, semesterId, programId } = req.body;
 
+    try {
+        // Expect req.user to be set by middleware (mock or real auth)
+        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // validate input
+        if (!status || !['Unplanned', 'Planned', 'In Progress', 'Completed'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid or missing status. Must be one of: Unplanned, Planned, In Progress, Completed' });
+        }
+        if (status === 'Planned' && !semesterId) {
+            return res.status(400).json({ message: 'semesterId is required when status is Planned' });
+        }
+
+        // get student by schoolId
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        } else if (userRoles.includes('advisor')) {
+            hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        }
+
+        if (!hasAccess) {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
+        }
+
+        // update course status in degree plan
+        const updatedCourse = await DegreePlanModel.updateCourseStatus(
+            student.student_id,
+            courseId,
+            status,
+            semesterId,
+            programId
+        );
+
+        if (!updatedCourse) {
+            return res.status(404).json({ message: 'Course not found in student\'s degree plan' });
+        }
+
+        return res.json(updatedCourse);
+
+    } catch (error) {
+        console.error('Error updating course status in degree plan:', error.message);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+module.exports = router;

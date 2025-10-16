@@ -283,31 +283,49 @@ INSERT INTO requirement_courses (requirement_id, course_id) VALUES
 -- Students can choose other OPWL courses as electives as well
 -- OPWL-XXX courses not listed as core
 
+
+-- DEFAULT degree plan entries will be created when a student is added to a program
+INSERT INTO degree_plans (program_id, student_id, course_id, semester_id, course_status, catalog_year)
+SELECT
+    sp.program_id,
+    sp.student_id,
+    rc.course_id,
+    NULL,
+    'Unplanned',
+    '2025-2026'
+FROM
+    student_programs sp
+JOIN
+    program_requirements pr ON sp.program_id = pr.program_id
+JOIN
+    requirement_courses rc ON pr.requirement_id = rc.requirement_id
+ON CONFLICT DO NOTHING; -- Avoid duplicate entries
+
 -- Insert degree plan entries
-INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
+INSERT INTO degree_plans (program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
 -- Alice Johnson's degree plan for OPWL MS program
-(1, 1, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024
-(2, 1, 1, 10, 4, 'Completed', '2025-2026'),  -- OPWL-535 (Core) in Fall 2024
-(3, 1, 1, 11, 5, 'Completed', '2025-2026'),  -- OPWL-537 (Core) in Spring 2025
-(4, 1, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Elective) in Spring 2025
-(5, 1, 1, 6, 7, 'In Progress', '2025-2026'), -- OPWL-507 (Research) in Fall 2025
-(6, 1, 1, 3, 10, 'Planned', '2025-2026'),    -- OPWL-560 (Core) in Fall 2026
-(7, 1, 1, 9, 8, 'Planned', '2025-2026'),     -- OPWL-530 (Core) in Spring 2026
-(8, 1, 1, 5, 11, 'Planned', '2025-2026');    -- OPWL-592 (Portfolio) in Spring 2027
+( 1, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024
+( 1, 1, 10, 4, 'Completed', '2025-2026'),  -- OPWL-535 (Core) in Fall 2024
+( 1, 1, 11, 5, 'Completed', '2025-2026'),  -- OPWL-537 (Core) in Spring 2025
+( 1, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Elective) in Spring 2025
+( 1, 1, 6, 7, 'In Progress', '2025-2026'), -- OPWL-507 (Research) in Fall 2025
+( 1, 1, 3, 10, 'Planned', '2025-2026'),    -- OPWL-560 (Core) in Fall 2026
+( 1, 1, 9, 8, 'Planned', '2025-2026'),     -- OPWL-530 (Core) in Spring 2026
+( 1, 1, 5, 11, 'Planned', '2025-2026');    -- OPWL-592 (Portfolio) in Spring 2027
 
 -- Alice Johnson's degree plan for OD certificate program
-INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(9, 2, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024 (Overlap Fix)
-(10, 2, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Core) in Spring 2025
-(11, 2, 1, 2, 7, 'In Progress', '2025-2026'), -- OPWL-506 (Elective) in Fall 2025
-(12, 2, 1, 4, 8, 'Planned', '2025-2026');     -- OPWL-518 (Elective) in Spring 2026
+INSERT INTO degree_plans ( program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
+( 2, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024 (Overlap Fix)
+( 2, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Core) in Spring 2025
+( 2, 1, 2, 7, 'In Progress', '2025-2026'), -- OPWL-506 (Elective) in Fall 2025
+( 2, 1, 4, 8, 'Planned', '2025-2026');     -- OPWL-518 (Elective) in Spring 2026
 
 -- Bob Williams's degree plan for OD certificate program
-INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(13, 2, 2, 1, 4, 'Completed', '2025-2026'),  -- OPWL-536 (Core) in Fall 2024
-(14, 2, 2, 15, 5, 'Completed', '2025-2026'), -- OPWL-577 (Core) in Spring 2025
-(15, 2, 2, 17, 7, 'In Progress', '2025-2026'),-- OPWL-575 (Elective) in Fall 2025
-(16, 2, 2, 4, 8, 'Planned', '2025-2026');   -- OPWL-518 (Elective) in Spring 2026
+INSERT INTO degree_plans ( program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
+( 2, 2, 1, 4, 'Completed', '2025-2026'),  -- OPWL-536 (Core) in Fall 2024
+( 2, 2, 15, 5, 'Completed', '2025-2026'), -- OPWL-577 (Core) in Spring 2025
+( 2, 2, 17, 7, 'In Progress', '2025-2026'),-- OPWL-575 (Elective) in Fall 2025
+( 2, 2, 4, 8, 'Planned', '2025-2026');   -- OPWL-518 (Elective) in Spring 2026
 
 -- Insert into enrollments
 INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grade) VALUES
