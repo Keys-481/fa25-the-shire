@@ -332,8 +332,8 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (10, 2, 4, 8, NULL); -- Bob Williams planned OPWL-518 in Spring 2026
 
 -- Insert into certificates
-INSERT INTO certificates (certificate_id, certificate_name, program_id) VALUES
-(1, 'Graduate Certificate in Organizational Development (OD)', 2);
+INSERT INTO certificates (certificate_id, certificate_name, certificate_short_name, program_id) VALUES
+(1, 'Graduate Certificate in Organizational Development (OD)', 'OD', 2);
 
 -- Insert into student_certificates
 INSERT INTO student_certificates (student_id, certificate_id, cert_status) VALUES
