@@ -19,7 +19,7 @@ export default function DegreePlan({ student, program }) {
     const [error, setError] = useState(null);
 
     // state toggle view type (by semester or by program requirements)
-    const [viewType, setViewType] = useState('semester'); // 'semester' or 'requirements'
+    const [viewType, setViewType] = useState('requirements'); // 'requirements' or 'semester'
 
     useEffect(() => {
         console.log("Student:", student);
@@ -101,11 +101,11 @@ export default function DegreePlan({ student, program }) {
                 {/* View Toggle */}
                 <div className="view-toggle">
                     <div>
-                        <button onClick={() => { setViewType('semester') }} className={viewType === 'semester' ? 'active' : 'inactive'}>
-                            Semester View
-                        </button>
                         <button onClick={() => { setViewType('requirements') }} className={viewType === 'requirements' ? 'active' : 'inactive'}>
                             Requirements View
+                        </button>
+                        <button onClick={() => { setViewType('semester') }} className={viewType === 'semester' ? 'active' : 'inactive'}>
+                            Semester View
                         </button>
                     </div>
                     <span className="degree-plan-content" style={{ marginLeft: '20px' }}>
@@ -116,10 +116,10 @@ export default function DegreePlan({ student, program }) {
 
             {/* Degree Plan Section */}
             <div className="degree-plan-content">
-                {viewType === 'semester' ? (
-                    <SemesterView courses={planData.degreePlan} program={program} />
-                ) : (
+                {viewType === 'requirements' ? (
                     <RequirementsView courses={planData.degreePlan} program={program} />
+                ) : (
+                    <SemesterView courses={planData.degreePlan} program={program} />
                 )}
             </div>
         </div>

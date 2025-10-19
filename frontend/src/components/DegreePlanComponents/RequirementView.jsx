@@ -147,7 +147,7 @@ export default function RequirementsView( { courses, program } ) {
                         <td><strong>{course.course_code || '-'}</strong></td>
                         <td>{course.course_name || '-'}</td>
                         {program.program_type !== 'certificate' && (
-                            <td>N/A</td>
+                            <td>{course.certificate_overlaps && course.certificate_overlaps.length > 0 ? course.certificate_overlaps.map(co => co.certificate_short_name).join(', ') : 'None'}</td>
                         )}
                         <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
                         <td>{course.offered_semesters || 'N/A'}</td>
