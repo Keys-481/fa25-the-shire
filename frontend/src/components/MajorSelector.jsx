@@ -3,7 +3,7 @@
  * This file defines the ProgramSelector component to select a program for a student.
  */
 
-import DegreePlan from "./DegreePlanComponents/DegreePlan";
+import MajorPlan from "./DegreePlanComponents/MajorPlan";
 
 export default function MajorSelector({ course, programs, selectedCourse, setSelectedProgram }) {
     if (!course) {
@@ -33,7 +33,7 @@ export default function MajorSelector({ course, programs, selectedCourse, setSel
             </div>
             {/* not quite right yet */}
             {selectedCourse ? (
-                <DegreePlan course={course} program={selectedCourse} />
+                <MajorPlan course={course} program={selectedCourse} />
             ) : (
                 <p>Select a program to view the degree plan</p>
             )}
