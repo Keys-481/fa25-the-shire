@@ -19,6 +19,10 @@ export default defineConfig(({ mode }) => {
           target: BACKEND_URL,
           changeOrigin: true,
         },
+        '/users': {
+          target: BACKEND_URL,
+          changeOrigin: true,
+        }
       },
     },
   }
