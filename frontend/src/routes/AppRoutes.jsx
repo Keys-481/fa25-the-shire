@@ -6,14 +6,14 @@
  * @returns {JSX.Element} A router configuration with defined routes for Admin, Student, Advisor, and Accounting roles
  */
 
-import { Route, BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
 //authentication import
 import { AuthProvider } from '../auth/AuthProvider.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 
 //login import
-import PlaceHolder_LogIn from '../pages/LogIn/PlaceHolder_LogIn'
+import LogIn from '../pages/LogIn/LogIn.jsx'
 
 //admin imports
 import AdminCourses from '../pages/Admin/Courses'

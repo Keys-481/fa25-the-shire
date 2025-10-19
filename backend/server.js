@@ -17,7 +17,7 @@ const fs = require('fs');
 // Import route handlers
 const studentRoutes = require('./src/routes/students');
 const courseRoutes = require('./src/routes/courses');
-const { ok } = require('assert');
+const authRoutes = require('./src/routes/auth');
 
 /**
  * Checks the connection to the PostgreSQL database and returns a status object.
@@ -56,15 +56,9 @@ app.get("/api/ready", (_req, res) => {
 });
 
 // API routes (if more are added, just follow the format below)
-try {
-    const studentRoutes = require("./src/routes/students.js");
-    const courseRoutes = require("./src/routes/courses.js");
-
-    app.use('/api/students', studentRoutes);
-    app.use('/api/courses', courseRoutes);
-} catch (err) {
-    console.warn("[server] Failed to load API routes:", err?.message);
-}
+app.use('/api/students', studentRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/auth', authRoutes);
 
 // Serve React app
 function resolveFrontendDist() {

@@ -9,13 +9,21 @@ export default function LogIn() {
     const [identifier, setIdentifier] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-    const { isAuthed, login } = useAuth();
+    const { isAuthed, login, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
-        if (isAuthed) navigate("/dashboard", { replace: true });
-    }, [isAuthed, navigate]);
+        if (!isAuthed) return;
+        const role = user?.role;
+        const roleHome = ({
+            admin: "/admin/dashboard",
+            advisor: "/advisor/dashboard",
+            student: "/student/dashboard",
+            accounting: "/accounting/dashboard",
+        })[role] || "/student/dashboard";
+        navigate(roleHome, { replace: true });
+    }, [isAuthed, user, navigate]);
 
     async function handleSubmit(e) {
         e.preventDefault();
@@ -36,8 +44,17 @@ export default function LogIn() {
             const data = await res.json();
             login({ token: data.token, user: data.user });
 
-            const from = location.state?.from?.pathname || "/dashboard";
-            navigate(from, { replace: true });
+            const role = data?.user?.role;
+            const roleHome = ({
+                admin: "/admin/dashboard",
+                advisor: "/advisor/dashboard",
+                student: "/student/dashboard",
+                accounting: "/accounting/dashboard",
+            })[role] || "/student/dashboard";
+
+            const from = location.state?.from?.pathname;
+            const dest = (from && from !== "/login") ? from : roleHome;
+            navigate(dest, { replace: true });
         } catch {
             setError("Unable to log in. Try again.");
         }
@@ -50,7 +67,7 @@ export default function LogIn() {
 
                 <form onSubmit={handleSubmit} data-testid="login-form" className="container">
                     <label>
-                        Username or Email
+                        Email or Phone Number
                         <input
                             data-testid="identifier"
                             type="text"

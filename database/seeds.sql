@@ -11,6 +11,8 @@ TRUNCATE TABLE users, roles, permissions, user_roles, role_permissions,
             student_programs, certificates, certificate_courses
 CASCADE;
 
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 INSERT INTO roles (role_id, role_name) VALUES
 (1, 'admin'),
 (2, 'advisor'),
@@ -52,11 +54,11 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 -- Insert users
 -- Note: Passwords should be securely hashed, these are just placeholders
 INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name) VALUES
-(1, 'supersecurehash1', 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User'),
-(2, 'supersecurehash2', 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe'),
-(3, 'supersecurehash3', 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith'),
-(4, 'supersecurehash4', 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson'),
-(5, 'supersecurehash5', 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams');
+(1, crypt('supersecurehash1', gen_salt('bf', 12)), 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User'),
+(2, crypt('supersecurehash2', gen_salt('bf', 12)), 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe'),
+(3, crypt('supersecurehash3', gen_salt('bf', 12)), 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith'),
+(4, crypt('supersecurehash4', gen_salt('bf', 12)), 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson'),
+(5, crypt('supersecurehash5', gen_salt('bf', 12)), 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams');
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES

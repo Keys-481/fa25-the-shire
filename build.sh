@@ -10,6 +10,7 @@ APP_IMAGE="${APP_IMAGE:-$FULL_TAG}"
 DB_CONTAINER="${DB_CONTAINER:-${IMAGE_NAME}-db}"
 DB_NETWORK="${DB_NETWORK:-${IMAGE_NAME}-net}"
 DB_IMAGE="${DB_IMAGE:-docker.io/postgres:16}"
+DB_VOLUME="${DB_VOLUME:-${IMAGE_NAME}-pgdata}"
 
 # Parse args for no-cache and skip-db
 NO_CACHE=false
@@ -118,6 +119,7 @@ if ! $SKIP_DB; then
 	echo "Starting Postgres container: $DB_CONTAINER"
 	podman run -d --name "$DB_CONTAINER" \
 		--network "$DB_NETWORK" \
+    -v "$DB_VOLUME":/var/lib/postgresql/data \
 		-e POSTGRES_PASSWORD="$DB_PASS" \
 		-e POSTGRES_USER="postgres" \
 		-e POSTGRES_DB="postgres" \
@@ -161,8 +163,19 @@ SQL
   fi
 
   # Grant all privileges
-  podman exec -i "$DB_CONTAINER" psql -U postgres -c \
-    "GRANT ALL PRIVILEGES ON DATABASE \"$DB_NAME_Q\" TO \"$DB_USER_Q\";"
+  podman exec -i "$DB_CONTAINER" psql -U postgres -d "$DB_NAME" -v ON_ERROR_STOP=1 <<SQL
+  -- Make sure app user can reach the DB and schema
+  GRANT CONNECT ON DATABASE "$DB_NAME" TO "$DB_USER";
+  GRANT USAGE ON SCHEMA public TO "$DB_USER";
+
+  -- Existing objects (tables and sequences) created by schema/seeds
+  GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "$DB_USER";
+  GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO "$DB_USER";
+
+  -- Future objects created by schema/seeds will also auto-grant to app user
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "$DB_USER";
+  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO "$DB_USER";
+SQL
 
 	echo "Applying schema and seed data if present..."
 	CANDIDATES_SCHEMA=("database/schema.sql")
