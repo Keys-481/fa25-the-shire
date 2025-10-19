@@ -4,7 +4,7 @@
  */
 
 // Load environment variables from .env file
-require('dotenv').config({path: '../.env'});
+require('dotenv').config({ path: '../.env' });
 
 // Import necessary modules
 const express = require('express');
@@ -15,6 +15,7 @@ const app = express();
 // Import route handlers
 const studentRoutes = require('./src/routes/students');
 const courseRoutes = require('./src/routes/courses');
+const userRoutes = require('./src/routes/users');
 
 // use port from environment or default to 3000
 const PORT = process.env.PORT || 3000;
@@ -55,11 +56,12 @@ app.get('/', (req, res) => {
 // mount routes
 app.use('/students', studentRoutes);
 app.use('/courses', courseRoutes);
+app.use('/users', userRoutes);
 
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    
+
     // check database connection on server startup
     console.log('Checking database connection...');
     checkDbConnection().then(status => {
