@@ -22,7 +22,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: `npm run dev --prefix ../backend -- --port ${BACKEND_PORT} --host ${HOST}`,
+      command: `npm start --prefix ../backend -- --port ${BACKEND_PORT} --host ${HOST}`,
       url: `http://${HOST}:${BACKEND_PORT}`,
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
