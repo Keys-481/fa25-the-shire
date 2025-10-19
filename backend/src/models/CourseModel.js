@@ -288,6 +288,26 @@ async function deleteCourse(courseId) {
   }
 }
 
+/**
+ * Get how many students are enrolled in a specific course.
+ * * @param {string} courseCode - The code of the course.
+ * @returns {Promise<number>} - The number of enrolled students.
+ */
+async function getEnrollmentCount(courseCode) {
+  try {
+    const result = await pool.query(
+      `SELECT COUNT(*) AS enrollment_count
+      FROM enrollments
+      WHERE course_code = $1`,
+      [courseCode]
+    );
+    return parseInt(result.rows[0].enrollment_count, 10);
+  } catch (error) {
+    console.error('Error fetching enrollment count:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   findByName,
   findById,
@@ -298,5 +318,6 @@ module.exports = {
   searchCourses,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  getEnrollmentCount
 };

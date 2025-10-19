@@ -166,4 +166,31 @@ router.delete('/:id', async (req, res) => {
 });
 
 
+/**
+ * @route GET /courses/enrollments
+ * @description Retrieves enrollment count for a specific course in a given term and year.
+ * @access Public
+ * @queryParam {string} courseCode - The course code to get enrollment for.
+ * @queryParam {string} term - The term (e.g., "Fall", "Spring").
+ * @queryParam {number} year - The year (e.g., 2024).
+ * 
+ * @response 200 - Returns enrollment data:
+ *  { courseCode: string, term: string, year: number, enrollmentCount: number }
+ * @response 400 - Missing required query parameters.
+ * @response 500 - Internal server error if retrieval fails.
+ */
+router.get('/enrollments', async (req, res) => {
+  const { courseCode, term, year } = req.query;
+  if (!courseCode || !term || !year) {
+    return res.status(400).json({ message: 'Missing required query parameters: courseCode, term, year' });
+  }
+  try {
+    const enrollmentCount = await CourseModel.getEnrollmentCount(courseCode, term, year);
+    res.json({ courseCode, term, year, enrollmentCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 module.exports = router;
