@@ -208,3 +208,25 @@ describe('CourseModel - deleteCourse', () => {
     expect(res.rows.length).toBe(0);
   });
 });
+
+/** 
+ * Tests for CourseModel (getEnrollmentCount)
+ * Verifies that enrollment counts are correctly retrieved for a course
+ * across different terms and years
+ * 
+ */
+describe('CourseModel - getEnrollmentCount', () => {
+  test('retrieves enrollment count for a course in a specific term and year', async () => {
+    const courseCode = 'OPWL-536'; // existing course in seed data
+    const term = 'FA';
+    const year = 2025;
+    const enrollmentData = await CourseModel.getEnrollmentCount(courseCode, term, year);
+    expect(enrollmentData).toBeDefined(); 
+    expect(enrollmentData).toHaveProperty('course_code', courseCode);
+    expect(enrollmentData).toHaveProperty('term', term);
+    expect(enrollmentData).toHaveProperty('year', year);
+    expect(enrollmentData).toHaveProperty('enrolled');
+    expect(typeof enrollmentData.enrolled).toBe('number');
+  }
+);
+});
