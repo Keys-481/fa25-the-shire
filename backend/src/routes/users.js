@@ -91,5 +91,67 @@ router.get('/:id/roles', async (req, res) => {
     }
 });
 
+/**
+ * PUT /:id/roles
+ * Updates roles for a specific user.
+ *
+ * @param {string} id - User ID.
+ * @body {Array<string>} roles - Array of role names to assign.
+ * @returns {Object} Success status.
+ */
+router.put('/:id/roles', async (req, res) => {
+    const userId = req.params.id;
+    const roles = req.body.roles;
+
+    try {
+        await UserModel.updateUserRoles(userId, roles);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(`Error updating roles for user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * POST /
+ * Adds a new user with specified roles.
+ *
+ * @body {string} name - Full name of the user.
+ * @body {string} email - Email address.
+ * @body {string} phone - Phone number.
+ * @body {string} password - Plaintext password.
+ * @body {Array<string>} roles - Array of role names to assign.
+ * @returns {Object} Success status and new user ID.
+ */
+router.post('/', async (req, res) => {
+    const { name, email, phone, password, roles } = req.body;
+
+    try {
+        const result = await UserModel.addUser(name, email, phone, password, roles);
+        res.json({ success: true, userId: result.userId });
+    } catch (error) {
+        console.error('Error adding user:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * DELETE /:id
+ * Deletes a user and their associated roles.
+ *
+ * @param {string} id - User ID.
+ * @returns {Object} Success status.
+ */
+router.delete('/:id', async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        await UserModel.deleteUser(userId);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(`Error deleting user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 module.exports = router;
