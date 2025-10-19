@@ -1,9 +1,10 @@
 // ESM config
 import { defineConfig, devices } from '@playwright/test';
 
-const PORT = process.env.FRONTEND_PORT ? Number(process.env.FRONTEND_PORT) : 5173;
+const FRONTEND_PORT = process.env.FRONTEND_PORT ? Number(process.env.FRONTEND_PORT) : 5173;
+const BACKEND_PORT = process.env.BACKEND_PORT ? Number(process.env.BACKEND_PORT) : 3000;
 const HOST = '127.0.0.1';
-const BASE_URL = process.env.BASE_URL || `http://${HOST}:${PORT}`;
+const BASE_URL = process.env.BASE_URL || `http://${HOST}:${FRONTEND_PORT}`;
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -19,12 +20,20 @@ export default defineConfig({
     video: 'off',
   },
 
-  webServer: {
-    command: `npm run dev -- --port ${PORT} --host ${HOST}`,
-    url: `http://${HOST}:${PORT}`,
-    reuseExistingServer: true,
-    timeout: 60_000,
-  },
+  webServer: [
+    {
+      command: `npm run db:setup --prefix ../backend && npm start --prefix ../backend -- --port ${BACKEND_PORT} --host ${HOST}`,
+      url: `http://${HOST}:${BACKEND_PORT}`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+    },
+    {
+      command: `npm run dev -- --port ${FRONTEND_PORT} --host ${HOST}`,
+      url: `http://${HOST}:${FRONTEND_PORT}`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 60_000,
+    },
+  ],
 
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },

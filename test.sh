@@ -52,6 +52,9 @@ if [[ "$MODE" != "backend-only" ]]; then
         echo "Installing frontend deps and running tests..."
         npm_install_if_needed "$FRONTEND_DIR"
 
+        echo "Installing backend deps for e2e tests..."
+        npm_install_if_needed "$BACKEND_DIR"
+
         # Avoid reinstalling browsers if cached
         if [[ ! -d "$HOME/.cache/ms-playwright" ]]; then
             (cd "$FRONTEND_DIR" && npx playwright install)

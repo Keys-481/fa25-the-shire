@@ -30,14 +30,13 @@ export default function SemesterView( { courses, program } ) {
     const sortedSemesters = Object.keys(grouped);
 
     return (
-        <div>
+        <div className="semester-view-container">
             {sortedSemesters.map((semester) => (
                 <div key={semester} className="semester-section">
-                    <h4>{semester}</h4>
-                    <div className="table-horizontal-line"></div>
+                    <h4 className="semester-header">{semester}</h4>
 
                     <div className="table-wrapper">
-                        <table>
+                        <table className="semester-table">
                             <thead>
                                 <tr>
                                     <th>Course Code</th>
