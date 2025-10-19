@@ -1,4 +1,5 @@
 const pool = require('../db');
+const bcrypt = require('bcrypt');
 
 /**
  * Searches users by name and/or role.
@@ -82,11 +83,133 @@ async function getUserRoles(userId) {
     return result.rows.map(r => r.role_name.charAt(0).toUpperCase() + r.role_name.slice(1));
 }
 
+/**
+ * Updates the roles assigned to a user.
+ * Removes all existing roles and assigns the new list of roles.
+ *
+ * @async
+ * @function updateUserRoles
+ * @param {number} userId - The ID of the user to update.
+ * @param {Array<string>} roles - Array of role names to assign to the user.
+ * @throws Will throw an error if the transaction fails.
+ */
+async function updateUserRoles(userId, roles) {
+    const client = await pool.connect();
+
+    try {
+        await client.query('BEGIN');
+
+        // Remove existing roles
+        await client.query(`DELETE FROM user_roles WHERE user_id = $1`, [userId]);
+
+        // Add new roles
+        for (const roleName of roles) {
+            const roleRes = await client.query(
+                `SELECT role_id FROM roles WHERE LOWER(role_name::TEXT) = LOWER($1)`,
+                [roleName]
+            );
+
+            if (roleRes.rows.length > 0) {
+                const roleId = roleRes.rows[0].role_id;
+                await client.query(
+                    `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`,
+                    [userId, roleId]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+/**
+ * Adds a new user to the database with the specified roles.
+ * Password is securely hashed using bcrypt.
+ *
+ * @async
+ * @function addUser
+ * @param {string} name - Full name of the user (first and last name).
+ * @param {string} email - Email address of the user.
+ * @param {string} phone - Phone number of the user.
+ * @param {string} password - Plaintext password to be hashed.
+ * @param {Array<string>} roles - Array of role names to assign to the user.
+ * @returns {Promise<Object>} Object containing the new user's ID.
+ * @throws Will throw an error if the transaction fails.
+ */
+async function addUser(name, email, phone, password, roles) {
+    const client = await pool.connect();
+    const [firstName, ...rest] = name.trim().split(' ');
+    const lastName = rest.join(' ') || '';
+    const passwordHash = await bcrypt.hash(password, 10); // secure hash
+
+    try {
+        await client.query('BEGIN');
+
+        const userRes = await client.query(
+            `INSERT INTO users (first_name, last_name, email, phone_number, password_hash)
+       VALUES ($1, $2, $3, $4, $5) RETURNING user_id`,
+            [firstName, lastName, email, phone, passwordHash]
+        );
+
+        const userId = userRes.rows[0].user_id;
+
+        for (const roleName of roles) {
+            const roleRes = await client.query(
+                `SELECT role_id FROM roles WHERE LOWER(role_name::TEXT) = LOWER($1)`,
+                [roleName]
+            );
+            if (roleRes.rows.length > 0) {
+                const roleId = roleRes.rows[0].role_id;
+                await client.query(
+                    `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`,
+                    [userId, roleId]
+                );
+            }
+        }
+
+        await client.query('COMMIT');
+        return { userId };
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+/**
+ * Deletes a user and all associated roles from the database.
+ *
+ * @async
+ * @function deleteUser
+ * @param {number} userId - The ID of the user to delete.
+ * @throws Will throw an error if the transaction fails.
+ */
+async function deleteUser(userId) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        await client.query(`DELETE FROM user_roles WHERE user_id = $1`, [userId]);
+        await client.query(`DELETE FROM users WHERE user_id = $1`, [userId]);
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
 
 module.exports = {
     searchUsers,
     getAllRoles,
     getUserRoles,
+    updateUserRoles,
+    addUser,
+    deleteUser
 };
-
-
