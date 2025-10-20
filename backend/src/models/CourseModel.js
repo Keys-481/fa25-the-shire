@@ -289,24 +289,27 @@ async function deleteCourse(courseId) {
 }
 
 /**
- * Get how many students are enrolled in a specific course.
- * * @param {string} courseCode - The code of the course.
- * @returns {Promise<number>} - The number of enrolled students.
+ * Get the number of enrollments per semester for a given course code.
+ * @param {string} courseCode
+ * @returns {Promise<Array>} Array of { semester: "Fall 2025", count: 12 }
  */
-async function getEnrollmentCount(courseCode) {
-  try {
-    const result = await pool.query(
-      `SELECT COUNT(*) AS enrollment_count
-      FROM enrollments
-      WHERE course_code = $1`,
-      [courseCode]
-    );
-    return parseInt(result.rows[0].enrollment_count, 10);
-  } catch (error) {
-    console.error('Error fetching enrollment count:', error);
-    throw error;
-  }
+async function getEnrollments(courseCode) {
+  const sql = `
+    SELECT
+      s.semester_name AS semester,
+      COUNT(*)::int AS count
+    FROM enrollments e
+    JOIN courses c ON e.course_id = c.course_id
+    JOIN semesters s ON e.semester_id = s.semester_id
+    WHERE c.course_code = $1
+    GROUP BY s.semester_name, s.sem_start_date
+    ORDER BY s.sem_start_date;
+  `;
+  const { rows } = await pool.query(sql, [courseCode]);
+  return rows.map(r => ({ semester: r.semester, count: r.count }));
 }
+
+
 
 module.exports = {
   findByName,
@@ -319,5 +322,5 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
-  getEnrollmentCount
+  getEnrollments
 };

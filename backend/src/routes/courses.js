@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const CourseModel = require('../models/CourseModel')
-const { createCourse, updateCourse, deleteCourse, getCourseOfferings, getPrerequisitesForCourse } = require('../models/CourseModel');
+const { createCourse, updateCourse, deleteCourse, getCourseOfferings, getPrerequisitesForCourse, getEnrollments } = require('../models/CourseModel');
+const pool = require('../db');
 
 /**
  * @route GET /courses/search
@@ -166,31 +167,18 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-/**
- * @route GET /courses/enrollments
- * @description Retrieves enrollment count for a specific course in a given term and year.
- * @access Public
- * @queryParam {string} courseCode - The course code to get enrollment for.
- * @queryParam {string} term - The term (e.g., "Fall", "Spring").
- * @queryParam {number} year - The year (e.g., 2024).
- * 
- * @response 200 - Returns enrollment data:
- *  { courseCode: string, term: string, year: number, enrollmentCount: number }
- * @response 400 - Missing required query parameters.
- * @response 500 - Internal server error if retrieval fails.
- */
+// GET /api/courses/enrollments?courseCode=OPWL-536
 router.get('/enrollments', async (req, res) => {
-  const { courseCode, term, year } = req.query;
-  if (!courseCode || !term || !year) {
-    return res.status(400).json({ message: 'Missing required query parameters: courseCode, term, year' });
-  }
+  const { courseCode } = req.query;
+  if (!courseCode) return res.status(400).json({ message: 'Missing courseCode' });
+
   try {
-    const enrollmentCount = await CourseModel.getEnrollmentCount(courseCode, term, year);
-    res.json({ courseCode, term, year, enrollmentCount });
-  } catch (error) {
+    const enrollments = await CourseModel.getEnrollments(courseCode);
+    res.json({ enrollments });
+  } catch (err) {
+    console.error('Error in GET /courses/enrollments:', err.stack || err);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
 
 module.exports = router;

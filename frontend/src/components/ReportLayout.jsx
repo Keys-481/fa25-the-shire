@@ -11,56 +11,60 @@ export default function ReportLayout({ courseCode }) {
     fetchReport(courseCode);
   }, [courseCode]);
 
-  const fetchReport = async (q) => {
-    if (!q.trim()) return;
+   const fetchReport = async (q) => {
+    if (!q || !q.trim()) return;
     setLoading(true);
     setError(null);
     setReport(null);
 
     try {
+      // return an array of the next 4 semesters as { term, year }
       const getNextFourSemesters = () => {
+        const terms = ['Spring', 'Summer', 'Fall'];
         const now = new Date();
+        const month = now.getMonth(); // 0-11
+        let termIndex;
         let year = now.getFullYear();
-        const month = now.getMonth();
-        let term = month >= 7 ? "Fall" : "Spring";
-        const semesters = [];
-        for (let i = 0; i < 4; i++) {
-          semesters.push({ term, year });
-          if (term === "Spring") {
-            term = "Fall";
-          } else {
-            term = "Spring";
-            year += 1;
-          }
+
+        if (month >= 8) { // Sep-Dec -> Fall
+          termIndex = 2;
+        } else if (month >= 5) { // Jun-Aug -> Summer
+          termIndex = 1;
+        } else { // Jan-May -> Spring
+          termIndex = 0;
         }
-        return semesters;
+
+        const result = [];
+        for (let i = 0; i < 4; i++) {
+          const idx = (termIndex + i) % terms.length;
+          const addYear = Math.floor((termIndex + i) / terms.length);
+          result.push({ term: terms[idx], year: year + addYear });
+        }
+        return result;
       };
 
-      const semesters = getNextFourSemesters();
-      const responses = await Promise.all(
-        semesters.map(({ term, year }) =>
-          fetch(`/courses/enrollments?courseCode=${encodeURIComponent(q)}&term=${term}&year=${year}`)
-        )
+      const semesters = Array.isArray(getNextFourSemesters()) ? getNextFourSemesters() : [];
+
+      const res = await fetch(
+        `/courses/enrollments?courseCode=${encodeURIComponent(q)}`
       );
 
-      const dataArr = await Promise.all(
-        responses.map((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
-      );
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || res.statusText || `HTTP ${res.status}`);
+      }
 
-      const allEnrollments = dataArr.flatMap((data) => {
-        const enrollments = data.enrollments || data.data?.enrollments || (Array.isArray(data) ? data : []);
-        return enrollments.map((row) => ({
-          course_code: row.course_code || q,
-          term: row.term || "N/A",
-          year: row.year || "N/A",
-          section: row.section || "N/A",
-          enrolled: Number(row.enrolled ?? 0),
-          capacity: Number(row.capacity ?? 0),
-          instructor: row.instructor || "TBD",
-        }));
+      const data = await res.json();
+      const enrollments = Array.isArray(data.enrollments) ? data.enrollments : [];
+
+      const pivoted = {};
+      semesters.forEach(({ term, year }) => {
+        const label = `${term} ${year}`;
+        const match = enrollments.find(e => e.semester === label);
+        pivoted[label] = match ? match.count : 0;
       });
 
-      setReport(allEnrollments);
+      setReport(pivoted);
     } catch (err) {
       console.error("Error fetching report:", err);
       setError(err.message || "Error fetching report");
@@ -73,33 +77,26 @@ export default function ReportLayout({ courseCode }) {
   if (loading) return <p>Loading report for {courseCode}...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   if (!report) return null;
-  if (report.length === 0) return <p>No enrollment data found for {courseCode}.</p>;
+
+  const semesterLabels = Object.keys(report);
 
   return (
     <table className="report-table" style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead style={{ backgroundColor: "#f0f0f0" }}>
         <tr>
           <th>Course Code</th>
-          <th>Term</th>
-          <th>Year</th>
-          <th>Section</th>
-          <th>Enrolled</th>
-          <th>Capacity</th>
-          <th>Instructor</th>
+          {semesterLabels.map((label) => (
+            <th key={label}>{label}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
-        {report.map((r, idx) => (
-          <tr key={idx}>
-            <td>{r.course_code}</td>
-            <td>{r.term}</td>
-            <td>{r.year}</td>
-            <td>{r.section}</td>
-            <td>{r.enrolled}</td>
-            <td>{r.capacity}</td>
-            <td>{r.instructor}</td>
-          </tr>
-        ))}
+        <tr>
+          <td>{courseCode}</td>
+          {semesterLabels.map((label) => (
+            <td key={label}>{report[label]}</td>
+          ))}
+        </tr>
       </tbody>
     </table>
   );
