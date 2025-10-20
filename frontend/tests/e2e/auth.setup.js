@@ -1,6 +1,6 @@
 /**
  * File: frontend/tests/e2e/auth.setup.js
- * Playwright test setup file to create authenticated storage state for advisor user.
+ * Playwright test setup file to create authenticated storage state for all users.
  */
 
 const { test } = require('@playwright/test');
