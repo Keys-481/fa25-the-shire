@@ -33,9 +33,11 @@ test.describe('Advising - DegreePlan component', () => {
         await page.getByText('Master of Science in Organizational Performance and Workplace Learning').click();
 
         // Wait for the degree plan API call
-        await page.waitForResponse(r =>
-            r.url().includes('/api/students/112299690/degree-plan') && r.status() === 200,
-            { timeout: 20000 }
+        const apiResponse = await page.waitForResponse(
+            r =>
+                r.url().includes('/api/students/112299690/degree-plan') && 
+                r.status() === 200,
+            { timeout: 10000 }
         );
 
         console.log('Degree plan loaded:', apiResponse.url());
