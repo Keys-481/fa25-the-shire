@@ -8,39 +8,40 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Advising - DegreePlan component', () => {
 
-    test('advisor can search student and view degree plan', async ({ page, baseURL }) => {
-    // Go to advisor/advising page
-    await page.goto(`${baseURL}/advisor/advising`);
+    test('advisor can search student and view degree plan', async ({ page, testInfo }) => {
+        if (!testInfo.project.name.includes('advisor')) test.skip();
+        // Go to advisor/advising page
+        await page.goto(`/advisor/advising`);
 
-    // Search for the student by school ID
-    const searchInput = page.getByPlaceholder('School ID');
-    await searchInput.fill('112299690');
-    await searchInput.press('Enter');
+        // Search for the student by school ID
+        const searchInput = page.getByPlaceholder('School ID');
+        await searchInput.fill('112299690');
+        await searchInput.press('Enter');
 
-    // Wait for search results to show up
-    await expect(page.getByText('Alice Johnson')).toBeVisible({ timeout: 10000 });
+        // Wait for search results to show up
+        await expect(page.getByText('Alice Johnson')).toBeVisible({ timeout: 10000 });
 
-    // Click on the student result
-    await page.getByText('Alice Johnson').click();
+        // Click on the student result
+        await page.getByText('Alice Johnson').click();
 
-    // Wait for the list of programs to appear
-    await expect(page.getByText('Master of Science in Organizational Performance and Workplace Learning'))
-        .toBeVisible({ timeout: 10000 });
+        // Wait for the list of programs to appear
+        await expect(page.getByText('Master of Science in Organizational Performance and Workplace Learning'))
+            .toBeVisible({ timeout: 10000 });
 
-    // Click the desired program
-    await page.getByText('Master of Science in Organizational Performance and Workplace Learning').click();
+        // Click the desired program
+        await page.getByText('Master of Science in Organizational Performance and Workplace Learning').click();
 
-    // Wait for the degree plan API call
-    const apiResponse = await page.waitForResponse(r =>
-        r.url().includes('/students/112299690/degree-plan') && r.status() === 200,
-        { timeout: 20000 }
-    );
+        // Wait for the degree plan API call
+        const apiResponse = await page.waitForResponse(r =>
+            r.url().includes('/api/students/112299690/degree-plan') && r.status() === 200,
+            { timeout: 20000 }
+        );
 
-    console.log('Degree plan loaded:', apiResponse.url());
+        console.log('Degree plan loaded:', apiResponse.url());
 
-    // Verify that the degree plan is displayed
-    await expect(page.getByText('Credit Count: 15 / 36')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('OPWL-536').first()).toBeVisible();
+        // Verify that the degree plan is displayed
+        await expect(page.getByText('Credit Count: 15 / 36')).toBeVisible({ timeout: 10000 });
+        await expect(page.getByText('OPWL-536').first()).toBeVisible();
     });
 
 });

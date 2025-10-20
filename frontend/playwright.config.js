@@ -36,8 +36,29 @@ export default defineConfig({
   ],
 
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    // { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    // { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+    // Setup project to create auth storage states
+    { name: 'setup-auth', testMatch: /auth\.setup\.[jt]s/ },
+
+    // Projects for each role
+    {
+      name: 'chromium-admin',
+      use: { ...devices['Desktop Chrome'], storageState: 'tests/e2e/.auth/admin.json' },
+      dependencies: ['setup-auth'],
+    },
+    {
+      name: 'chromium-advisor',
+      use: { ...devices['Desktop Chrome'], storageState: 'tests/e2e/.auth/advisor.json' },
+      dependencies: ['setup-auth'],
+    },
+    {
+      name: 'chromium-accounting',
+      use: { ...devices['Desktop Chrome'], storageState: 'tests/e2e/.auth/accounting.json' },
+      dependencies: ['setup-auth'],
+    },
+    {
+      name: 'chromium-student',
+      use: { ...devices['Desktop Chrome'], storageState: 'tests/e2e/.auth/student.json' },
+      dependencies: ['setup-auth'],
+    },
   ],
 });
