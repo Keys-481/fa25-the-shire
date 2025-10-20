@@ -146,3 +146,41 @@ describe('DELETE /courses/:id', () => {
         expect(deleteRes.body.message).toBe('Course deleted successfully');
     });
 });
+
+/**
+ * Tests for GET /courses/enrollments
+ * 
+ */
+
+describe('GET /courses/enrollments', () => {
+    test('returns enrollment data for a valid course code', async () => {
+        const app = makeApp();
+        const res = await request(app).get('/courses/enrollments').query({ courseCode: 'OPWL-536' });
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.enrollments)).toBe(true);
+    });
+    test('returns 400 for missing courseCode parameter', async () => {
+        const app = makeApp();
+        const res = await request(app).get('/courses/enrollments');
+        expect(res.status).toBe(400);
+    });
+});
+
+/**
+ * Tests for GET /courses/enrollments
+ * Test a course has known enrollments
+ */
+
+describe('GET /courses/enrollments', () => {
+    test('returns enrollment data for a valid course code', async () => {
+        const app = makeApp();
+        const res = await request(app).get('/courses/enrollments').query({ courseCode: 'OPWL-507' });
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.enrollments)).toBe(true);
+    });
+    test('returns 400 for missing courseCode parameter', async () => {
+        const app = makeApp();
+        const res = await request(app).get('/courses/enrollments');
+        expect(res.status).toBe(400);
+    });
+});

@@ -7,6 +7,7 @@ import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar";
 import SearchBar from "../../components/SearchBar";
 import ReportLayout from "../../components/ReportLayout";
 
+// Main component for reporting functionality
 export default function ReportingFunctionality() {
   const [results, setResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -17,11 +18,13 @@ export default function ReportingFunctionality() {
     setHasSearched(true);
   };
 
+  // Handle course selection from results
   const handleCourseSelect = (course) => {
     console.log("Selected course:", course);
     setSelectedCourse(course);
   };
 
+  // Render search results
   const renderResults = () => {
     if (!hasSearched) return null;
     if (results.length === 0) return <p style={{ color: "black" }}>No courses found.</p>;
@@ -42,6 +45,7 @@ export default function ReportingFunctionality() {
     );
   };
 
+  // Main 
   return (
     <div>
       <AdvisorNavBar />

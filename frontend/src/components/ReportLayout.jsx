@@ -1,16 +1,21 @@
-// File: frontend/src/components/ReportLayout.jsx
+/**  File: frontend/src/components/ReportLayout.jsx
+ *  Component to display enrollment report for a selected course across next 4 semesters.
+ * */
 import { useState, useEffect } from "react";
 
+//
 export default function ReportLayout({ courseCode }) {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Fetch report data when courseCode changes
   useEffect(() => {
     if (!courseCode) return;
     fetchReport(courseCode);
   }, [courseCode]);
 
+  // Function to fetch enrollment report data
    const fetchReport = async (q) => {
     if (!q || !q.trim()) return;
     setLoading(true);
@@ -18,19 +23,19 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      // return an array of the next 4 semesters as { term, year }
+      // return an array of the next 4 semesters 
       const getNextFourSemesters = () => {
         const terms = ['Spring', 'Summer', 'Fall'];
         const now = new Date();
-        const month = now.getMonth(); // 0-11
+        const month = now.getMonth(); 
         let termIndex;
         let year = now.getFullYear();
 
-        if (month >= 8) { // Sep-Dec -> Fall
+        if (month >= 8) { 
           termIndex = 2;
-        } else if (month >= 5) { // Jun-Aug -> Summer
+        } else if (month >= 5) { 
           termIndex = 1;
-        } else { // Jan-May -> Spring
+        } else { 
           termIndex = 0;
         }
 
@@ -64,6 +69,7 @@ export default function ReportLayout({ courseCode }) {
         pivoted[label] = match ? match.count : 0;
       });
 
+      // Update report state
       setReport(pivoted);
     } catch (err) {
       console.error("Error fetching report:", err);
@@ -72,7 +78,8 @@ export default function ReportLayout({ courseCode }) {
       setLoading(false);
     }
   };
-
+  
+  // Render logic
   if (!courseCode) return <p style={{ color: "#666" }}>Select a course to view its report.</p>;
   if (loading) return <p>Loading report for {courseCode}...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
@@ -80,6 +87,7 @@ export default function ReportLayout({ courseCode }) {
 
   const semesterLabels = Object.keys(report);
 
+  // Render the report table
   return (
     <table className="report-table" style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead style={{ backgroundColor: "#f0f0f0" }}>

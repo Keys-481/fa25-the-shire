@@ -167,7 +167,24 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-// GET /api/courses/enrollments?courseCode=OPWL-536
+/**
+ * 
+ * @route GET /courses/enrollments
+ * @description Retrieves enrollment counts for a specific course over the next four semesters.
+ * @access Public
+ * * @queryParam {string} courseCode - The course code to retrieve enrollments for.
+ * @response 200 - Returns an array of enrollment objects:
+ *  {
+ *    enrollments: [
+ *      { semester: string,  // e.g., "Fall 2024"
+ *        count: number      // enrollment count
+ *      },
+ *      ...
+ *    ]
+ *  }
+ * @response 400 - Missing courseCode query parameter.
+ * @response 500 - Internal server error if retrieval fails.
+ */
 router.get('/enrollments', async (req, res) => {
   const { courseCode } = req.query;
   if (!courseCode) return res.status(400).json({ message: 'Missing courseCode' });

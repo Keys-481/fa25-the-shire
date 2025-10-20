@@ -185,3 +185,81 @@ describe('CourseModel - updateCourse', () => {
   });
 });
 
+/**
+ * Tests for CourseModel (deleteCourse)
+ */
+describe('CourseModel - deleteCourse', () => {
+  test('deletes a course by ID', async () => {
+    // Create a temporary course to be deleted
+    const course = await createCourse({
+      name: 'Delete Target',
+      code: 'DEL102',
+      credits: 1,
+      prerequisites: '',
+      offerings: ''
+    });
+
+    // Delete the course and verify the success message
+    const result = await deleteCourse(course.course_id);
+    expect(result.message).toBe('Course deleted successfully');
+
+    // Confirm that the course no loger exists in the database
+    const res = await pool.query('SELECT * FROM courses WHERE course_id = $1', [course.course_id]);
+    expect(res.rows.length).toBe(0);
+  });
+});
+
+/**
+ * Tests for CourseModel (getEnrollments)
+ */
+describe('CourseModel - getEnrollments', () => {
+  test('retrieves enrollment counts for a course across semesters', async () => {
+    // Use a course code known to have enrollments in the seed data
+    const courseCode = 'OPWL-536'; // course with known enrollments in seed data
+    const enrollments = await CourseModel.getEnrollments(courseCode);
+
+    // Validate the structure and content of the enrollment data
+    expect(enrollments).toBeDefined();
+    expect(Array.isArray(enrollments)).toBe(true); -  
+    expect(enrollments.length).toBeGreaterThan(0);
+    expect(enrollments[0]).toHaveProperty('semester');
+    expect(enrollments[0]).toHaveProperty('count');
+  });
+
+  test('returns empty array if the course has no enrollments', async () => {
+  const courseCode = 'NONEXISTENT-COURSE';
+  const enrollments = await CourseModel.getEnrollments(courseCode);
+
+  expect(enrollments).toBeDefined();
+  expect(Array.isArray(enrollments)).toBe(true);
+  expect(enrollments.length).toBe(0);
+});
+});
+
+/**
+ * Tests for CourseModel (getEnrollments)
+ * Course that has known enrollments
+ */
+describe('CourseModel - getEnrollments', () => {
+  test('retrieves enrollment counts for a course across semesters', async () => {
+    // Use a course code known to have enrollments in the seed data
+    const courseCode = 'OPWL-507'; // course with known enrollments in seed data
+    const enrollments = await CourseModel.getEnrollments(courseCode);
+
+    // Validate the structure and content of the enrollment data
+    expect(enrollments).toBeDefined();
+    expect(Array.isArray(enrollments)).toBe(true); -  
+    expect(enrollments.length).toBeGreaterThan(0);
+    expect(enrollments[0]).toHaveProperty('semester');
+    expect(enrollments[0]).toHaveProperty('count');
+  });
+
+  test('returns empty array if the course has no enrollments', async () => {
+  const courseCode = 'NONEXISTENT-COURSE';
+  const enrollments = await CourseModel.getEnrollments(courseCode);
+
+  expect(enrollments).toBeDefined();
+  expect(Array.isArray(enrollments)).toBe(true);
+  expect(enrollments.length).toBe(0);
+});
+});
