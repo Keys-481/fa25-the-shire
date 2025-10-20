@@ -38,7 +38,7 @@ export default function Advising() {
 
     try {
       // get list of programs for student
-      const response = await fetch(`/students/${student.id}/programs`);
+      const response = await fetch(`/api/students/${student.id}/programs`);
       const data = await response.json();
       setPrograms(data.programs || []);
     } catch (error) {
@@ -46,7 +46,7 @@ export default function Advising() {
     }
   }
 
-  const searchStudentEndpoint = '/students/search';
+  const searchStudentEndpoint = '/api/students/search';
 
   // render results message only after a search has been made
   const renderResults = () => {
@@ -60,7 +60,7 @@ export default function Advising() {
 
     // render results list
     return (
-      <ul className="results-list">
+      <ul className="results-list" data-testid="search-results">
         {results.map((student, index) => (
           <li key={index} className={`result-item ${selectedStudent?.id === student.id ? 'selected' : ''}`} onClick={() => handleStudentSelect(student)}>
             <strong>{student.name}</strong> <br />

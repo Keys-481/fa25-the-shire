@@ -11,7 +11,7 @@ import RequirementsView from "./RequirementView";
  * DegreePlan component displays the degree plan for a specific student.
  */
 export default function DegreePlan({ student, program }) {
-    const base_url = '/students';
+    const base_url = '/api/students';
 
     // state to hold degree plan data, loading, and error states
     const [planData, setPlanData] = useState(null);
