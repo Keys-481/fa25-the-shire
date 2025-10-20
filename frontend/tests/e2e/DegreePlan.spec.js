@@ -9,7 +9,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Advising - DegreePlan component', () => {
 
     test('advisor can search student and view degree plan', async ({ page }, testInfo) => {
-        if (!testInfo.project.name.includes('advisor')) test.skip();
+        if (!testInfo.project?.name?.includes('advisor')) test.skip();
         // Go to advisor/advising page
         await page.goto(`/advisor/advising`);
 
@@ -19,10 +19,11 @@ test.describe('Advising - DegreePlan component', () => {
         await searchInput.press('Enter');
 
         // Wait for search results to show up
-        await expect(page.getByText('Alice Johnson')).toBeVisible({ timeout: 10000 });
+        await page.waitForSelector('[data-testid="search-results"], table, .results', { timeout: 10000 });
+        await expect(page.getByText('Alice Johnson', { exact: false })).toBeVisible({ timeout: 10000 });
 
         // Click on the student result
-        await page.getByText('Alice Johnson').click();
+        await page.getByText('Alice Johnson', { exact: false }).click();
 
         // Wait for the list of programs to appear
         await expect(page.getByText('Master of Science in Organizational Performance and Workplace Learning'))
@@ -32,7 +33,7 @@ test.describe('Advising - DegreePlan component', () => {
         await page.getByText('Master of Science in Organizational Performance and Workplace Learning').click();
 
         // Wait for the degree plan API call
-        const apiResponse = await page.waitForResponse(r =>
+        await page.waitForResponse(r =>
             r.url().includes('/api/students/112299690/degree-plan') && r.status() === 200,
             { timeout: 20000 }
         );
