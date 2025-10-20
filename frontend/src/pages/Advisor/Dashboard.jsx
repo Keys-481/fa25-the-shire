@@ -16,10 +16,11 @@ export default function AdvisorDashboard() {
             {/* Navigation bar */}
             <div className='navbar'>
                 <div style={{ position: 'absolute', left: '20px' }}>
-                    <button onClick={() => navigate('/')}>←</button>
+                    <button onClick={() => navigate('/')} className='back-button'>←</button>
                 </div>  {/* remove or change to a log out button later*/}
                 <img src={logo} alt="BSU-Logo" className='logo' />
             </div>
+
 
             <div className='window'>
                 {/* Page Title */}
