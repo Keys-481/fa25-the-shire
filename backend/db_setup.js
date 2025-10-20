@@ -9,9 +9,12 @@
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
+const envPath = process.env.NODE_ENV === 'dev'
+    ? path.resolve(__dirname, '../.env.dev')
+    : path.resolve(__dirname, '../.env');
 
 // Load environment variables from .env file (.env should not be committed to version control)
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+require('dotenv').config({ path: envPath });
 
 const dbConfig = {
     host: process.env.DB_HOST,

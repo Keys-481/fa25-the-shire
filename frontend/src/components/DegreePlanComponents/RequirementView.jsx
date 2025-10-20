@@ -2,6 +2,7 @@
  * File: frontend/src/components/DegreePlanComponents/RequirementsView.jsx
  * This file defines the RequirementsView component to display courses grouped by program requirements.
  */
+import { useState, useEffect } from "react";
 
 /**
  * Builds a hierarchy of requirements from a flat array.
@@ -70,7 +71,12 @@ function calculateCompletedCredits(req) {
  * @param {*} courses - array of course objects to display
  * @returns {JSX.Element} - The rendered requirements view
  */
-export default function RequirementsView( { courses, program } ) {
+export default function RequirementsView( { courses, program, semesters=[], student } ) {
+    const [localCourses, setLocalCourses] = useState(courses);
+    const [editingCourse, setEditingCourse] = useState(null);
+    const [newStatus, setNewStatus] = useState('Unplanned');
+    const [semesterId, setSemesterId] = useState('');
+
     if (!courses || courses.length === 0) {
         return <p>No courses found</p>
     }
@@ -79,9 +85,14 @@ export default function RequirementsView( { courses, program } ) {
         return <p>No program selected</p>;
     }
 
+    // keep local copy of courses to trigger re-render on updates
+    useEffect(() => {
+        setLocalCourses(courses);
+    }, [courses]);
+
     // Extract unique requirements from courses
     const uniqueReqs = Object.values(
-        courses.reduce((acc, c) => {
+        localCourses.reduce((acc, c) => {
             if (!acc[c.requirement_id]) {
                 acc[c.requirement_id] = {
                     requirement_id: c.requirement_id,
@@ -101,17 +112,124 @@ export default function RequirementsView( { courses, program } ) {
     // map courses to requirements in the hierarchy
     const flatReqsMap = hierarchy.flatMap(root => flattenHierarchy(root));
     const map = new Map(flatReqsMap.map(req => [req.requirement_id, req]));
-    courses.forEach(course => {
+    localCourses.forEach(course => {
         const node = map.get(course.requirement_id);
         if (node) node.courses.push(course);
     });
 
     // Helper to render status columns
-    const renderStatus = (course, targetStatus) => {
-        if (course.course_status === targetStatus) {
-            return course.semester_name || "-";
+    const renderEditableStatus = (course) => {
+        const isEditing = editingCourse === course.course_id;
+
+        if (isEditing) {
+            const availableSemesters = semesters.length > 0 ? semesters : (course.offered_semesters || "")
+                .split(",").map((type, i) => ({
+                    semester_id: i + 1000,
+                    semester_name: type.trim(),
+                }));
+
+            return (
+                <td colSpan={3}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <select
+                            value={newStatus}
+                            onChange={(e) => setNewStatus(e.target.value)}
+                        >
+                            {["Completed", "In Progress", "Planned", "Unplanned"].map(status => (
+                                <option key={status} value={status}>{status}</option>
+                            ))}
+                        </select>
+
+                        {newStatus === 'Planned' && (
+                            <select
+                                value={semesterId}
+                                onChange={(e) => setSemesterId(Number(e.target.value))}
+                            >
+                                <option value="">Select Semester</option>
+                                {availableSemesters.map(semester => (
+                                    <option key={semester.semester_id} value={semester.semester_id}>
+                                        {semester.semester_name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+
+                    <button onClick={() => handleSaveStatus(course)}>Save</button>
+                    <button onClick={() => setEditingCourse(null)}>Cancel</button>
+                </td>
+            );
         }
-        return "";
+
+        return (
+            <td
+                colSpan={3}
+                onClick={() => {
+                    setEditingCourse(course.course_id);
+                    setNewStatus(course.course_status || 'Unplanned');
+                }}
+                style={{
+                    cursor: 'pointer',
+                    background: {
+                        Completed: 'var(--gray)',
+                        'In Progress': 'var(--green)',
+                        Planned: 'var(--orange)',
+                        Unplanned: 'transparent'
+                    }[course.course_status || 'Unplanned'],
+                    textAlign: 'center'
+                }}
+            >
+                {course.course_status || 'Unplanned'}
+                {course.semester_name ? ` (${course.semester_name})` : '-'}
+            </td>
+        );
+    }
+
+    async function handleSaveStatus(course) {
+        const schoolId = student.id;
+        const chosenSemesterId = newStatus === 'Planned' ? semesterId || null : course.semester_id || null;
+
+        if (newStatus === 'Planned' && !chosenSemesterId) {
+            alert("Please select a semester for Planned courses.");
+            return;
+        }
+
+        try {
+            const res = await fetch(`/students/${schoolId}/degree-plan/course`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    courseId: course.course_id,
+                    status: newStatus,
+                    semesterId: chosenSemesterId,
+                    programId: course.program_id
+                })
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Failed: ${res.status} - ${errText}`);
+            }
+
+            const updated = await res.json();
+            console.log("Course status updated:", updated);
+
+            setEditingCourse(null);
+
+            setLocalCourses(prev =>
+                prev.map(c =>
+                    c.course_id === course.course_id
+                        ? { ...c, course_status: newStatus, semester_id: chosenSemesterId, semester_name: semesters.find(s => s.semester_id === chosenSemesterId)?.semester_name || c.semester_name || '' }
+                        : c
+                )
+            )
+
+        } catch (error) {
+            console.error("Error saving course status:", error);
+            alert(`Could not update course status: ${error.message}`);
+        }
     }
 
     hierarchy.forEach(req => calculateCompletedCredits(req));
@@ -152,9 +270,9 @@ export default function RequirementsView( { courses, program } ) {
                         <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
                         <td>{course.offered_semesters || 'N/A'}</td>
                         <td>{course.credits || '-'}</td>
-                        <td>{renderStatus(course, 'Completed')}</td>
-                        <td>{renderStatus(course, 'In Progress')}</td>
-                        <td>{renderStatus(course, 'Planned')}</td>
+                        <td colSpan={3}>
+                            {renderEditableStatus(course)}
+                        </td>
                     </tr>
                 );
             });
@@ -183,9 +301,7 @@ export default function RequirementsView( { courses, program } ) {
                             <th>Prerequisites</th>
                             <th>Offered</th>
                             <th>Credits</th>
-                            <th>Completed</th>
-                            <th>In Progress</th>
-                            <th>Planned</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>

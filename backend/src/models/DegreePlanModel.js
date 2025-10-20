@@ -117,13 +117,22 @@ async function getTotalProgramRequiredCredits(programId) {
  */
 async function updateCourseStatus(studentId, courseId, newStatus, semesterId, programId) {
     try {
-        const result = await pool.query(
-            `UPDATE degree_plans
-            SET course_status = $3, semester_id = $4
-            WHERE student_id = $1 AND course_id = $2 AND program_id = $5
-            RETURNING *`,
-            [studentId, courseId, newStatus, semesterId, programId]
-        );
+        const query = `
+            INSERT INTO degree_plans (student_id, course_id, course_status, semester_id, program_id, catalog_year)
+            VALUES (
+                $1, $2, $3, $4, $5,
+                COALESCE(
+                    (SELECT dp.catalog_year FROM degree_plans dp WHERE dp.student_id = $1 AND dp.program_id = $5
+                    LIMIT 1), '2025-2026'
+                )
+            )
+            ON CONFLICT (student_id, course_id, program_id)
+            DO UPDATE SET
+                course_status = EXCLUDED.course_status,
+                semester_id = EXCLUDED.semester_id
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [studentId, courseId, newStatus, semesterId, programId]);
         return result.rows[0];
     } catch (error) {
         console.error('Error updating course status:', error.message);

@@ -117,7 +117,7 @@ export default function DegreePlan({ student, program }) {
             {/* Degree Plan Section */}
             <div className="degree-plan-content">
                 {viewType === 'requirements' ? (
-                    <RequirementsView courses={planData.degreePlan} program={program} />
+                    <RequirementsView courses={planData.degreePlan} program={program} student={student} />
                 ) : (
                     <SemesterView courses={planData.degreePlan} program={program} />
                 )}

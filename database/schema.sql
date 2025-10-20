@@ -267,7 +267,8 @@ CREATE TABLE degree_plans (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     semester_id INT REFERENCES semesters(semester_id) ON DELETE CASCADE,
     catalog_year VARCHAR(9) NOT NULL,
-    course_status course_status NOT NULL
+    course_status course_status NOT NULL,
+    CONSTRAINT unique_degree_plan_entry UNIQUE (student_id, course_id, program_id)
 );
 
 CREATE INDEX idx_degree_plans_student_id ON degree_plans(student_id);
