@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Advising - DegreePlan component', () => {
 
-    test('advisor can search student and view degree plan', async ({ page, testInfo }) => {
+    test('advisor can search student and view degree plan', async ({ page }, testInfo) => {
         if (!testInfo.project.name.includes('advisor')) test.skip();
         // Go to advisor/advising page
         await page.goto(`/advisor/advising`);

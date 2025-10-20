@@ -10,7 +10,7 @@ const path = require('path');
 test('create storage state for all roles', async ({ browser, baseURL }) => {
     // Define URL and output directory
     const url = baseURL || 'http://localhost:3000';
-    const outDir = path.join(__dirname, '.auth');
+    const outDir = path.join(process.cwd(), 'tests', 'e2e', '.auth');
     fs.mkdirSync(outDir, { recursive: true });
 
     const roles = [
@@ -40,8 +40,7 @@ test('create storage state for all roles', async ({ browser, baseURL }) => {
         await page.reload();
 
         // Save cookies and local storage to file
-        const outFile = path.join(outDir, `${same}.json`);
-        await context.storageState({ path: outFile });
+        await context.storageState({ path: path.join(outDir, `${name}.json`) });
         await context.close();
     }
 });
