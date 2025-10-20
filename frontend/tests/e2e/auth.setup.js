@@ -3,9 +3,9 @@
  * Playwright test setup file to create authenticated storage state for all users.
  */
 
-const { test } = require('@playwright/test');
-const fs = require('fs');
-const path = require('path');
+import { test } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
 test('create storage state for all roles', async ({ browser, baseURL }) => {
     // Define URL and output directory
