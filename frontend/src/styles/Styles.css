@@ -111,10 +111,6 @@
   overflow-y: auto;
 }
 
-.semester-section {
-  margin-bottom: 50px;
-}
-
 /*** Object Layouts ***/
 
 .textbox-row {
@@ -203,7 +199,7 @@
 }
 
 .degree-plan-content {
-  margin: 15px;
+  margin: 20px;
 }
 
 .error-message {
@@ -330,6 +326,17 @@ h2 {
   width: 60%;
 }
 
+h3 {
+  margin: 2px;
+  color: var(--main);
+  font-size: 16px;
+  margin-left: 5px;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  position: relative;
+  width: 60%;
+}
+
 p {
   margin: 2px;
   color: var(--main);
@@ -375,21 +382,35 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 8px;
   text-align: left;
   width: 16.6%
 }
 
-/** Degree Plan Requirement View **/
+/** Requirement View **/
+.requirements-view-container {
+  margin: 20px 30px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
 .requirements-table thead th {
   background-color: var(--accent);
-  color: white;
+  color: var(--background);
   font-weight: 600;
 }
 
+.requirement-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .requirement-header-cell {
-  background-color: #dfe7f5;
   font-weight: 600;
   font-size: 1rem;
   text-align: left;
@@ -400,10 +421,9 @@ th, td {
   border-right: 1px solid #e6e9ef;
 }
 
-.child-req-row .requirement-header-cell {
-  background-color: #f2f5fb;
-  font-weight: 500;
-  font-size: 0.95rem;
+/* Color change based on requirement level */
+.req-row[style*="--level:"] .requirement-header-cell {
+  background-color: rgba(9, 52, 122, calc(0.14 - var(--level) * 0.05));
 }
 
 .requirements-table {
@@ -424,14 +444,14 @@ th, td {
   padding-left: 12px;
 }
 
-requirements-table th {
-  background-color: #f5f7fb;
+.requirements-table th {
+  background-color: var(--background);
   font-weight: 600;
   border-bottom: 2px solid #cfd8e6;
   vertical-align: middle;
 }
 
-requirements-table td {
+.requirements-table td {
   background-color: #ffffff;
   padding: 6px 10px;
   border-bottom: 1px solid #e5e8ee;
@@ -443,11 +463,130 @@ requirements-table td {
   border-left: 1px solid #e6e9ef;
 }
 
+/* Semester View */
+.semester-view-container {
+  margin: 20px 30px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.semester-header {
+  margin: 0;
+  padding: 10px 15px;
+  background-color: var(--accent);
+  color: var(--background);
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.semester-section {
+  margin-bottom: 50px;
+  padding-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.semester-section .table-wrapper {
+  margin: 0;
+  padding: 0;
+}
+
+.semester-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  border: none;
+  margin: 0;
+}
+
+.semester-table th {
+  background-color: #ecf2fc;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 10px 12px;
+  border-bottom: 2px solid #cfd8e6;
+}
+
+.semester-table tbody td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.semester-table tbody tr:last-child td {
+  border-bottom: none;
+}
+/** Toggle Bar Styles **/
+
 .view-toggle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px;
-    background: #eee;
-    margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+  background: #eee;
+  margin-top: 10px;
+}
+
+
+.toggle-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+  margin-left: 15px;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 200px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--secondary);
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--background);
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+input:checked+.slider {
+  background-color: var(--accent);
+}
+
+input:checked+.slider:before {
+  transform: translateX(20px);
 }

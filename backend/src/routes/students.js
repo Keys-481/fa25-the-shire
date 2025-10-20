@@ -199,14 +199,15 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                 degreePlan.map(async (course) => {
                     const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
                     const offered_semesters = await CourseModel.getCourseOfferings(course.course_id);
+                    const certificate_overlaps = await CourseModel.getCertificateOverlaps(course.course_id);
                     return {
                         ...course,
                         prerequisites,
-                        offered_semesters
+                        offered_semesters,
+                        certificate_overlaps
                     };
                 })
             );
-            console.log(viewType, degreePlan);
             return res.json({ student, programId, viewType, degreePlan, totalRequiredCredits });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });

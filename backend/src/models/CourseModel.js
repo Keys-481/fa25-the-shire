@@ -85,6 +85,27 @@ async function getCourseOfferings(courseId) {
 }
 
 /**
+ * Get the certificates that overlap with a given course.
+ * @param {*} courseId - The internal ID of the course.
+ * @returns A promise that resolves to an array of certificate objects.
+ */
+async function getCertificateOverlaps(courseId) {
+  try {
+    const result = await pool.query(
+      `SELECT cert.certificate_id, cert.certificate_name, cert.certificate_short_name
+      FROM certificate_courses cc
+      JOIN certificates cert ON cc.certificate_id = cert.certificate_id
+      WHERE cc.course_id = $1`,
+      [courseId]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching certificate overlap:', error);
+    throw error;
+  }
+}
+
+/**
  * Search for courses by name, code, or both.
  * @param {Object} params - Search parameters.
  * @param {string} params.name - Partial or full course name.
@@ -273,6 +294,7 @@ module.exports = {
   findByNameAndId,
   getPrerequisitesForCourse,
   getCourseOfferings,
+  getCertificateOverlaps,
   searchCourses,
   createCourse,
   updateCourse,
