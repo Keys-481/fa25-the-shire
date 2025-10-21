@@ -3,6 +3,7 @@
  * This file defines the RequirementsView component to display courses grouped by program requirements.
  */
 import { useState, useEffect } from "react";
+import { PencilLine } from "lucide-react";
 
 /**
  * Builds a hierarchy of requirements from a flat array.
@@ -128,73 +129,17 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         if (node) node.courses.push(course);
     });
 
-    // Helper to render status columns
-    const renderEditableStatus = (course) => {
-        const isEditing = editingCourse === course.course_id;
-
-        if (isEditing) {
-            const availableSemesters = course.semester_options;
-
-            // Editing mode
-            return (
-                <td colSpan={3}>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                        <select
-                            value={newStatus}
-                            onChange={(e) => setNewStatus(e.target.value)}
-                        >
-                            {["Completed", "In Progress", "Planned", "Unplanned"].map(status => (
-                                <option key={status} value={status}>{status}</option>
-                            ))}
-                        </select>
-
-                        {["Planned", "In Progress", "Completed"].includes(newStatus) && (
-                            <select
-                                value={semesterId}
-                                onChange={(e) => setSemesterId((e.target.value))}
-                            >
-                                <option value="">Select Semester</option>
-                                {availableSemesters.map(semester => (
-                                    <option key={semester.semester_id} value={String(semester.semester_id)}>
-                                        {semester.semester_name}
-                                    </option>
-                                ))}
-                            </select>
-                        )}
-                    </div>
-
-                    <button onClick={() => handleSaveStatus(course)}>Save</button>
-                    <button onClick={() => setEditingCourse(null)}>Cancel</button>
-                </td>
-            );
-        }
-
-        // Display mode
-        return (
-            <td
-                colSpan={3}
-                onClick={() => {
-                    setEditingCourse(course.course_id);
-                    setNewStatus(course.course_status || 'Unplanned');
-                }}
-            >
-                {course.course_status === 'Unplanned' ? '-' : course.course_status}
-                {course.semester_name !== 'Unplanned' && course.semester_name ? ` (${course.semester_name})` : ''}
-            </td>
-        );
-    }
-
     // Handler to save updated course status from editing mode
     async function handleSaveStatus(course) {
         const schoolId = student.id;
         let chosenSemesterId = null;
         if (newStatus === 'Unplanned') {
             chosenSemesterId = null;
-        } else if (["Planned", "In Progress", "Completed"].includes(newStatus)) {
+        } else if (["Completed", "In Progress", "Planned"].includes(newStatus)) {
             chosenSemesterId = semesterId ? Number(semesterId) : course.semester_id || null;
         }
 
-        if (["Planned", "In Progress", "Completed"].includes(newStatus) && !chosenSemesterId) {
+        if (["Completed", "In Progress", "Planned"].includes(newStatus) && !chosenSemesterId) {
             alert(`Please select a semester for "${newStatus}" courses.`);
             return;
         }
@@ -272,20 +217,71 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             .filter(course => course?.course_id)
             .forEach(course => {
                 rows.push(
-                    <tr key={`${req.requirement_id}-${course.course_id}`} className={`course-row course-status-${(course.course_status || 'unplanned').toLowerCase().replace(/\s/g, '-')}`} style={rowStyle}>
-                        <td><strong>{course.course_code || '-'}</strong></td>
-                        <td>{course.course_name || '-'}</td>
-                        {program.program_type !== 'certificate' && (
-                            <td>{course.certificate_overlaps && course.certificate_overlaps.length > 0 ? course.certificate_overlaps.map(co => co.certificate_short_name).join(', ') : 'None'}</td>
-                        )}
-                        <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
-                        <td>{course.offered_semesters || 'N/A'}</td>
-                        <td>{course.credits || '-'}</td>
-                        <td colSpan={3}>
-                            {renderEditableStatus(course)}
-                        </td>
-                    </tr>
+                    <>
+                        <tr key={`${req.requirement_id}-${course.course_id}`} className={`course-row course-status-${(course.course_status || 'unplanned').toLowerCase().replace(/\s/g, '-')}`} style={rowStyle}>
+                            <td><strong>{course.course_code || '-'}</strong></td>
+                            <td>{course.course_name || '-'}</td>
+                            {program.program_type !== 'certificate' && (
+                                <td>{course.certificate_overlaps && course.certificate_overlaps.length > 0 ? course.certificate_overlaps.map(co => co.certificate_short_name).join(', ') : 'None'}</td>
+                            )}
+                            <td>{course.prerequisites && course.prerequisites.length > 0 ? course.prerequisites.map(pr => pr.course_code).join(', ') : 'None'}</td>
+                            <td>{course.offered_semesters || 'N/A'}</td>
+                            <td>{course.credits || '-'}</td>
+                            {["Completed", "In Progress", "Planned"].map(status => (
+                                <td key={status}>
+                                    {course.course_status === status ? (course.semester_name || '-') : '-'}
+                                </td>
+                            ))}
+
+                            <td className="edit-cell-anchor">
+                                <button
+                                className={`course-status-edit-btn ${editingCourse === course.course_id ? 'active' : ''}`}
+                                onClick={() => setEditingCourse(course.course_id)}
+                                >
+                                <PencilLine size={16} />
+                                </button>
+                            </td>
+                        </tr>
+
+                        { /* Edit button  for this course */ }
+                        {/* <button className={`course-status-edit-btn ${editingCourse === course.course_id ? 'active' : ''}`} onClick={() => setEditingCourse(course.course_id)} data-course-id={course.course_id}>
+                            <PencilLine size={16} />
+                        </button> */}
+                    </>
                 );
+
+                if (editingCourse === course.course_id) {
+                    rows.push(
+                        <tr key={`${req.requirement_id}-${course.course_id}-edit-row`} className="course-edit-row">
+                            <td colSpan={program.program_type !== 'certificate' ? 10: 9}>
+                                <div>
+                                    <label>Status:</label>
+                                    <select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                                        {["Completed", "In Progress", "Planned", "Unplanned"].map(status => (
+                                            <option key={status} value={status}>{status}</option>
+                                        ))}
+                                    </select>
+
+                                    {["Completed", "In Progress", "Planned"].includes(newStatus) && (
+                                        <>
+                                            <label>Semester:</label>
+                                            <select value={semesterId} onChange={(e) => setSemesterId(e.target.value)}>
+                                                <option value="">Select Semester</option>
+                                                {course.semester_options.map(semester => (
+                                                    <option key={semester.semester_id} value={String(semester.semester_id)}>
+                                                        {semester.semester_name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </>
+                                    )}
+                                    <button onClick={() => handleSaveStatus(course)}>Save</button>
+                                    <button onClick={() => setEditingCourse(null)}>Cancel</button>
+                                </div>
+                            </td>
+                        </tr>
+                    )
+                }
             });
         }
 
@@ -312,7 +308,9 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                             <th>Prerequisites</th>
                             <th>Offered</th>
                             <th>Credits</th>
-                            <th>Status</th>
+                            <th>Completed</th>
+                            <th>In Progress</th>
+                            <th>Planned</th>
                         </tr>
                     </thead>
                     <tbody>

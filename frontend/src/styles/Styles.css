@@ -396,7 +396,6 @@ td {
 .requirements-view-container {
   margin: 20px 30px;
   border-radius: 8px;
-  overflow: hidden;
   background-color: var(--background);
 }
 
@@ -481,6 +480,57 @@ td {
 .requirements-table td:first-child,
 .requirements-table th:first-child {
   border-left: 1px solid #e6e9ef;
+}
+
+/* Edit Course Status Button */
+.course-status-edit-btn {
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--background);
+  border: none;
+  border-radius: 4px;
+  color: var(--accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.course-status-edit-btn:hover {
+  opacity: 1;
+  border: 1px solid var(--accent);
+}
+
+.course-status-edit-btn.active {
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.course-row {
+  position: relative;
+}
+
+.edit-cell-anchor {
+  position: relative;
+  width: 1px;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.course-row td.edit-cell-anchor {
+  background: var(--background) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: 1px;
+  text-align: right;
 }
 
 /* Semester View */
