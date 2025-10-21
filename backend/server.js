@@ -13,6 +13,7 @@ const cors = require('cors');
 const app = express();
 const path = require('path');
 const fs = require('fs');
+const auth = require('./src/middleware/auth');
 
 // Import route handlers
 const studentRoutes = require('./src/routes/students');
@@ -43,6 +44,8 @@ async function checkDbConnection() {
 // Middleware to parse JSON and URL-encoded data
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(auth);
 
 // Enable CORS for all routes (to allow requests from frontend for development)
 app.use(cors());
