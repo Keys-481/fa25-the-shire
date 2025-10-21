@@ -16,7 +16,7 @@ export default function ReportLayout({ courseCode }) {
   }, [courseCode]);
 
   // Function to fetch enrollment report data
-   const fetchReport = async (q) => {
+  const fetchReport = async (q) => {
     if (!q || !q.trim()) return;
     setLoading(true);
     setError(null);
@@ -27,15 +27,15 @@ export default function ReportLayout({ courseCode }) {
       const getNextFourSemesters = () => {
         const terms = ['Spring', 'Summer', 'Fall'];
         const now = new Date();
-        const month = now.getMonth(); 
+        const month = now.getMonth();
         let termIndex;
         let year = now.getFullYear();
 
-        if (month >= 8) { 
+        if (month >= 8) {
           termIndex = 2;
-        } else if (month >= 5) { 
+        } else if (month >= 5) {
           termIndex = 1;
-        } else { 
+        } else {
           termIndex = 0;
         }
 
@@ -78,7 +78,7 @@ export default function ReportLayout({ courseCode }) {
       setLoading(false);
     }
   };
-  
+
   // Render logic
   if (!courseCode) return <p style={{ color: "#666" }}>Select a course to view its report.</p>;
   if (loading) return <p>Loading report for {courseCode}...</p>;
