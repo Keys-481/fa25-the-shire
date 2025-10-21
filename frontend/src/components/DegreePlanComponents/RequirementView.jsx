@@ -71,11 +71,27 @@ function calculateCompletedCredits(req) {
  * @param {*} courses - array of course objects to display
  * @returns {JSX.Element} - The rendered requirements view
  */
-export default function RequirementsView( { courses, program, semesters=[], student } ) {
+export default function RequirementsView( { courses, program, semesters=[], student, onCourseUpdated } ) {
     const [localCourses, setLocalCourses] = useState(courses);
     const [editingCourse, setEditingCourse] = useState(null);
     const [newStatus, setNewStatus] = useState('Unplanned');
     const [semesterId, setSemesterId] = useState('');
+
+     // keep local copy of courses to trigger re-render on updates
+    useEffect(() => {
+        setLocalCourses(courses);
+    }, [courses]);
+
+    // when editingCourse changes, set initial values for status and semester
+    useEffect(() => {
+        if (editingCourse) {
+            const course = localCourses.find(c => c.course_id === editingCourse);
+            setSemesterId(course?.semester_id || '');
+            setNewStatus(course?.course_status || 'Unplanned');
+            console.log("Editing Course:", course);
+            console.log("Initial Semester ID:", course?.semester_id);
+        }
+    }, [editingCourse, localCourses]);
 
     if (!courses || courses.length === 0) {
         return <p>No courses found</p>
@@ -84,11 +100,6 @@ export default function RequirementsView( { courses, program, semesters=[], stud
     if (!program?.program_type) {
         return <p>No program selected</p>;
     }
-
-    // keep local copy of courses to trigger re-render on updates
-    useEffect(() => {
-        setLocalCourses(courses);
-    }, [courses]);
 
     // Extract unique requirements from courses
     const uniqueReqs = Object.values(
@@ -124,6 +135,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         if (isEditing) {
             const availableSemesters = course.semester_options;
 
+            // Editing mode
             return (
                 <td colSpan={3}>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -136,14 +148,14 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                             ))}
                         </select>
 
-                        {newStatus === 'Planned' && (
+                        {["Planned", "In Progress", "Completed"].includes(newStatus) && (
                             <select
                                 value={semesterId}
-                                onChange={(e) => setSemesterId(Number(e.target.value))}
+                                onChange={(e) => setSemesterId((e.target.value))}
                             >
                                 <option value="">Select Semester</option>
                                 {availableSemesters.map(semester => (
-                                    <option key={semester.semester_id} value={semester.semester_id}>
+                                    <option key={semester.semester_id} value={String(semester.semester_id)}>
                                         {semester.semester_name}
                                     </option>
                                 ))}
@@ -157,6 +169,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             );
         }
 
+        // Display mode
         return (
             <td
                 colSpan={3}
@@ -165,18 +178,24 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                     setNewStatus(course.course_status || 'Unplanned');
                 }}
             >
-                {course.course_status || 'Unplanned'}
-                {course.semester_name ? ` (${course.semester_name})` : '-'}
+                {course.course_status === 'Unplanned' ? '-' : course.course_status}
+                {course.semester_name !== 'Unplanned' && course.semester_name ? ` (${course.semester_name})` : ''}
             </td>
         );
     }
 
+    // Handler to save updated course status from editing mode
     async function handleSaveStatus(course) {
         const schoolId = student.id;
-        const chosenSemesterId = newStatus === 'Planned' ? semesterId || null : course.semester_id || null;
+        let chosenSemesterId = null;
+        if (newStatus === 'Unplanned') {
+            chosenSemesterId = null;
+        } else if (["Planned", "In Progress", "Completed"].includes(newStatus)) {
+            chosenSemesterId = semesterId ? Number(semesterId) : course.semester_id || null;
+        }
 
-        if (newStatus === 'Planned' && !chosenSemesterId) {
-            alert("Please select a semester for Planned courses.");
+        if (["Planned", "In Progress", "Completed"].includes(newStatus) && !chosenSemesterId) {
+            alert(`Please select a semester for "${newStatus}" courses.`);
             return;
         }
 
@@ -190,7 +209,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                     courseId: course.course_id,
                     status: newStatus,
                     semesterId: chosenSemesterId,
-                    programId: course.program_id
+                    programId: program.program_id
                 })
             });
 
@@ -207,10 +226,17 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             setLocalCourses(prev =>
                 prev.map(c =>
                     c.course_id === course.course_id
-                        ? { ...c, course_status: newStatus, semester_id: chosenSemesterId, semester_name: semesters.find(s => s.semester_id === chosenSemesterId)?.semester_name || c.semester_name || '' }
+                        ? { ...c,
+                            course_status: updated.course_status,
+                            semester_id: updated.semester_id ?? chosenSemesterId,
+                            semester_name: semesters.find(s => s.semester_id === updated.semester_id)?.semester_name || c.semester_name}
                         : c
                 )
             )
+
+            if (typeof onCourseUpdated === 'function') {
+                onCourseUpdated();
+            }
 
         } catch (error) {
             console.error("Error saving course status:", error);

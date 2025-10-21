@@ -61,7 +61,7 @@ async function getDegreePlanByRequirements(studentId, programId) {
         SELECT
             r.requirement_id, r.requirement_type, r.req_description, r.parent_requirement_id, r.parent_description, r.required_credits, r.requirement_label, r.display_order, r.parent_order,
             c.course_id, c.course_code, c.course_name, c.credits,
-            dp.course_status, dp.catalog_year, s.semester_name
+            dp.course_status, dp.catalog_year, s.semester_id, s.semester_name
         FROM reqs r
         LEFT JOIN requirement_courses rc
             ON rc.requirement_id = r.requirement_id

@@ -339,7 +339,7 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
         if (!updatedCourse) {
             return res.status(404).json({ message: 'Course not found in student\'s degree plan' });
         }
-
+        console.log("Updated Course: ", updatedCourse);
         return res.json(updatedCourse);
 
     } catch (error) {
