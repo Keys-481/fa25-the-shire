@@ -1,11 +1,9 @@
-import AccountingNavBar from "../../components/NavBars/AccountingNavBar"
-
 /**
- * File: frontend/src/pages/Advisor/ReportingFunctionality.jsx
- * Advisors can search for a course and view its enrollment report across 4 future semesters.
+ * File: frontend/src/pages/Accounting/ReportingFunctionality.jsx
+ * Accountants can search for a course and view its enrollment report across 4 future semesters.
  */
 import { useState } from "react";
-import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar";
+import AccountingNavBar from "../../components/NavBars/AccountingNavBar";
 import SearchBar from "../../components/SearchBar";
 import ReportLayout from "../../components/ReportLayout";
 
@@ -50,10 +48,10 @@ export default function AccountingReportingFunctionality() {
   // Main 
   return (
     <div>
-      <AdvisorNavBar />
+      <AccountingNavBar />
       <div className="window">
         <div className="title-bar">
-          <h1>Reporting Functionality</h1>
+          <h1>Enrollment Report</h1>
         </div>
 
         <div className="container">
