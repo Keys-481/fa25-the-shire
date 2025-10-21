@@ -198,11 +198,13 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
                     const offered_semesters = await CourseModel.getCourseOfferings(course.course_id);
                     const certificate_overlaps = await CourseModel.getCertificateOverlaps(course.course_id);
+                    const semester_options = await CourseModel.getSemesterOptionsForCourse(course.course_id);
                     return {
                         ...course,
                         prerequisites,
                         offered_semesters,
-                        certificate_overlaps
+                        certificate_overlaps,
+                        semester_options
                     };
                 })
             );

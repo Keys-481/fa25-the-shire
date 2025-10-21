@@ -106,6 +106,31 @@ async function getCertificateOverlaps(courseId) {
 }
 
 /**
+ * Get semester options (actual semesters) for a given course based on its offerings.
+ * For example, if a course is offered in "FA" and "SP", this function retrieves the actual semester names like "Fall 2023", "Spring 2024", etc.
+ * @param {*} courseId
+ */
+async function getSemesterOptionsForCourse(courseId) {
+  try {
+    const courseOfferings = await getCourseOfferings(courseId);
+    if (!courseOfferings) return [];
+    const semesterTypes = courseOfferings.split(',').map(s => s.trim());
+
+    const result = await pool.query(
+        `SELECT semester_id, semester_name, semester_type, sem_start_date, sem_end_date
+        FROM semesters
+        WHERE semester_type = ANY($1)`,
+        [semesterTypes]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching semester options:', error);
+    throw error;
+  }
+}
+
+
+/**
  * Search for courses by name, code, or both.
  * @param {Object} params - Search parameters.
  * @param {string} params.name - Partial or full course name.
@@ -318,6 +343,7 @@ module.exports = {
   getPrerequisitesForCourse,
   getCourseOfferings,
   getCertificateOverlaps,
+  getSemesterOptionsForCourse,
   searchCourses,
   createCourse,
   updateCourse,

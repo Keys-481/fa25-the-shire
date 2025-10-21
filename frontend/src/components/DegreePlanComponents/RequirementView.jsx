@@ -122,11 +122,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         const isEditing = editingCourse === course.course_id;
 
         if (isEditing) {
-            const availableSemesters = semesters.length > 0 ? semesters : (course.offered_semesters || "")
-                .split(",").map((type, i) => ({
-                    semester_id: i + 1000,
-                    semester_name: type.trim(),
-                }));
+            const availableSemesters = course.semester_options;
 
             return (
                 <td colSpan={3}>
@@ -167,16 +163,6 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                 onClick={() => {
                     setEditingCourse(course.course_id);
                     setNewStatus(course.course_status || 'Unplanned');
-                }}
-                style={{
-                    cursor: 'pointer',
-                    background: {
-                        Completed: 'var(--gray)',
-                        'In Progress': 'var(--green)',
-                        Planned: 'var(--orange)',
-                        Unplanned: 'transparent'
-                    }[course.course_status || 'Unplanned'],
-                    textAlign: 'center'
                 }}
             >
                 {course.course_status || 'Unplanned'}
@@ -251,7 +237,6 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                             <span style={{ marginLeft: '20px' }}>{completedReqCredits} / {requiredReqCredits}</span>
                         )}
                     </div>
-                    
                 </td>
             </tr>
         );
@@ -261,7 +246,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             .filter(course => course?.course_id)
             .forEach(course => {
                 rows.push(
-                    <tr key={`${req.requirement_id}-${course.course_id}`}>
+                    <tr key={`${req.requirement_id}-${course.course_id}`} className={`course-row course-status-${(course.course_status || 'unplanned').toLowerCase().replace(/\s/g, '-')}`} style={rowStyle}>
                         <td><strong>{course.course_code || '-'}</strong></td>
                         <td>{course.course_name || '-'}</td>
                         {program.program_type !== 'certificate' && (

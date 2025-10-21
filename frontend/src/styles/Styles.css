@@ -4,6 +4,9 @@
   --main: #000000;
   --accent: #09347a;
   --secondary: #808080;
+  --completed: #cecece; /* Light gray */
+  --in-progress: #afebaf; /* Light green */
+  --planned: #fff1b2; /* Light yellow */
 }
 
 
@@ -424,6 +427,23 @@ td {
 /* Color change based on requirement level */
 .req-row[style*="--level:"] .requirement-header-cell {
   background-color: rgba(9, 52, 122, calc(0.14 - var(--level) * 0.05));
+}
+
+/* Row color depends on course completion status */
+.requirements-table tr.course-status-completed td {
+  background-color: var(--completed);
+}
+
+.requirements-table tr.course-status-in-progress td {
+  background-color: var(--in-progress);
+}
+
+.requirements-table tr.course-status-planned td {
+  background-color: var(--planned);
+}
+
+.requirements-table tr.course-status-unplanned td {
+  background-color: transparent;
 }
 
 .requirements-table {

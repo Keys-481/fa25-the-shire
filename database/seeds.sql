@@ -299,7 +299,7 @@ JOIN
     program_requirements pr ON sp.program_id = pr.program_id
 JOIN
     requirement_courses rc ON pr.requirement_id = rc.requirement_id
-ON CONFLICT DO NOTHING; -- Avoid duplicate entries
+ON CONFLICT (student_id, course_id, program_id) DO NOTHING; -- Avoid duplicate entries
 
 -- UPDATE degree plans to reflect actual student progress
 -- Alice Johnson's degree plan for OPWL MS program (student_id = 1, program_id = 1)
