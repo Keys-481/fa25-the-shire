@@ -5,8 +5,12 @@
 import { test, expect } from '@playwright/test';
 
 test('home page loads', async ({ page, baseURL }) => {
-  await page.goto(baseURL || '/');
-  await expect(page).toHaveTitle(/./); // any non-empty title
-  // Example: check something visible on your page
-  await expect(page.locator('body')).toBeVisible();
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Should land on /login page or role dashboard if already authenticated
+    await expect(page).toHaveURL(/\/(login|.*\/dashboard)$/);
+
+    // Basic check that HTML is present
+    await expect(page.locator('html')).toBeVisible();
 });

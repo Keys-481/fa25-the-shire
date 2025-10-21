@@ -9,6 +9,8 @@ const StudentModel = require('../models/StudentModel');
 const AccessModel = require('../models/AccessModel');
 const DegreePlanModel = require('../models/DegreePlanModel');
 const CourseModel = require('../models/CourseModel');
+const pool = require('../db');
+const { requireUser, requireAnyRole } = require('../utils/authorize');
 
 
 const { log, error } = require('console');
@@ -26,70 +28,113 @@ const { log, error } = require('console');
  * @response 200 - OK
  * @returns A list of students matching the search criteria
  */
-router.get('/search', async (req, res) => {
-    const { q1, q2 } = req.query;
-
+router.get('/search', requireUser, async (req, res) => {
     try {
-        // Expect req.user to be set by middleware (mock or real auth)
-        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
-        const currentUser = req.user;
-        if (!currentUser || !currentUser.user_id) {
-            return res.status(401).json({ message: 'Unauthorized: No user info' });
-        }
+        // Accept both modern and legacy query parameters
+        const rawId = req.query.id ?? req.query.q1 ?? req.query.schoolId ?? null;
+        const rawName = req.query.name ?? req.query.q2 ?? req.query.q ?? null;
 
+        const id = typeof rawId === 'string' ? rawId.trim() : '';
+        const name = typeof rawName === 'string' ? rawName.trim() : '';
 
-        let students = [];
-        if (q1 && q2) {
-            // Both school ID and name provided
-            students = await StudentModel.getStudentBySchoolIdAndName(q1, q2);
-        } else if (q1) {
-            students = await StudentModel.getStudentBySchoolId(q1);
-        } else if (q2) {
-            students = await StudentModel.getStudentByName(q2);
-        } else {
+        if (!id && !name) {
             return res.status(400).json({ message: 'Missing search parameters: school ID or name' });
         }
 
-        // check if student exists
-        if (!students || students.length === 0) {
+        // Get students by provided parameters
+        let students = [];
+        if (id && name) {
+            students = await StudentModel.getStudentBySchoolIdAndName(id, name);
+        } else if (id) {
+            students = await StudentModel.getStudentBySchoolId(id);
+        } else {
+            students = await StudentModel.getStudentByName(name);
+        }
+        if (!Array.isArray(students) || students.length === 0) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        // get user roles
-        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
-        const isAdmin = userRoles.includes('admin');
-        const isAdvisor = userRoles.includes('advisor');
+        // Get current user roles
+        const roles = await AccessModel.getUserRoles(req.user.user_id);
+        const isAdmin = roles.includes('admin');
+        const isAdvisor = roles.includes('advisor');
 
-        // check access permissions
-        const accessChecks = students.map(async (student) => {
-            if (isAdmin) {
-                return true;
-            } else if (isAdvisor) {
-                return await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
-            }
-            return false;
-        });
+        let visible = students;
 
-        const accessResults = await Promise.all(accessChecks);
+        // Show students under advisor
+        if (!isAdmin && isAdvisor) {
+            const checks = await Promise.all(
+                students.map(s => AccessModel.isAdvisorOfStudent(req.user.user_id, s.student_id))
+            );
+            visible = students.filter((_, i) => checks[i]);
+        } else if (!isAdmin) {
+            // Non-admin and non-advisor
+            visible = [];
+        }
 
-        // Filter students based on access results
-        let accessibleStudents = students.filter((_, index) => accessResults[index]);
-
-        if (accessibleStudents.length === 0) {
+        // No match
+        if (visible.length === 0) {
             return res.status(404).json({ message: 'Student not found' });
         }
 
-        // user has access, return student info
-        const formatted_student = accessibleStudents.map(student => ({
-            id: student.school_student_id,
-            name: `${student.first_name} ${student.last_name}`,
-            email: student.email,
-            phone: student.phone_number
-        }));
-        return res.json(formatted_student);
-        
+        // Return formatted results
+        return res.json(visible.map(s => ({
+            id: s.school_student_id,
+            name: `${s.first_name} ${s.last_name}`,
+            email: s.email,
+            phone: s.phone_number,
+            student_id: s.student_id,
+        })));
     } catch (error) {
-        console.error('Error fetching student:', error);
+        console.error('[student] /search error', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+/**
+ * Route: GET /students/assigned
+ * Retrieves a list of students assigned to the logged-in advisor.
+ * @response 401 - Unauthorized: No user info
+ * @response 403 - Forbidden: You do not have access to assigned students
+ * @response 500 - Internal server error
+ * @response 200 - OK
+ * @returns A list of assigned students
+ */
+router.get('/assigned', requireAnyRole(['advisor']), async (req, res) => {
+    try {
+        // Expect req.user to be set by middleware (mock or real auth)
+        const advisorUserId = req.user.user_id;
+
+        // Fetch assigned students
+        const { rows } = await pool.query(
+            `SELECT s.student_id,
+                    s.school_student_id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.phone_number
+                FROM advisors a
+                JOIN advising_relations ar ON ar.advisor_id = a.advisor_id
+                JOIN students s ON s.student_id = ar.student_id
+                JOIN users u ON u.user_id = s.user_id
+                WHERE a.user_id = $1
+                ORDER BY u.last_name, u.first_name
+            `,
+            [advisorUserId]
+        );
+
+        // Format and return the list of assigned students
+        const list = rows.map(r => ({
+            id: r.school_student_id,
+            name: `${r.first_name} ${r.last_name}`,
+            email: r.email,
+            phone: r.phone_number,
+            student_id: r.student_id,
+        }));
+
+        return res.json(list);       
+    } catch (err) {
+        console.error('[student] Error fetching assigned students:', err);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

@@ -1,41 +1,31 @@
-# Frontend Build
-FROM docker.io/library/node:20-alpine AS fe-builder
+# Frontend Build Stage
+FROM node:22-alpine AS fe-build
 WORKDIR /app/frontend
-RUN apk add --no-cache git python3 make g++ bash
-
-# Install dependencies with caching
 COPY frontend/package*.json ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
-
-# Copy source and build
+RUN npm ci
 COPY frontend/ ./
-# Build and verify output directory exists
-RUN npm run build && test -d dist
+# Build to /app/frontend/dist
+RUN npm run build
 
-# Backend Build
-FROM docker.io/library/node:20-alpine AS be-deps
+# Backend Build Stage
+FROM node:22-alpine AS be-deps
 WORKDIR /app/backend
-RUN apk add --no-cache git python3 make g++ bash
-
 COPY backend/package*.json ./
-# Install production dependencies only for runtime
-RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi
+RUN npm ci --omit=dev
 
-# Runtime
-FROM docker.io/library/node:20-alpine AS runtime
+# Final Runtime Stage
+FROM node:22-alpine AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Copy backend dependencies and source
-COPY --from=be-deps /app/backend/node_modules ./backend/node_modules
-COPY --from=be-deps /app/backend/package*.json ./backend/
-COPY backend/ ./backend/
+# Copy backend dependencies
+COPY --from=be-deps /app/backend/node_modules /app/backend/node_modules
+COPY backend/ /app/backend/
 
-# Copy built frontend assets to where backend can serve them
-COPY --from=fe-builder /app/frontend/dist ./backend/dist
+# Copy frontend build output
+COPY --from=fe-build /app/frontend/dist /app/frontend_dist
 
-# Configure the port the app listens on
-ENV PORT=3000
+# Expose backend port
 EXPOSE 3000
 
 # Start the backend server
