@@ -41,48 +41,49 @@ router.get('/search', requireUser, async (req, res) => {
             return res.status(400).json({ message: 'Missing search parameters: school ID or name' });
         }
 
-        // Build dynamic query based on provided parameters
-        const params = [];
-        let where = [];
-        let joins = 'JOIN users u ON u.user_id = s.user_id';
-
-        if (id) {
-            params.push(id);
-            where.push(`s.school_student_id ILIKE $${params.length}`);
+        // Get students by provided parameters
+        let students = [];
+        if (id && name) {
+            students = await StudentModel.getStudentBySchoolIdAndName(id, name);
+        } else if (id) {
+            students = await StudentModel.getStudentBySchoolId(id);
+        } else {
+            students = await StudentModel.getStudentByName(name);
         }
-        if (name) {
-            params.push(`%${name}%`);
-            where.push(`(u.first_name || ' ' || u.last_name) ILIKE $${params.length}`);
-        }
-
-        // Scope advisors to their assigned students
-        if (req.user?.role === 'advisor') {
-            params.push(req.user.user_id);
-            joins += `
-                JOIN advisors a ON a.user_id = $${params.length}
-                JOIN advising_relations ar ON ar.advisor_id = a.advisor_id AND ar.student_id = s.student_id
-            `;
+        if (!Array.isArray(students) || students.length === 0) {
+            return res.status(404).json({ message: 'Student not found' });
         }
 
-        // Construct final SQL query
-        const sql = `
-            SELECT s.student_id, s.school_student_id, u.first_name, u.last_name, u.email
-            FROM students s
-            ${joins}
-            ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
-            ORDER BY u.last_name, u.first_name
-            LIMIT 50
-        `;
+        // Get current user roles
+        const roles = await AccessModel.getUserRoles(req.user.user_id);
+        const isAdmin = roles.includes('admin');
+        const isAdvisor = roles.includes('advisor');
 
-        // Execute query
-        const { rows } = await pool.query(sql, params);
+        let visible = students;
+
+        // Show students under advisor
+        if (!isAdmin && isAdvisor) {
+            const checks = await Promise.all(
+                students.map(s => AccessModel.isAdvisorOfStudent(req.user.user_id, s.student_id))
+            );
+            visible = students.filter((_, i) => checks[i]);
+        } else if (!isAdmin) {
+            // Non-admin and non-advisor
+            visible = [];
+        }
+
+        // No match
+        if (visible.length === 0) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
 
         // Return formatted results
-        return res.json(rows.map(r => ({
-            id: r.school_student_id,
-            name: `${r.first_name} ${r.last_name}`,
-            email: r.email,
-            student_id: r.student_id,
+        return res.json(visible.map(s => ({
+            id: s.school_student_id,
+            name: `${s.first_name} ${s.last_name}`,
+            email: s.email,
+            phone: s.phone_number,
+            student_id: s.student_id,
         })));
     } catch (error) {
         console.error('[student] /search error', error);
