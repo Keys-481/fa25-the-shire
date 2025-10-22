@@ -533,6 +533,21 @@ td {
   text-align: right;
 }
 
+.course-edit-row div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.course-edit-row label {
+  font-weight: 600;
+}
+
+.course-edit-row select {
+  margin-right: 12px;
+}
+
+
 /* Semester View */
 .semester-view-container {
   margin: 20px 30px;
