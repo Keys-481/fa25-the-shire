@@ -26,36 +26,35 @@ export default function DegreePlan({ student, program }) {
         console.log("Program:", program);
     }, [student, program]);
 
-    // function to fetch degree plan data when student or program changes
-    useEffect(() => {
+    // function to fetch degree plan data from backend
+    const fetchDegreePlan = async () => {
         if (!student?.id || !program?.program_id || !viewType) return;
-        const fetchDegreePlan = async () => {
-            setLoading(true);
-            setError(null);
+        setLoading(true);
+        setError(null);
 
-            // get degree plan data from backend
-            try {
-                console.log(`Fetching degree plan for student ID ${student.id} and program ID ${program.program_id}`);
-                const response = await fetch(`${base_url}/${student.id}/degree-plan?programId=${program.program_id}&viewType=${viewType}`);
+        // get degree plan data from backend
+        try {
+            console.log(`Fetching degree plan for student ID ${student.id} and program ID ${program.program_id}`);
+            const response = await fetch(`${base_url}/${student.id}/degree-plan?programId=${program.program_id}&viewType=${viewType}`);
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch degree plan: ${response.status}`);
-                }
-                const data = await response.json();
-                setPlanData(data);
-            } catch (error) {
-                console.error('Error fetching degree plan:', error);
-                setError(error.message);
-                setPlanData(null);
-            } finally {
-                setLoading(false);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch degree plan: ${response.status}`);
             }
-        };
-
-        // Fetch degree plan only if student ID is available
-        if (student?.id && program?.program_id) {
-            fetchDegreePlan();
+            const data = await response.json();
+            setPlanData(data);
+            console.log("planData: ", data);
+        } catch (error) {
+            console.error('Error fetching degree plan:', error);
+            setError(error.message);
+            setPlanData(null);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    // fetch degree plan when student, program, or viewType changes
+    useEffect(() => {
+        fetchDegreePlan();
     }, [student?.id, program?.program_id, viewType]);
 
     // render loading state, error, or degree plan
@@ -117,7 +116,7 @@ export default function DegreePlan({ student, program }) {
             {/* Degree Plan Section */}
             <div className="degree-plan-content">
                 {viewType === 'requirements' ? (
-                    <RequirementsView courses={planData.degreePlan} program={program} />
+                    <RequirementsView courses={planData.degreePlan} program={program} student={student} onCourseUpdated={fetchDegreePlan} />
                 ) : (
                     <SemesterView courses={planData.degreePlan} program={program} />
                 )}

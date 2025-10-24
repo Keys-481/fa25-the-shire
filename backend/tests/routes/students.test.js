@@ -295,3 +295,59 @@ describe('GET /students/:schoolId/programs', () => {
         expect(res.status).toBe(404);
     });
 });
+
+/**
+ * Tests for PATCH /students/:schoolId/degree-plan/course route
+ */
+describe('PATCH /students/:schoolId/degree-plan/course', () => {
+
+    // Test for admin user updating a course status in a student's degree plan
+    test('admin can update course status in any student\'s degree plan', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app)
+            .patch('/students/112299690/degree-plan/course')
+            .send({
+                courseId: 8, // OPWL-529 course ID in seed data
+                status: 'Planned',
+                semesterId: 8, // Spring 2026 semester ID in seed data
+                programId: 1 // OPWL MS program ID in seed data
+            });
+        expect(res.status).toBe(200);
+        expect(res.body.student_id).toBe(1); // internal student ID for school_student_id 112299690 in seed data
+        expect(res.body.course_id).toBe(8); // OPWL-529 course ID in seed data
+        expect(res.body.course_status).toBe('Planned');
+        expect(res.body.semester_id).toBe(8); // Spring 2026 semester ID in seed data
+    });
+
+    // Test for advisor user updating a course status in their assigned student's degree plan
+    test('advisor can update course status in assigned student\'s degree plan', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
+        const res = await request(app)
+            .patch('/students/113601927/degree-plan/course')
+            .send({
+                courseId: 4, // OPWL-518 course ID in seed data
+                status: 'In Progress',
+                semesterId: 8, // Spring 2026 semester ID in seed data
+                programId: 2 // OD certificate program ID in seed data
+            });
+        expect(res.status).toBe(200);
+        expect(res.body.student_id).toBe(2); // internal student ID for school_student_id 113601927 in seed data
+        expect(res.body.course_id).toBe(4); // OPWL-518 course ID in seed data
+        expect(res.body.course_status).toBe('In Progress');
+        expect(res.body.semester_id).toBe(8); // Spring 2026 semester ID in seed data
+    });
+
+    // Test for advisor user updating a course status in a student's degree plan they are not assigned to
+    test('returns 403 for advisor not assigned to student', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
+        const res = await request(app)
+            .patch('/students/112299690/degree-plan/course')
+            .send({
+                courseId: 8, // OPWL-529 course ID in seed data
+                status: 'Planned',
+                semesterId: 8, // Spring 2026 semester ID in seed data
+                programId: 1 // OPWL MS program ID in seed data
+            });
+        expect(res.status).toBe(403);
+    });
+});
