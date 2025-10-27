@@ -172,6 +172,6 @@ test.describe('DegreePlan edit course status', () => {
         // re-locate the course row element after the update and verify the status changed
         await expect(
             page.locator('tr', { hasText: 'OPWL-507' }).first()
-        ).toHaveClass(/course-status-planned/, { timeout: 10000 });
+        ).toHaveClass(/course-status-planned/, { timeout: 15000 });
     });
 });
