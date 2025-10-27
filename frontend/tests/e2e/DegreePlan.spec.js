@@ -131,7 +131,7 @@ test.describe('DegreePlan edit course status', () => {
         );
 
         // Wait for known course to be visible
-        const courseRowElement = page.locator('tr:has(td:text("OPWL-529"))').first();
+        const courseRowElement = page.locator('tr', { hasText: 'OPWL-507' }).first();
         await expect(courseRowElement).toBeVisible({ timeout: 10000 });
 
         // Click edit button for that row
@@ -151,8 +151,12 @@ test.describe('DegreePlan edit course status', () => {
         await semesterSelect.selectOption({ label: 'Spring 2025' });
         }
 
+        const editRow = courseRowElement.locator(
+            'xpath=following-sibling::tr[contains(@class, "course-edit-row")]'
+        ).first();
+
         // Wait for Save button to become visible and enabled
-        const saveButton = page.getByRole('button', { name: 'Save' });
+        const saveButton = editRow.getByRole('button', { name: 'Save' });
         await expect(saveButton).toBeVisible();
         await expect(saveButton).toBeEnabled();
 
@@ -162,7 +166,12 @@ test.describe('DegreePlan edit course status', () => {
         // Click Save to trigger PATCH
         await saveButton.click();
 
-        // Verify updated status is shown in the UI
-        await expect(courseRowElement).toHaveClass(/course-status-planned/, { timeout: 10000 });
+        // Wait for the PATCH API call to complete
+        await page.waitForTimeout(1500); // wait for UI to update
+
+        // re-locate the course row element after the update and verify the status changed
+        await expect(
+            page.locator('tr', { hasText: 'OPWL-507' }).first()
+        ).toHaveClass(/course-status-planned/, { timeout: 10000 });
     });
 });
