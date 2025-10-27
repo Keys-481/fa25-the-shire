@@ -30,20 +30,23 @@ INSERT INTO permissions (permission_id, permission_name) VALUES
 (10, 'user_create'),
 (11, 'user_modify'),
 (12, 'user_delete'),
-(13, 'user_grant_permissions');
+(13, 'user_grant_permissions'),
+(14, 'course_create'),
+(15, 'course_modify'),
+(16, 'course_delete');
 
 -- Insert role_permissions
 -- Admin: all permissions
 INSERT INTO role_permissions (role_id, permission_id) VALUES
-(1, 1), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13);
+(1, 1), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14), (1, 15), (1, 16);
 
 -- Advisor: view and edit degree plans, view reports
 INSERT INTO role_permissions (role_id, permission_id) VALUES
-(2, 4), (2, 5), (2, 6), (2, 7), (2, 8);
+(2,2), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8);
 
 -- Student: view their own degree plan and add comments
 INSERT INTO role_permissions (role_id, permission_id) VALUES
-(3, 6), (3, 7);
+(3,3), (3, 6), (3, 7);
 
 -- Accounting: enrollement and graduation reporting
 INSERT INTO role_permissions (role_id, permission_id) VALUES
@@ -51,12 +54,12 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 
 -- Insert users
 -- Note: Passwords should be securely hashed, these are just placeholders
-INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name) VALUES
-(1, 'supersecurehash1', 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User'),
-(2, 'supersecurehash2', 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe'),
-(3, 'supersecurehash3', 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith'),
-(4, 'supersecurehash4', 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson'),
-(5, 'supersecurehash5', 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams');
+INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name, public_id, default_view) VALUES
+(1, 'supersecurehash1', 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User', '111122223', 1),
+(2, 'supersecurehash2', 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe', '444455556', 2),
+(3, 'supersecurehash3', 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith', '777788889', 2),
+(4, 'supersecurehash4', 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson', '112299690', 3),
+(5, 'supersecurehash5', 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams', '113601927', 3);
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES

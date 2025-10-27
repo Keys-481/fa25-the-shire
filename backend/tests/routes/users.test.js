@@ -25,6 +25,7 @@ test('POST /users and DELETE /users/:id', async () => {
     email: `route${timestamp}@test.com`,
     phone: '555-111-2222',
     password: 'testpass',
+    default_view: 'Advisor',
     roles: ['Advisor']
   });
 

@@ -629,6 +629,9 @@ td {
   align-items: center;
   justify-content: space-between;
   width: 200px;
+  position: relative;
+  left: 15px;
+  margin-top: 10px;
 }
 
 .switch {
@@ -674,4 +677,12 @@ input:checked+.slider {
 
 input:checked+.slider:before {
   transform: translateX(20px);
+}
+
+.permission-highlighted {
+  background-color: var(--planned);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: bold;
+  width: fit-content;
 }
