@@ -277,7 +277,7 @@ router.get('/:schoolId/programs', async (req, res) => {
  *  - programId: internal program ID
  *
  * @returns Updated course info in the degree plan
- * @response 400 - Missing parameters
+ * @response 400 - Missing parameters or invalid status
  * @response 401 - Unauthorized: No user info
  * @response 403 - Forbidden: No access to student
  * @response 404 - Student or course not found
@@ -325,6 +325,42 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
 
         if (!hasAccess) {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
+        }
+
+
+        if (['Planned', 'In Progress'].includes(status)) {
+            // get course prerequisites
+            const prerequisites = await CourseModel.getPrerequisitesForCourse(courseId);
+
+            if (prerequisites && prerequisites.length > 0) {
+                for (let prereq of prerequisites) {
+                    // check status of prerequisite in degree plan
+                    const prereqCourse = await DegreePlanModel.getCourseStatus(student.student_id, prereq.course_id, programId);
+
+                    // block update if prerequisite not in student's degree plan or is unplanned
+                    if (!prereqCourse || !['In Progress', 'Completed', 'Planned'].includes(prereqCourse.course_status)) {
+                        return res.status(400).json({ message: `Cannot update course status. Prerequisite course ${prereq.course_id} is not completed or in progress.` });
+                    }
+
+                    // enforce semester ordering for prerequisites
+                    if (semesterId && prereqCourse.semester_id && Number(prereqCourse.semester_id) >= Number(semesterId)) {
+                        return res.status(400).json({ message: `Cannot plan course in semester ${semesterId}. Prerequisite course ${prereq.course_id} is scheduled in the same or a later semester.` });
+                    }
+                }
+            }
+        }
+
+        if (status === 'Completed') {
+            const prerequisites = await CourseModel.getPrerequisitesForCourse(courseId);
+
+            if (prerequisites && prerequisites.length > 0) {
+                for (const prereq of prerequisites) {
+                    const prereqCourse = await DegreePlanModel.getCourseStatus(student.student_id, prereq.course_id, programId);
+                    if (!prereqCourse) {
+                        console.warn(`Warning: ${courseId} marked completed, but prerequisite ${prereq.course_id} not found in degree plan.`);
+                    }
+                }
+            }
         }
 
         // update course status in degree plan

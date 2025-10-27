@@ -131,8 +131,8 @@ INSERT INTO courses (course_id, course_code, course_name, credits) VALUES
 INSERT INTO course_prerequisites (course_id, prerequisite_course_id) VALUES
 (7, 1), -- OPWL-531 requires OPWL-536
 (3, 1), -- OPWL-560 requires OPWL-536
-(9, 1), -- OPWL-529 requires OPWL-536
-(8, 1), -- OPWL-530 requires OPWL-536
+(9, 1), -- OPWL-530 requires OPWL-536
+(8, 1), -- OPWL-529 requires OPWL-536
 (11, 1), -- OPWL-537 requires OPWL-536
 (11, 10), -- OPWL-537 requires OPWL-535
 (3, 9), -- OPWL-560 requires OPWL-529 (or OPWL-530 - need to enforce in requirements logic)
