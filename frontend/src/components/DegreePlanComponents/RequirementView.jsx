@@ -159,8 +159,16 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             });
 
             if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(`Failed: ${res.status} - ${errText}`);
+                let errorMessage = 'Failed to update course status.';
+                try {
+                    const data = await res.json();
+                    if (data?.message) {
+                        errorMessage = data.message;
+                    }
+                } catch (error) {
+                    console.error("Error parsing response:", error);
+                }
+                throw new Error(errorMessage);
             }
 
             const updated = await res.json();
@@ -185,7 +193,12 @@ export default function RequirementsView( { courses, program, semesters=[], stud
 
         } catch (error) {
             console.error("Error saving course status:", error);
-            alert(`Could not update course status: ${error.message}`);
+            let displayMessage = error.message || 'An error occurred while updating course status.';
+            if (/prerequisite/i.test(displayMessage)) {
+                displayMessage = "Unsatisfied prerequisite(s) prevent this status update.";
+            }
+
+            alert(displayMessage);
         }
     }
 
