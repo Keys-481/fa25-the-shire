@@ -79,10 +79,10 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 (7, 3), -- Gavin Diaz (Student - applied for graduation)
 (8, 3), -- Maya Ramos (Student)
 (9, 3), -- Evan Roberts (Student)
-(10, 3); -- Zoe King (Student)
-(11, 3); -- Levi Powell (Student)
-(12, 3); -- Harper Taylor (Student)
-(13, 3); -- Charles Murphy (Student)
+(10, 3), -- Zoe King (Student)
+(11, 3), -- Levi Powell (Student)
+(12, 3), -- Harper Taylor (Student)
+(13, 3), -- Charles Murphy (Student)
 (14, 4); -- Accounting User
 
 -- Insert advisors
@@ -104,9 +104,9 @@ INSERT INTO students (student_id, school_student_id, user_id) VALUES
 (4, '112214674', 7), -- Gavin Diaz in OPWL MS program
 (5, '114907264', 8); -- Maya Ramos in OPWL MS program
 (6, '115005432', 9), -- Evan Roberts in OPWL MS program
-(7, '123106789', 10); -- Zoe King in OD certificate program
-(8, '167800890', 11); -- Levi Powell in OPWL MS program
-(9, '177808901', 12); -- Harper Taylor in OPWL MS program
+(7, '123106789', 10), -- Zoe King in OD certificate program
+(8, '167800890', 11), -- Levi Powell in OPWL MS program
+(9, '177808901', 12), -- Harper Taylor in OPWL MS program
 (10, '115409012', 13); -- Charles Murphy in OPWL MS program
 
 -- Insert student-program assignments
@@ -124,10 +124,10 @@ INSERT INTO student_programs (student_id, program_id) VALUES
 (6, 2), -- Evan Roberts in OD certificate
 (7, 2), -- Zoe King in OD certificate
 (8, 1), -- Levi Powell in OPWL MS program
-(8, 2); -- Levi Powell in OD certificate
+(8, 2), -- Levi Powell in OD certificate
 (9, 1), -- Harper Taylor in OPWL MS program
-(9, 2); -- Harper Taylor in OD certificate
-(10, 1); -- Charles Murphy in OPWL MS program
+(9, 2), -- Harper Taylor in OD certificate
+(10, 1), -- Charles Murphy in OPWL MS program
 (10, 2); -- Charles Murphy in OD certificate
 
 -- Insert student-advisor assignments
@@ -141,10 +141,10 @@ INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (1, 5), -- Maya Ramos assigned to Jane Doe
 (2, 6); -- Evan Roberts assigned to John Smith
 (1, 7), -- Zoe King assigned to Jane Doe
-(2, 8); -- Levi Powell assigned to John Smith
-(1, 9); -- Harper Taylor assigned to Jane Doe
-(2, 9); -- Harper Taylor assigned to John Smith
-(1, 10); -- Charles Murphy assigned to Jane Doe
+(2, 8), -- Levi Powell assigned to John Smith
+(1, 9), -- Harper Taylor assigned to Jane Doe
+(2, 9), -- Harper Taylor assigned to John Smith
+(1, 10), -- Charles Murphy assigned to Jane Doe
 (2, 10); -- Charles Murphy assigned to John Smith
 
 -- Insert courses
