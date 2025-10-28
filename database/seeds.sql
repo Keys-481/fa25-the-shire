@@ -64,7 +64,8 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (10, 'supersecurehash10', 'student7@u.boisestate.edu', '555-333-4444', 'Zoe', 'King'),
 (11, 'supersecurehash11', 'student8@u.boisestate.edu', '555-444-5555', 'Levi', 'Powell'),
 (12, 'supersecurehash12', 'student9@u.boisestate.edu', '555-555-6666', 'Harper', 'Taylor'),
-(13, 'supersecurehash13', 'student10@u.boisestate.edu', '555-666-7777', 'Charles', 'Murphy');
+(13, 'supersecurehash13', 'student10@u.boisestate.edu', '555-666-7777', 'Charles', 'Murphy'),
+(14, 'supersecurehash14', 'account1@boisestate.edu', '555-777-8888', 'Account', 'User');
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES
@@ -82,6 +83,7 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 (11, 3); -- Levi Powell (Student)
 (12, 3); -- Harper Taylor (Student)
 (13, 3); -- Charles Murphy (Student)
+(14, 4); -- Accounting User
 
 -- Insert advisors
 INSERT INTO advisors (advisor_id, user_id) VALUES
@@ -102,9 +104,9 @@ INSERT INTO students (student_id, school_student_id, user_id) VALUES
 (4, '112214674', 7), -- Gavin Diaz in OPWL MS program
 (5, '114907264', 8); -- Maya Ramos in OPWL MS program
 (6, '115005432', 9), -- Evan Roberts in OPWL MS program
-(7, '115106789', 10); -- Zoe King in OD certificate program
-(8, '115207890', 11); -- Levi Powell in OPWL MS program
-(9, '115308901', 12); -- Harper Taylor in OPWL MS program
+(7, '123106789', 10); -- Zoe King in OD certificate program
+(8, '167800890', 11); -- Levi Powell in OPWL MS program
+(9, '177808901', 12); -- Harper Taylor in OPWL MS program
 (10, '115409012', 13); -- Charles Murphy in OPWL MS program
 
 -- Insert student-program assignments
