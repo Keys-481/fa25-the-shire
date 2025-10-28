@@ -159,8 +159,16 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             });
 
             if (!res.ok) {
-                const errText = await res.text();
-                throw new Error(`Failed: ${res.status} - ${errText}`);
+                let errorMessage = 'Failed to update course status.';
+                try {
+                    const data = await res.json();
+                    if (data?.message) {
+                        errorMessage = data.message;
+                    }
+                } catch (error) {
+                    console.error("Error parsing response:", error);
+                }
+                throw new Error(errorMessage);
             }
 
             const updated = await res.json();
@@ -185,7 +193,12 @@ export default function RequirementsView( { courses, program, semesters=[], stud
 
         } catch (error) {
             console.error("Error saving course status:", error);
-            alert(`Could not update course status: ${error.message}`);
+            let displayMessage = error.message || 'An error occurred while updating course status.';
+            if (/prerequisite/i.test(displayMessage)) {
+                displayMessage = "Unsatisfied prerequisite(s) prevent this status update.";
+            }
+
+            alert(displayMessage);
         }
     }
 
@@ -304,6 +317,23 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                             <th>Completed</th>
                             <th>In Progress</th>
                             <th>Planned</th>
+                        </tr>
+                        {/* Legend Row */}
+                        <tr className="legend-row">
+                            <td colSpan={9} style={{ textAlign: 'left', padding: '6px 10px', fontSize: '0.85rem' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '16px' }}>
+                                <span style={{ width: '12px', height: '12px', backgroundColor: 'yellow', border: '1px solid #ccc', marginRight: '6px' }}></span>
+                                <span>Planned</span>
+                            </span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '16px' }}>
+                                <span style={{ width: '12px', height: '12px', backgroundColor: 'lightgreen', border: '1px solid #ccc', marginRight: '6px' }}></span>
+                                <span>Enrolled</span>
+                            </span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <span style={{ width: '12px', height: '12px', backgroundColor: 'lightgray', border: '1px solid #ccc', marginRight: '6px' }}></span>
+                                <span>Completed</span>
+                            </span>
+                            </td>
                         </tr>
                     </thead>
                     <tbody>

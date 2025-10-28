@@ -114,4 +114,23 @@ describe('DegreePlanModel', () => {
         expect(updatedCourse.course_status).toBe(newStatus);
         expect(updatedCourse.semester_id).toBe(semesterId);
     });
+    
+    // Test for getting course status in a student's degree plan
+    test('getCourseStatus returns correct status for a course in a student\'s degree plan', async () => {
+        const studentId = 1; // Alice Johnson
+        const courseId = 8; // OPWL-529 course ID in seed data
+        const programId = 1; // OPWL MS program ID in seed data
+        const courseStatus = await DegreePlanModel.getCourseStatus(studentId, courseId, programId);
+        expect(courseStatus).toBeDefined();
+        expect(courseStatus.course_status).toBe('Planned');
+    });
+
+    test('getCourseStatus returns null for a course not in a student\'s degree plan', async () => {
+        const studentId = 1; // Alice Johnson
+        const courseId = 9999; // assuming this course ID does not exist in her degree plan
+        const programId = 1; // OPWL MS program ID in seed data
+        const courseStatus = await DegreePlanModel.getCourseStatus(studentId, courseId, programId);
+        expect(courseStatus).toBeNull();
+    });
+
 });
