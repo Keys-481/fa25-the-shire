@@ -318,6 +318,23 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                             <th>In Progress</th>
                             <th>Planned</th>
                         </tr>
+                        {/* Legend Row */}
+                        <tr className="legend-row">
+                            <td colSpan={9} style={{ textAlign: 'left', padding: '6px 10px', fontSize: '0.85rem' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '16px' }}>
+                                <span style={{ width: '12px', height: '12px', backgroundColor: 'yellow', border: '1px solid #ccc', marginRight: '6px' }}></span>
+                                <span>Planned</span>
+                            </span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', marginRight: '16px' }}>
+                                <span style={{ width: '12px', height: '12px', backgroundColor: 'lightgreen', border: '1px solid #ccc', marginRight: '6px' }}></span>
+                                <span>Enrolled</span>
+                            </span>
+                            <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+                                <span style={{ width: '12px', height: '12px', backgroundColor: 'lightgray', border: '1px solid #ccc', marginRight: '6px' }}></span>
+                                <span>Completed</span>
+                            </span>
+                            </td>
+                        </tr>
                     </thead>
                     <tbody>
                         {hierarchy.map(req => renderRequirement(req))}

@@ -138,40 +138,46 @@ test.describe('DegreePlan edit course status', () => {
         const editButton = courseRowElement.locator('.course-status-edit-btn');
         await editButton.click();
 
-        // Wait for status dropdown to appear
-        const statusSelect = page.locator('select').first();
-        await expect(statusSelect).toBeVisible();
+        // Wait for the edit row to appear after clicking the edit button
+        const editRow = page.locator('tr.course-edit-row').first();
+        await expect(editRow).toBeVisible({ timeout: 5000 });
+
+        // locate the status dropdown within the edit row
+        const statusSelect = editRow.locator('select').first();
+        await expect(statusSelect).toBeVisible({ timeout: 5000 });
 
         // Change status to Planned
         await statusSelect.selectOption('Planned');
+        await expect(statusSelect).toHaveValue('Planned', { timeout: 5000 });
 
-        // Select a semester
-        const semesterSelect = page.getByLabel('Semester:');
-        if (await semesterSelect.isVisible()) {
+        // Wait briefly for UI to update
+        await page.waitForTimeout(300);
+
+        // Wait for the semester dropdown and its options to be visible and select Spring 2025
+        const semesterSelect = editRow.locator('select').nth(1);
+        await expect(semesterSelect).toBeVisible({ timeout: 5000 });
         await semesterSelect.selectOption({ label: 'Spring 2025' });
-        }
-
-        const editRow = courseRowElement.locator(
-            'xpath=following-sibling::tr[contains(@class, "course-edit-row")]'
-        ).first();
+        await expect(semesterSelect.locator('option:checked')).toHaveText('Spring 2025', { timeout: 5000 });
 
         // Wait for Save button to become visible and enabled
         const saveButton = editRow.getByRole('button', { name: 'Save' });
         await expect(saveButton).toBeVisible();
         await expect(saveButton).toBeEnabled();
 
-        // Give React time to settle before clicking
-        await page.waitForTimeout(500);
 
-        // Click Save to trigger PATCH
-        await saveButton.click();
+        // Trigger PATCH by clicking Save and wait for completion
+        const [patchResponse] = await Promise.all([
+            page.waitForResponse(
+                r => r.url().includes('/students/112299690/degree-plan/course') && r.status() === 200
+            ),
+            saveButton.click(),
+        ]);
 
-        // Wait for the PATCH API call to complete
-        await page.waitForTimeout(1500); // wait for UI to update
+        // Verify PATCH was successful
+        expect(await patchResponse.ok()).toBeTruthy();
 
-        // re-locate the course row element after the update and verify the status changed
-        await expect(
-            page.locator('tr', { hasText: 'OPWL-507' }).first()
-        ).toHaveClass(/course-status-planned/, { timeout: 15000 });
+        // Re-query the DOM after React re-renders
+        const updatedRow = page.locator('tr', { hasText: 'OPWL-507' }).first();
+        await expect(updatedRow).toHaveClass(/course-status-planned/, { timeout: 10000 });
     });
 });
