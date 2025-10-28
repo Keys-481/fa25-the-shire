@@ -102,7 +102,7 @@ INSERT INTO students (student_id, school_student_id, user_id) VALUES
 (2, '113601927', 5), -- Bob Williams in OD certificate program
 (3, '114904338', 6), -- Nora Castillo in OPWL MS program
 (4, '112214674', 7), -- Gavin Diaz in OPWL MS program
-(5, '114907264', 8); -- Maya Ramos in OPWL MS program
+(5, '114907264', 8), -- Maya Ramos in OPWL MS program
 (6, '115005432', 9), -- Evan Roberts in OPWL MS program
 (7, '123106789', 10), -- Zoe King in OD certificate program
 (8, '167800890', 11), -- Levi Powell in OPWL MS program
@@ -137,9 +137,9 @@ INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (1, 2), -- Bob Williams assigned to Jane Doe
 (2, 2), -- Bob Williams assigned to John Smith
 (2, 3), -- Nora Castillo assigned to John Smith
-(2, 4); -- Gavin Diaz assigned to John Smith
+(2, 4), -- Gavin Diaz assigned to John Smith
 (1, 5), -- Maya Ramos assigned to Jane Doe
-(2, 6); -- Evan Roberts assigned to John Smith
+(2, 6),-- Evan Roberts assigned to John Smith
 (1, 7), -- Zoe King assigned to Jane Doe
 (2, 8), -- Levi Powell assigned to John Smith
 (1, 9), -- Harper Taylor assigned to Jane Doe
