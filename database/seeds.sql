@@ -60,12 +60,12 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (6, 'supersecurehash6', 'student3@u.boisestate.edu', '555-888-9999', 'Nora', 'Castillo'),
 (7, 'supersecurehash7', 'student4@u.boisestate.edu', '555-000-1111', 'Gavin', 'Diaz'),
 (8, 'supersecurehash8', 'student5@u.boisestate.edu', '555-111-2222', 'Maya', 'Ramos'),
-(9, 'supersecurehash9', 'student6@u.boisestate.edu', '555-222-3333', 'Evan', 'Roberts'),
+(9, 'supersecurehash9', 'student6@u.boisestate.edu', '555-999-3333', 'Evan', 'Roberts'),
 (10, 'supersecurehash10', 'student7@u.boisestate.edu', '555-333-4444', 'Zoe', 'King'),
-(11, 'supersecurehash11', 'student8@u.boisestate.edu', '555-444-5555', 'Levi', 'Powell'),
-(12, 'supersecurehash12', 'student9@u.boisestate.edu', '555-555-6666', 'Harper', 'Taylor'),
-(13, 'supersecurehash13', 'student10@u.boisestate.edu', '555-666-7777', 'Charles', 'Murphy'),
-(14, 'supersecurehash14', 'account1@boisestate.edu', '555-777-8888', 'Account', 'User');
+(11, 'supersecurehash11', 'student8@u.boisestate.edu', '666-444-5555', 'Levi', 'Powell'),
+(12, 'supersecurehash12', 'student9@u.boisestate.edu', '666-555-6666', 'Harper', 'Taylor'),
+(13, 'supersecurehash13', 'student10@u.boisestate.edu', '666-222-7777', 'Charles', 'Murphy'),
+(14, 'supersecurehash14', 'account1@boisestate.edu', '666-777-8888', 'Account', 'User');
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES
