@@ -57,7 +57,8 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (3, 'supersecurehash3', 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith'),
 (4, 'supersecurehash4', 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson'),
 (5, 'supersecurehash5', 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams'),
-(6, 'supersecurehash6', 'student3@u.boisestate.edu', '555-888-9999', 'Nora', 'Castillo');
+(6, 'supersecurehash6', 'student3@u.boisestate.edu', '555-888-9999', 'Nora', 'Castillo'),
+(7, 'supersecurehash7', 'student4@u.boisestate.edu', '555-000-1111', 'Gavin', 'Diaz');
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES
@@ -67,7 +68,8 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 (3, 2), -- John Smith (Advisor)
 (4, 3), -- Alice Johnson (Student)
 (5, 3), -- Bob Williams (Student)
-(6, 3); -- Nora Castillo (Student)
+(6, 3), -- Nora Castillo (Student - new to program)
+(7, 3); -- Gavin Diaz (Student - applied for graduation)
 
 -- Insert advisors
 INSERT INTO advisors (advisor_id, user_id) VALUES
@@ -84,7 +86,8 @@ INSERT INTO programs (program_id, program_name, program_type) VALUES
 INSERT INTO students (student_id, school_student_id, user_id) VALUES
 (1, '112299690', 4), -- Alice Johnson in OPWL MS program
 (2, '113601927', 5), -- Bob Williams in OD certificate program
-(3, '114904338', 6); -- Nora Castillo in OPWL MS program
+(3, '114904338', 6), -- Nora Castillo in OPWL MS program
+(4, '112214674', 7); -- Gavin Diaz in OPWL MS program
 
 -- Insert student-program assignments
 INSERT INTO student_programs (student_id, program_id) VALUES
@@ -92,7 +95,9 @@ INSERT INTO student_programs (student_id, program_id) VALUES
 (1, 2), -- Alice Johnson also in OD certificate
 (2, 2), -- Bob Williams in OD certificate
 (3, 1), -- Nora Castillo in OPWL MS
-(3, 2); -- Nora Castillo in OD certificate
+(3, 2), -- Nora Castillo in OD certificate
+(4, 1), -- Gavin Diaz in OPWL MS
+(4, 2); -- Gavin Diaz in OD certificate
 
 -- Insert student-advisor assignments
 -- Alice Johnson is assigned to Jane Doe and John Smith, Bob Williams to John Smith
@@ -100,7 +105,8 @@ INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (1, 1), -- Alice Johnson assigned to Jane Doe
 (1, 2), -- Bob Williams assigned to Jane Doe
 (2, 2), -- Bob Williams assigned to John Smith
-(2, 3); -- Nora Castillo assigned to John Smith
+(2, 3), -- Nora Castillo assigned to John Smith
+(1, 4); -- Gavin Diaz assigned to Jane Doe
 
 
 -- Insert courses
@@ -365,6 +371,45 @@ WHERE student_id = 3 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overla
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 3 AND program_id = 2 AND course_id = 14;  -- OPWL-571
 
+-- Gavin Diaz's degree plan for OPWL MS program (student_id = 4, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 4 AND program_id = 1 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 4 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 4 AND program_id = 1 AND course_id = 15;   -- OPWL-577
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 4 AND program_id = 1 AND course_id = 19;   -- OPWL-525
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 4 AND program_id = 1 AND course_id = 8;   -- OPWL-529
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 4 AND program_id = 1 AND course_id = 10;   -- OPWL-535
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 4 AND program_id = 1 AND course_id = 11;   -- OPWL-537
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 4 AND program_id = 1 AND course_id = 3;   -- OPWL-560
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 4 AND program_id = 1 AND course_id = 2;   -- OPWL-506
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 4 AND program_id = 1 AND course_id = 6;   -- OPWL-507
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 4 AND program_id = 1 AND course_id = 12;   -- OPWL-508
+
+-- Gavin Diaz's degree plan for OD certificate program (student_id = 4, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 4 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 4 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 4 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 4 AND program_id = 2 AND course_id = 2;   -- OPWL-506
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 4 AND program_id = 2 AND course_id = 4;   -- OPWL-518
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 4 AND program_id = 2 AND course_id = 12;   -- OPWL-508
+
+
 -- Insert into enrollments
 INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grade) VALUES
 -- Alice Johnson Completed enrollments (Fall 2024 and Spring 2025)
@@ -394,8 +439,24 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 
 -- Nora Castillo's planned enrollments (Spring 2026)
 (14, 3, 1, 8, NULL), -- Nora Castillo planned OPWL-536 in Spring 2026
-(15, 3, 14, 8, NULL); -- Nora Castillo planned OPWL-571 in Spring 2026
+(15, 3, 14, 8, NULL), -- Nora Castillo planned OPWL-571 in Spring 2026
 
+-- Gavin Diaz Completed enrollments (Fall 2024, Spring 2025, Summer 2025)
+(16, 4, 1, 4, 'A'), -- Gavin Diaz completed OPWL-536 in Fall 2024
+(17, 4, 14, 4, 'A-'), -- Gavin Diaz completed OPWL-571 in Fall 2024
+(18, 4, 15, 5, 'B+'), -- Gavin Diaz completed OPWL-577 in Spring 2025
+(19, 4, 19, 5, 'A'), -- Gavin Diaz completed OPWL-525 in Spring 2025
+(20, 4, 8, 6, 'A'), -- Gavin Diaz completed OPWL-529 in Summer 2025
+(21, 4, 10, 6, 'A-'), -- Gavin Diaz completed OPWL-535 in Summer 2025
+(22, 4, 11, 6, 'B+'), -- Gavin Diaz completed OPWL-537 in Summer 2025
+
+-- Gavin Diaz in-progress enrollments (Fall 2025)
+(23, 4, 3, 7, NULL), -- Gavin Diaz in-progress OPWL-560 in Fall 2025
+(24, 4, 2, 7, NULL), -- Gavin Diaz in-progress OPWL-506 in Fall 2025
+
+-- Gavin Diaz planned enrollments (Spring 2026)
+(25, 4, 6, 8, NULL), -- Gavin Diaz planned OPWL-507 in Spring 2026
+(26, 4, 12, 8, NULL); -- Gavin Diaz planned OPWL-508 in Spring 2026
 
 -- Insert into certificates
 INSERT INTO certificates (certificate_id, certificate_name, certificate_short_name, program_id) VALUES
