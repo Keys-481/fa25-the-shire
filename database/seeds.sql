@@ -58,7 +58,10 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (4, 'supersecurehash4', 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson'),
 (5, 'supersecurehash5', 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams'),
 (6, 'supersecurehash6', 'student3@u.boisestate.edu', '555-888-9999', 'Nora', 'Castillo'),
-(7, 'supersecurehash7', 'student4@u.boisestate.edu', '555-000-1111', 'Gavin', 'Diaz');
+(7, 'supersecurehash7', 'student4@u.boisestate.edu', '555-000-1111', 'Gavin', 'Diaz'),
+(8, 'supersecurehash8', 'student5@u.boisestate.edu', '555-111-2222', 'Maya', 'Ramos'),
+(9, 'supersecurehash9', 'student6@u.boisestate.edu', '555-222-3333', 'Evan', 'Roberts'),
+(10, 'supersecurehash10', 'student7@u.boisestate.edu', '555-333-4444', 'Olivia', 'Smith');
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES
@@ -69,7 +72,10 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 (4, 3), -- Alice Johnson (Student)
 (5, 3), -- Bob Williams (Student)
 (6, 3), -- Nora Castillo (Student - new to program)
-(7, 3); -- Gavin Diaz (Student - applied for graduation)
+(7, 3), -- Gavin Diaz (Student - applied for graduation)
+(8, 3), -- Maya Ramos (Student)
+(9, 3), -- Evan Roberts (Student)
+(10, 3); -- Olivia Smith (Student)
 
 -- Insert advisors
 INSERT INTO advisors (advisor_id, user_id) VALUES
@@ -87,7 +93,10 @@ INSERT INTO students (student_id, school_student_id, user_id) VALUES
 (1, '112299690', 4), -- Alice Johnson in OPWL MS program
 (2, '113601927', 5), -- Bob Williams in OD certificate program
 (3, '114904338', 6), -- Nora Castillo in OPWL MS program
-(4, '112214674', 7); -- Gavin Diaz in OPWL MS program
+(4, '112214674', 7), -- Gavin Diaz in OPWL MS program
+(5, '114907264', 8); -- Maya Ramos in OPWL MS program
+(6, '115005432', 9), -- Evan Roberts in OPWL MS program
+(7, '115106789', 10); -- Olivia Smith in OD certificate program
 
 -- Insert student-program assignments
 INSERT INTO student_programs (student_id, program_id) VALUES
@@ -97,7 +106,12 @@ INSERT INTO student_programs (student_id, program_id) VALUES
 (3, 1), -- Nora Castillo in OPWL MS
 (3, 2), -- Nora Castillo in OD certificate
 (4, 1), -- Gavin Diaz in OPWL MS
-(4, 2); -- Gavin Diaz in OD certificate
+(4, 2), -- Gavin Diaz in OD certificate
+(5, 1), -- Maya Ramos in OPWL MS
+(5, 2); -- Maya Ramos in OD certificate 
+(6, 1), -- Evan Roberts in OPWL MS
+(6, 2); -- Evan Roberts in OD certificate
+(7, 2); -- Olivia Smith in OD certificate
 
 -- Insert student-advisor assignments
 -- Alice Johnson is assigned to Jane Doe and John Smith, Bob Williams to John Smith
@@ -106,7 +120,14 @@ INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (1, 2), -- Bob Williams assigned to Jane Doe
 (2, 2), -- Bob Williams assigned to John Smith
 (2, 3), -- Nora Castillo assigned to John Smith
-(1, 4); -- Gavin Diaz assigned to Jane Doe
+(1, 4), -- Gavin Diaz assigned to Jane Doe
+(2, 4); -- Gavin Diaz assigned to John Smith
+(1, 5), -- Maya Ramos assigned to Jane Doe
+(2, 5); -- Maya Ramos assigned to John Smith
+(1, 6), -- Evan Roberts assigned to Jane Doe
+(2, 6); -- Evan Roberts assigned to John Smith
+(1, 7), -- Olivia Smith assigned to Jane Doe
+(2, 7); -- Olivia Smith assigned to John Smith
 
 
 -- Insert courses
