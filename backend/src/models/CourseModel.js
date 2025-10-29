@@ -106,6 +106,31 @@ async function getCertificateOverlaps(courseId) {
 }
 
 /**
+ * Get semester options (actual semesters) for a given course based on its offerings.
+ * For example, if a course is offered in "FA" and "SP", this function retrieves the actual semester names like "Fall 2023", "Spring 2024", etc.
+ * @param {*} courseId
+ */
+async function getSemesterOptionsForCourse(courseId) {
+  try {
+    const courseOfferings = await getCourseOfferings(courseId);
+    if (!courseOfferings) return [];
+    const semesterTypes = courseOfferings.split(',').map(s => s.trim());
+
+    const result = await pool.query(
+        `SELECT semester_id, semester_name, semester_type, sem_start_date, sem_end_date
+        FROM semesters
+        WHERE semester_type = ANY($1)`,
+        [semesterTypes]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching semester options:', error);
+    throw error;
+  }
+}
+
+
+/**
  * Search for courses by name, code, or both.
  * @param {Object} params - Search parameters.
  * @param {string} params.name - Partial or full course name.
@@ -288,6 +313,29 @@ async function deleteCourse(courseId) {
   }
 }
 
+/**
+ * Get the number of enrollments per semester for a given course code.
+ * @param {string} courseCode
+ * @returns {Promise<Array>} Array of { semester: "Fall 2025", count: 12 }
+ */
+async function getEnrollments(courseCode) {
+  const sql = `
+    SELECT
+      s.semester_name AS semester,
+      COUNT(*)::int AS count
+    FROM enrollments e
+    JOIN courses c ON e.course_id = c.course_id
+    JOIN semesters s ON e.semester_id = s.semester_id
+    WHERE c.course_code = $1
+    GROUP BY s.semester_name, s.sem_start_date
+    ORDER BY s.sem_start_date;
+  `;
+  const { rows } = await pool.query(sql, [courseCode]);
+  return rows.map(r => ({ semester: r.semester, count: r.count }));
+}
+
+
+
 module.exports = {
   findByName,
   findById,
@@ -295,8 +343,10 @@ module.exports = {
   getPrerequisitesForCourse,
   getCourseOfferings,
   getCertificateOverlaps,
+  getSemesterOptionsForCourse,
   searchCourses,
   createCourse,
   updateCourse,
-  deleteCourse
+  deleteCourse,
+  getEnrollments
 };

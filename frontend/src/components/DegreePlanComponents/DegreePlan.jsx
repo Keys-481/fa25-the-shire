@@ -55,6 +55,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
     if (!studentId || !thisProgramId) {
         return <p className="error-message">Select a student and a program to view the degree plan.</p>;
     }
+
     if (loading) return <p>Loading degree plan...</p>;
     if (error) return <p className="error-message">Error: {error}</p>;
 

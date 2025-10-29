@@ -51,7 +51,7 @@ CREATE TYPE notif_type AS ENUM('info', 'warning', 'alert');
 CREATE TYPE cert_status AS ENUM('in_progress', 'completed');
 CREATE TYPE role_name AS ENUM('admin', 'advisor', 'student', 'accounting');
 CREATE TYPE semester_type AS ENUM('FA', 'SP', 'SU');
-CREATE TYPE course_status AS ENUM('Planned', 'In Progress', 'Completed', 'Dropped', 'Failed', 'Withdrawn');
+CREATE TYPE course_status AS ENUM('Unplanned', 'Planned', 'In Progress', 'Completed', 'Dropped', 'Failed', 'Withdrawn');
 CREATE TYPE permission_name AS ENUM('view_all_students', 'view_assigned_students',
                                     'view_own_data', 'edit_degree_plan', 'comment_create',
                                     'comment_edit', 'comment_delete', 'enrollment_reporting',
@@ -267,7 +267,8 @@ CREATE TABLE degree_plans (
     course_id INT REFERENCES courses(course_id) ON DELETE CASCADE,
     semester_id INT REFERENCES semesters(semester_id) ON DELETE CASCADE,
     catalog_year VARCHAR(9) NOT NULL,
-    course_status course_status NOT NULL
+    course_status course_status NOT NULL,
+    CONSTRAINT unique_degree_plan_entry UNIQUE (student_id, course_id, program_id)
 );
 
 CREATE INDEX idx_degree_plans_student_id ON degree_plans(student_id);

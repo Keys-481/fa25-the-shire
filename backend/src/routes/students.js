@@ -202,8 +202,6 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
         }
 
-        const totalRequiredCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
-
         // get student by schoolId
         const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
         const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
@@ -245,14 +243,17 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     const prerequisites = await CourseModel.getPrerequisitesForCourse(course.course_id);
                     const offered_semesters = await CourseModel.getCourseOfferings(course.course_id);
                     const certificate_overlaps = await CourseModel.getCertificateOverlaps(course.course_id);
+                    const semester_options = await CourseModel.getSemesterOptionsForCourse(course.course_id);
                     return {
                         ...course,
                         prerequisites,
                         offered_semesters,
-                        certificate_overlaps
+                        certificate_overlaps,
+                        semester_options
                     };
                 })
             );
+            console.log("Degree Plan: ", degreePlan);
             return res.json({ student, programId, viewType, degreePlan, totalRequiredCredits });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
@@ -309,5 +310,123 @@ router.get('/:schoolId/programs', async (req, res) => {
     }
 });
 
-module.exports = router;
+/**
+ * Route: PATCH /students/:schoolId/degree-plan/course/:courseId
+ * Updates the status of a course in a student's degree plan (e.g., mark as completed, in-progress).
+ * If status set to 'Planned', semesterId must be provided.
+ *
+ * Body params:
+ *  - status: 'Completed', 'In Progress', 'Planned'
+ *  - courseId: internal course ID
+ *  - semesterId: internal semester ID (required if status is 'Planned')
+ *  - programId: internal program ID
+ *
+ * @returns Updated course info in the degree plan
+ * @response 400 - Missing parameters or invalid status
+ * @response 401 - Unauthorized: No user info
+ * @response 403 - Forbidden: No access to student
+ * @response 404 - Student or course not found
+ * @response 500 - Internal server error
+ * @response 200 - OK
+ */
+router.patch('/:schoolId/degree-plan/course', async (req, res) => {
+    const { schoolId } = req.params;
+    const { courseId, status, semesterId, programId } = req.body;
 
+    try {
+        // Expect req.user to be set by middleware (mock or real auth)
+        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // validate input
+        if (!status || !['Unplanned', 'Planned', 'In Progress', 'Completed'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid or missing status. Must be one of: Unplanned, Planned, In Progress, Completed' });
+        }
+        if (status === 'Planned' && !semesterId) {
+            return res.status(400).json({ message: 'semesterId is required when status is Planned' });
+        }
+
+        // get student by schoolId
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        } else if (userRoles.includes('advisor')) {
+            hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        }
+
+        if (!hasAccess) {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
+        }
+
+
+        if (['Planned', 'In Progress'].includes(status)) {
+            // get course prerequisites
+            const prerequisites = await CourseModel.getPrerequisitesForCourse(courseId);
+
+            if (prerequisites && prerequisites.length > 0) {
+                for (let prereq of prerequisites) {
+                    // check status of prerequisite in degree plan
+                    const prereqCourse = await DegreePlanModel.getCourseStatus(student.student_id, prereq.course_id, programId);
+
+                    // block update if prerequisite not in student's degree plan or is unplanned
+                    if (!prereqCourse || !['In Progress', 'Completed', 'Planned'].includes(prereqCourse.course_status)) {
+                        return res.status(400).json({ message: `Cannot update course status. Prerequisite course ${prereq.course_id} is not completed or in progress.` });
+                    }
+
+                    // enforce semester ordering for prerequisites
+                    if (semesterId && prereqCourse.semester_id && Number(prereqCourse.semester_id) >= Number(semesterId)) {
+                        return res.status(400).json({ message: `Cannot plan course in semester ${semesterId}. Prerequisite course ${prereq.course_id} is scheduled in the same or a later semester.` });
+                    }
+                }
+            }
+        }
+
+        if (status === 'Completed') {
+            const prerequisites = await CourseModel.getPrerequisitesForCourse(courseId);
+
+            if (prerequisites && prerequisites.length > 0) {
+                for (const prereq of prerequisites) {
+                    const prereqCourse = await DegreePlanModel.getCourseStatus(student.student_id, prereq.course_id, programId);
+                    if (!prereqCourse) {
+                        console.warn(`Warning: ${courseId} marked completed, but prerequisite ${prereq.course_id} not found in degree plan.`);
+                    }
+                }
+            }
+        }
+
+        // update course status in degree plan
+        const updatedCourse = await DegreePlanModel.updateCourseStatus(
+            student.student_id,
+            courseId,
+            status,
+            semesterId,
+            programId
+        );
+
+        if (!updatedCourse) {
+            return res.status(404).json({ message: 'Course not found in student\'s degree plan' });
+        }
+        console.log("Updated Course: ", updatedCourse);
+        return res.json(updatedCourse);
+
+    } catch (error) {
+        console.error('Error updating course status in degree plan:', error.message);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+module.exports = router;

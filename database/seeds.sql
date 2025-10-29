@@ -117,7 +117,7 @@ INSERT INTO courses (course_id, course_code, course_name, credits) VALUES
 (14, 'OPWL-571', 'Leadership, Culture, and Systems', 3),
 (15, 'OPWL-577', 'Leading Change', 3),
 (16, 'OPWL-573', 'Project Management Tools', 3),
-(17, 'OPWL--575', 'Facilitating Organizational Development, Interventions', 3),
+(17, 'OPWL-575', 'Facilitating Organizational Development, Interventions', 3),
 (18, 'OPWL-523', 'E-Learning Authoring and Development', 3),
 (19, 'OPWL-525', 'E-Learning Content Design and Learning Management Systems', 3),
 (20, 'OPWL-527', 'Game-based and Gamified Learning', 3),
@@ -133,8 +133,8 @@ INSERT INTO courses (course_id, course_code, course_name, credits) VALUES
 INSERT INTO course_prerequisites (course_id, prerequisite_course_id) VALUES
 (7, 1), -- OPWL-531 requires OPWL-536
 (3, 1), -- OPWL-560 requires OPWL-536
-(9, 1), -- OPWL-529 requires OPWL-536
-(8, 1), -- OPWL-530 requires OPWL-536
+(9, 1), -- OPWL-530 requires OPWL-536
+(8, 1), -- OPWL-529 requires OPWL-536
 (11, 1), -- OPWL-537 requires OPWL-536
 (11, 10), -- OPWL-537 requires OPWL-535
 (3, 9), -- OPWL-560 requires OPWL-529 (or OPWL-530 - need to enforce in requirements logic)
@@ -285,31 +285,64 @@ INSERT INTO requirement_courses (requirement_id, course_id) VALUES
 -- Students can choose other OPWL courses as electives as well
 -- OPWL-XXX courses not listed as core
 
--- Insert degree plan entries
-INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
--- Alice Johnson's degree plan for OPWL MS program
-(1, 1, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024
-(2, 1, 1, 10, 4, 'Completed', '2025-2026'),  -- OPWL-535 (Core) in Fall 2024
-(3, 1, 1, 11, 5, 'Completed', '2025-2026'),  -- OPWL-537 (Core) in Spring 2025
-(4, 1, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Elective) in Spring 2025
-(5, 1, 1, 6, 7, 'In Progress', '2025-2026'), -- OPWL-507 (Research) in Fall 2025
-(6, 1, 1, 3, 10, 'Planned', '2025-2026'),    -- OPWL-560 (Core) in Fall 2026
-(7, 1, 1, 9, 8, 'Planned', '2025-2026'),     -- OPWL-530 (Core) in Spring 2026
-(8, 1, 1, 5, 11, 'Planned', '2025-2026');    -- OPWL-592 (Portfolio) in Spring 2027
 
--- Alice Johnson's degree plan for OD certificate program
-INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(9, 2, 1, 1, 4, 'Completed', '2025-2026'),   -- OPWL-536 (Core) in Fall 2024 (Overlap Fix)
-(10, 2, 1, 14, 5, 'Completed', '2025-2026'),  -- OPWL-571 (Core) in Spring 2025
-(11, 2, 1, 2, 7, 'In Progress', '2025-2026'), -- OPWL-506 (Elective) in Fall 2025
-(12, 2, 1, 4, 8, 'Planned', '2025-2026');     -- OPWL-518 (Elective) in Spring 2026
+-- DEFAULT degree plan entries will be created when a student is added to a program
+INSERT INTO degree_plans (program_id, student_id, course_id, semester_id, course_status, catalog_year)
+SELECT
+    sp.program_id,
+    sp.student_id,
+    rc.course_id,
+    NULL,
+    'Unplanned',
+    '2025-2026'
+FROM
+    student_programs sp
+JOIN
+    program_requirements pr ON sp.program_id = pr.program_id
+JOIN
+    requirement_courses rc ON pr.requirement_id = rc.requirement_id
+ON CONFLICT (student_id, course_id, program_id) DO NOTHING; -- Avoid duplicate entries
 
--- Bob Williams's degree plan for OD certificate program
-INSERT INTO degree_plans (plan_id, program_id, student_id, course_id, semester_id, course_status, catalog_year) VALUES
-(13, 2, 2, 1, 4, 'Completed', '2025-2026'),  -- OPWL-536 (Core) in Fall 2024
-(14, 2, 2, 15, 5, 'Completed', '2025-2026'), -- OPWL-577 (Core) in Spring 2025
-(15, 2, 2, 17, 7, 'In Progress', '2025-2026'),-- OPWL-575 (Elective) in Fall 2025
-(16, 2, 2, 4, 8, 'Planned', '2025-2026');   -- OPWL-518 (Elective) in Spring 2026
+-- UPDATE degree plans to reflect actual student progress
+-- Alice Johnson's degree plan for OPWL MS program (student_id = 1, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 1 AND program_id = 1 AND course_id = 1;   -- OPWL-536 (OD overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 1 AND program_id = 1 AND course_id = 10;  -- OPWL-535
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 1 AND program_id = 1 AND course_id = 11;  -- OPWL-537
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 1 AND program_id = 1 AND course_id = 14;  -- OPWL-571
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 1 AND program_id = 1 AND course_id = 2;   -- OPWL-506 (OD overlap)
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 1 AND program_id = 1 AND course_id = 8;   -- OPWL-529
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 1 AND program_id = 1 AND course_id = 9;   -- OPWL-530
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 1 AND program_id = 1 AND course_id = 4;   -- OPWL-518 (OD overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 11
+WHERE student_id = 1 AND program_id = 1 AND course_id = 5;   -- OPWL-592
+
+-- Alice Johnson's degree plan for OD certificate program (student_id = 1, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 1 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 1 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 1 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 1 AND program_id = 2 AND course_id = 4;   -- OPWL-518 (Overlap)
+
+-- Bob Williams's degree plan for OD certificate program (student_id = 2, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 2 AND program_id = 2 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 2 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 2 AND program_id = 2 AND course_id = 17;  -- OPWL-575
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 2 AND program_id = 2 AND course_id = 4;   -- OPWL-518
 
 -- Insert into enrollments
 INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grade) VALUES
@@ -320,8 +353,8 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (4, 1, 14, 5, 'A'), -- Alice Johnson completed OPWL-571 in Spring 2025
 
 -- Alice Johnson in-progress enrollments (Fall 2025)
-(5, 1, 6, 7, NULL), -- Alice Johnson in-progress OPWL-507 in Fall 2025
-(6, 1, 2, 8, NULL), -- Alice Johnson in-progress OPWL-506 in Fall 2025
+(6, 1, 2, 7, NULL), -- Alice Johnson in-progress OPWL-506 in Fall 2025
+(5, 1, 8, 7, NULL), -- Alice Johnson in-progress OPWL-529 in Fall 2025
 
 -- Bob Williams Completed enrollments (Fall 2024 and Spring 2025)
 (7, 2, 1, 4, 'A'), -- Bob Williams completed OPWL-536 in Fall 2024
