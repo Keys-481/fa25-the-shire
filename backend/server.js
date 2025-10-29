@@ -8,12 +8,12 @@ require('dotenv').config({ path: '../.env' });
 
 // Import necessary modules
 const express = require('express');
-const pool = require('./src/db');
 const cors = require('cors');
-const app = express();
-const path = require('path');
 const fs = require('fs');
+const pool = require('./src/db');  // This import includes path
 const auth = require('./src/middleware/auth');
+
+const app = express();
 
 // Import route handlers
 const studentRoutes = require('./src/routes/students');
