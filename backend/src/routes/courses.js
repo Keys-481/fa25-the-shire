@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
 const CourseModel = require('../models/CourseModel')
-const { createCourse, updateCourse, deleteCourse, getCourseOfferings, getPrerequisitesForCourse } = require('../models/CourseModel');
+const { createCourse, updateCourse, deleteCourse, getCourseOfferings, getPrerequisitesForCourse, getEnrollments } = require('../models/CourseModel');
+const pool = require('../db');
 
 /**
  * @route GET /courses/search
@@ -165,5 +166,36 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+
+/**
+ * 
+ * @route GET /courses/enrollments
+ * @description Retrieves enrollment counts for a specific course over the next four semesters.
+ * @access Public
+ * * @queryParam {string} courseCode - The course code to retrieve enrollments for.
+ * @response 200 - Returns an array of enrollment objects:
+ *  {
+ *    enrollments: [
+ *      { semester: string,  // e.g., "Fall 2024"
+ *        count: number      // enrollment count
+ *      },
+ *      ...
+ *    ]
+ *  }
+ * @response 400 - Missing courseCode query parameter.
+ * @response 500 - Internal server error if retrieval fails.
+ */
+router.get('/enrollments', async (req, res) => {
+  const { courseCode } = req.query;
+  if (!courseCode) return res.status(400).json({ message: 'Missing courseCode' });
+
+  try {
+    const enrollments = await CourseModel.getEnrollments(courseCode);
+    res.json({ enrollments });
+  } catch (err) {
+    console.error('Error in GET /courses/enrollments:', err.stack || err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 module.exports = router;

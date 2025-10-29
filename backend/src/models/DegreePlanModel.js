@@ -61,7 +61,7 @@ async function getDegreePlanByRequirements(studentId, programId) {
         SELECT
             r.requirement_id, r.requirement_type, r.req_description, r.parent_requirement_id, r.parent_description, r.required_credits, r.requirement_label, r.display_order, r.parent_order,
             c.course_id, c.course_code, c.course_name, c.credits,
-            dp.course_status, dp.catalog_year, s.semester_name
+            dp.course_status, dp.catalog_year, s.semester_id, s.semester_name
         FROM reqs r
         LEFT JOIN requirement_courses rc
             ON rc.requirement_id = r.requirement_id
@@ -106,9 +106,65 @@ async function getTotalProgramRequiredCredits(programId) {
     }
 }
 
+/**
+ * Update the status of a course in a student's degree plan
+ * @param {*} studentId - internal student ID
+ * @param {*} courseId - internal course ID
+ * @param {*} newStatus - new status for the course
+ * @param {*} semesterId - internal semester ID
+ * @param {*} programId - internal program ID
+ * @returns The updated degree plan entry
+ */
+async function updateCourseStatus(studentId, courseId, newStatus, semesterId, programId) {
+    try {
+        const query = `
+            INSERT INTO degree_plans (student_id, course_id, course_status, semester_id, program_id, catalog_year)
+            VALUES (
+                $1, $2, $3, $4, $5,
+                COALESCE(
+                    (SELECT dp.catalog_year FROM degree_plans dp WHERE dp.student_id = $1 AND dp.program_id = $5
+                    LIMIT 1), '2025-2026'
+                )
+            )
+            ON CONFLICT (student_id, course_id, program_id)
+            DO UPDATE SET
+                course_status = EXCLUDED.course_status,
+                semester_id = EXCLUDED.semester_id
+            RETURNING *;
+        `;
+        const result = await pool.query(query, [studentId, courseId, newStatus, semesterId, programId]);
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error updating course status:', error.message);
+        throw error;
+    }
+}
+
+/** Get the status of a specific course in a student's degree plan
+ * @param {*} studentId - internal student ID
+ * @param {*} courseId - internal course ID
+ * @returns The status of the course (e.g., 'completed', 'in-progress', 'planned') or null if not found
+ */
+async function getCourseStatus(studentId, courseId, programId) {
+    try {
+        const query = `
+            SELECT course_id, course_status, semester_id
+            FROM degree_plans
+            WHERE student_id = $1 AND course_id = $2 AND program_id = $3
+        `;
+        const result = await pool.query(query, [studentId, courseId, programId]);
+        return result.rows[0] || null;
+    } catch (error) {
+        console.error('Error fetching course status:', error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     getDegreePlanByStudentId,
     getDegreePlanByRequirements,
     getTotalProgramRequiredCredits,
+    updateCourseStatus,
+    getCourseStatus
 }
 

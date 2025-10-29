@@ -92,4 +92,45 @@ describe('DegreePlanModel', () => {
         const totalCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
         expect(totalCredits).toBe(36); // should match sum of required_credits in seed data for program_id 1
     });
+
+    // Test for updating course status in a student's degree plan
+    test('updateCourseStatus updates the status of a course in a student\'s degree plan', async () => {
+        const studentId = 1; // Alice Johnson
+        const courseId = 8; // OPWL-529 course ID in seed data
+        const newStatus = 'Planned';
+        const semesterId = 8; // Spring 2026 semester ID in seed data
+        const programId = 1; // OPWL MS program ID in seed data
+
+        const updatedEntry = await DegreePlanModel.updateCourseStatus(studentId, courseId, newStatus, semesterId, programId);
+        expect(updatedEntry).toHaveProperty('student_id', studentId);
+        expect(updatedEntry).toHaveProperty('course_id', courseId);
+        expect(updatedEntry).toHaveProperty('course_status', newStatus);
+        expect(updatedEntry).toHaveProperty('semester_id', semesterId);
+
+        // Verify the change persisted in the database
+        const degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId, 1); // programId 1
+        const updatedCourse = degreePlan.find(entry => entry.course_id === courseId);
+        expect(updatedCourse).toBeDefined();
+        expect(updatedCourse.course_status).toBe(newStatus);
+        expect(updatedCourse.semester_id).toBe(semesterId);
+    });
+    
+    // Test for getting course status in a student's degree plan
+    test('getCourseStatus returns correct status for a course in a student\'s degree plan', async () => {
+        const studentId = 1; // Alice Johnson
+        const courseId = 8; // OPWL-529 course ID in seed data
+        const programId = 1; // OPWL MS program ID in seed data
+        const courseStatus = await DegreePlanModel.getCourseStatus(studentId, courseId, programId);
+        expect(courseStatus).toBeDefined();
+        expect(courseStatus.course_status).toBe('Planned');
+    });
+
+    test('getCourseStatus returns null for a course not in a student\'s degree plan', async () => {
+        const studentId = 1; // Alice Johnson
+        const courseId = 9999; // assuming this course ID does not exist in her degree plan
+        const programId = 1; // OPWL MS program ID in seed data
+        const courseStatus = await DegreePlanModel.getCourseStatus(studentId, courseId, programId);
+        expect(courseStatus).toBeNull();
+    });
+
 });
