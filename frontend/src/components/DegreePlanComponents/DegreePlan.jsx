@@ -113,7 +113,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
             {/* Degree Plan Section */}
             <div className="degree-plan-content">
                 {viewType === 'requirements' ? (
-                    <RequirementsView courses={courses} program={program} />
+                    <RequirementsView courses={courses} program={program} studentId={studentId}/>
                 ) : (
                     <SemesterView courses={courses} program={program} />
                 )}

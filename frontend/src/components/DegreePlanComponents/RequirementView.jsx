@@ -131,7 +131,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
 
     // Handler to save updated course status from editing mode
     async function handleSaveStatus(course) {
-        const schoolId = student.id;
+        const schoolId = studentId || student?.id || student?.school_student_id;
         let chosenSemesterId = null;
         if (newStatus === 'Unplanned') {
             chosenSemesterId = null;
@@ -145,7 +145,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         }
 
         try {
-            const res = await fetch(`/students/${schoolId}/degree-plan/course`, {
+            const res = await fetch(`api/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
