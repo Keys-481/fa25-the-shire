@@ -11,15 +11,29 @@ const { runSchemaAndSeeds } = require('../../db_setup');
 const pool = require('../../src/db');
 const studentRoutes = require('../../src/routes/students');
 
-// Reset and seed the database before each test
-    beforeAll(async () => {
-        await runSchemaAndSeeds();
-    });
+let client;
 
-    // Close the database connection after all tests
-    afterAll(async () => {
-        await pool.end();
-    });
+// Reset and seed the database before each test
+beforeAll(async () => {
+    await runSchemaAndSeeds();
+});
+
+// Start a transaction before each test
+beforeEach(async () => {
+    client = await pool.connect();
+    await client.query('BEGIN;');
+});
+
+// Discard any changes after each test
+afterEach(async () => {
+    await client.query('ROLLBACK;');
+    client.release();
+});
+
+// Close the database connection after all tests
+afterAll(async () => {
+    await pool.end();
+});
 
 /**
  * Helper function to create an Express app with mocked authentication
@@ -304,6 +318,7 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
     // Test for admin user updating a course status in a student's degree plan
     test('admin can update course status in any student\'s degree plan', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
+
         const res = await request(app)
             .patch('/students/112299690/degree-plan/course')
             .send({
@@ -322,6 +337,7 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
     // Test for advisor user updating a course status in their assigned student's degree plan
     test('advisor can update course status in assigned student\'s degree plan', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
+
         const res = await request(app)
             .patch('/students/113601927/degree-plan/course')
             .send({
@@ -340,14 +356,55 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
     // Test for advisor user updating a course status in a student's degree plan they are not assigned to
     test('returns 403 for advisor not assigned to student', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
+
         const res = await request(app)
             .patch('/students/112299690/degree-plan/course')
             .send({
-                courseId: 8, // OPWL-529 course ID in seed data
+                courseId: 9, // OPWL-529 course ID in seed data
                 status: 'Planned',
                 semesterId: 8, // Spring 2026 semester ID in seed data
                 programId: 1 // OPWL MS program ID in seed data
             });
+        
         expect(res.status).toBe(403);
+    });
+
+    // Test for failing to update course status due to unmet prerequisites
+    test('returns 400 when prerequisites are not met', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+
+        // First, reset the course status to 'Unplanned' to ensure the test is valid
+        // Make sure prerequisite OPWL-536 is not completed
+        await pool.query(`
+            UPDATE degree_plans
+            SET course_status = 'Unplanned', semester_id = NULL
+            WHERE student_id = 1 AND program_id = 1 AND course_id = 1;
+        `);
+
+        // set OPWL-529 to unplanned
+        await pool.query(`
+            UPDATE degree_plans
+            SET course_status = 'Unplanned', semester_id = NULL
+            WHERE student_id = 1 AND program_id = 1 AND course_id = 8;
+        `);
+
+        const res = await request(app)
+            .patch('/students/112299690/degree-plan/course')
+            .send({
+                courseId: 8, // OPWL-529 course ID in seed data (has prerequisite OPWL-536)
+                status: 'Planned',
+                semesterId: 8, // Spring 2026 semester ID in seed data
+                programId: 1 // OPWL MS program ID in seed data
+            });
+        expect(res.status).toBe(400);
+        expect(res.body.message).toMatch(/prerequisite/i);
+
+        // verify that the course status was not updated
+        const check = await pool.query(`
+            SELECT course_status FROM degree_plans
+            WHERE student_id = 1 AND program_id = 1 AND course_id = 8;
+        `);
+
+        expect(check.rows[0].course_status).toBe('Unplanned');
     });
 });

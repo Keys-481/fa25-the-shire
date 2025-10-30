@@ -23,6 +23,7 @@ Thumbs.db
 dist/
 build/
 out/
+frontend/tests/e2e/.auth/
 
 # IDE files
 .vscode/

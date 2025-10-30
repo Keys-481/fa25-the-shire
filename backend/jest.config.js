@@ -3,7 +3,7 @@
  * Jest configuration for the backend tests
  */
 
-export default {
+module.exports = {
     testEnvironment: 'node',
     testTimeout: 20000,
     maxWorkers: 1,

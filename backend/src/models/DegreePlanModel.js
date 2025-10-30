@@ -140,10 +140,31 @@ async function updateCourseStatus(studentId, courseId, newStatus, semesterId, pr
     }
 }
 
+/** Get the status of a specific course in a student's degree plan
+ * @param {*} studentId - internal student ID
+ * @param {*} courseId - internal course ID
+ * @returns The status of the course (e.g., 'completed', 'in-progress', 'planned') or null if not found
+ */
+async function getCourseStatus(studentId, courseId, programId) {
+    try {
+        const query = `
+            SELECT course_id, course_status, semester_id
+            FROM degree_plans
+            WHERE student_id = $1 AND course_id = $2 AND program_id = $3
+        `;
+        const result = await pool.query(query, [studentId, courseId, programId]);
+        return result.rows[0] || null;
+    } catch (error) {
+        console.error('Error fetching course status:', error.message);
+        throw error;
+    }
+}
+
 module.exports = {
     getDegreePlanByStudentId,
     getDegreePlanByRequirements,
     getTotalProgramRequiredCredits,
-    updateCourseStatus
+    updateCourseStatus,
+    getCourseStatus
 }
 
