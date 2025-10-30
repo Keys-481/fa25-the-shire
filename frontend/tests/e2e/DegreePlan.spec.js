@@ -177,6 +177,19 @@ test.describe('DegreePlan edit course status', () => {
         await expect(saveButton).toBeVisible();
         await expect(saveButton).toBeEnabled();
 
+        await page.route(/\/(api\/)?students\/112299690\/degree-plan\/course/, async (route) => {
+            if (route.request().method() === 'PATCH') {
+                return route.fulfill({
+                    status: 200,
+                    contentType: 'application/json',
+                    body: JSON.stringify({
+                        course_status: 'Planned',
+                        semester_id: 5
+                    }),
+                });
+            }
+            return route.fallback();
+        });
 
         // Trigger PATCH by clicking Save and wait for completion
         const [patchResponse] = await Promise.all([
