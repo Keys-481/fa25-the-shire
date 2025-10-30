@@ -72,7 +72,7 @@ function calculateCompletedCredits(req) {
  * @param {*} courses - array of course objects to display
  * @returns {JSX.Element} - The rendered requirements view
  */
-export default function RequirementsView( { courses, program, semesters=[], student, onCourseUpdated } ) {
+export default function RequirementsView( { courses, program, semesters=[], student, studentId, onCourseUpdated } ) {
     const [localCourses, setLocalCourses] = useState(courses);
     const [editingCourse, setEditingCourse] = useState(null);
     const [newStatus, setNewStatus] = useState('Unplanned');
@@ -131,7 +131,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
 
     // Handler to save updated course status from editing mode
     async function handleSaveStatus(course) {
-        const schoolId = student.id;
+        const schoolId = studentId ?? student?.id ?? student?.school_student_id;
         let chosenSemesterId = null;
         if (newStatus === 'Unplanned') {
             chosenSemesterId = null;
@@ -145,7 +145,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         }
 
         try {
-            const res = await fetch(`/students/${schoolId}/degree-plan/course`, {
+            const res = await fetch(`/api/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json"
