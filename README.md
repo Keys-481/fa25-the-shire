@@ -10,10 +10,48 @@ To run this project, you need to have the following installed on your machine:
 
 ## Getting Started
 
+### Build Script
+If you are using the build.sh script, follow these steps:
+
+1. Ensure the following services are installed: Podman, Node.js, npm, PostgreSQL client.
+
+2. In the root directory, create a file named `.env` and add your local credentials. The setup script requires these variables to connect:
+```
+DB_HOST="<see note below>"
+DB_USER="<your_postgres_user>"
+DB_PASS="<your_secure_password>"
+DB_NAME="<your_database_name>" # Example: "advising_tool"
+DB_PORT="5432"
+```
+
+DB_HOST note: If you are running the app in a container (which is what this script is creating), then set this field to the DB container name. By default this should be `${IMAGE_NAME}-db`. Otherwise, if you're running the backend on your host, set this field to `localhost`.
+
+3. Then, run build.sh from a linux terminal (WSL on windows) by typing:
+```
+./build.sh
+```
+
+If you get an error that mentions line-endings when running the build.sh script (typically happens on Windows), then enter the following command:
+```
+sed -i 's/\r$//' build.sh test.sh clean.sh
+chmod +x build.sh test.sh clean.sh
+```
+Then, run `./build.sh` again.
+
+4. When the build script finishes executing, it will output a command to run a podman image that contains the built app. Copy that command, paste it into a terminal, and execute it to boot up the container.
+
+5. To access the local app, go to your browser and type `(http://localhost:3000)`.
+
+6. When you are done using the app, simply press `CTRL + C` in the terminal you executed the podman command in. If you want to clean up all podman containers and images, type `./clean.sh`. If you want to run application tests, type `./test.sh`.
+
+If you want to know more about the shell scripts, both `build.sh` and `clean.sh` have `-h` tags that show additional information about them. (`test.sh` does not have one)
+
+If you don't want to use the `build.sh` script, then proceed with the steps below.
+
 ### Backend
 Navigate to the `backend` directory and install dependencies by running the following command:
 ```
-npm installl
+npm install
 ```
 
 #### Required Configuration
