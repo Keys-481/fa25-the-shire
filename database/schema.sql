@@ -325,14 +325,15 @@ CREATE INDEX idx_student_certificates_certificate_id ON student_certificates(cer
 -- Stores comments made by advisors or students on degree plans
 CREATE TABLE degree_plan_comments (
     comment_id SERIAL PRIMARY KEY,
-    plan_id INT REFERENCES degree_plans(plan_id) ON DELETE CASCADE,
+    program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
+    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     author_id INT REFERENCES users(user_id) ON DELETE SET NULL,
     comment_text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_degree_plan_comments_plan_id ON degree_plan_comments(plan_id);
+CREATE INDEX idx_degree_plan_comments_student_program ON degree_plan_comments(program_id, student_id);
 CREATE INDEX idx_degree_plan_comments_author_id ON degree_plan_comments(author_id);
 
 -- Notifications Table:
