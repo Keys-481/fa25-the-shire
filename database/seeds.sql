@@ -54,7 +54,6 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 -- Insert users
 -- Note: Passwords should be securely hashed, these are just placeholders
 INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name) VALUES
-INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name) VALUES
 (1, crypt('supersecurehash1', gen_salt('bf', 12)), 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User'),
 (2, crypt('supersecurehash2', gen_salt('bf', 12)), 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe'),
 (3, crypt('supersecurehash3', gen_salt('bf', 12)), 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith'),
