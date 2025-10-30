@@ -393,6 +393,14 @@ td {
 }
 
 /** Requirement View **/
+.requirements-table thead th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.requirements-table thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
 .requirements-view-container {
   margin: 20px 30px;
   border-radius: 8px;
@@ -547,6 +555,61 @@ td {
   margin-right: 12px;
 }
 
+/* Certificate Alert */
+.certificate-alert {
+  margin: 20px 30px;
+  padding: 16px 20px;
+  background-color: #ecf2fc;
+  border: 1px solid #cfd8e6;
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-family: Arial, sans-serif;
+  line-height: 1.5; /* ✅ adds breathing room */
+}
+
+.certificate-alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.certificate-alert-toggle {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.certificate-alert-toggle:hover {
+  color: var(--main);
+}
+
+.certificate-alert-body {
+  margin-top: 4px;
+}
+
+.certificate-alert strong {
+  color: var(--main);
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.certificate-alert p {
+  margin: 6px 0 10px 0;
+  color: var(--main);
+}
+
+.certificate-alert ul {
+  margin: 6px 0 12px 25px;
+  padding: 0;
+}
 
 /* Semester View */
 .semester-view-container {
