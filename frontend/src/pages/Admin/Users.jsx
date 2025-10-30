@@ -30,7 +30,7 @@ export default function AdminUsers() {
   const [defaultView, setdefaultView] = useState('');
   const [selectedRoles, setSelectedRoles] = useState(new Set());
 
-  const searchEndpoint = '/users/search';
+  const searchEndpoint = '/api/users/search';
 
   /**
    * Fetches all users and roles from the backend on component mount.
@@ -40,8 +40,8 @@ export default function AdminUsers() {
     const fetchData = async () => {
       try {
         const [usersRes, rolesRes] = await Promise.all([
-          fetch('/users/all'),
-          fetch('/users/roles')
+          fetch('/api/users/all'),
+          fetch('/api/users/roles')
         ]);
 
         const usersData = await usersRes.json();
@@ -71,7 +71,7 @@ export default function AdminUsers() {
     const fetchUserRoles = async () => {
       if (selectedUser) {
         try {
-          const res = await fetch(`/users/${selectedUser.id}/roles`);
+          const res = await fetch(`/api/users/${selectedUser.id}/roles`);
           const userRoles = await res.json();
 
           const toggles = {};
@@ -95,8 +95,8 @@ export default function AdminUsers() {
   const refreshData = async () => {
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        fetch('/users/all'),
-        fetch('/users/roles')
+        fetch('/api/users/all'),
+        fetch('/api/users/roles')
       ]);
 
       const usersData = await usersRes.json();
@@ -123,7 +123,7 @@ export default function AdminUsers() {
     const allRoles = Array.from(selectedRoles);
 
     try {
-      const res = await fetch('/users', {
+      const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,7 +165,7 @@ export default function AdminUsers() {
       .map(([role]) => role);
 
     try {
-      const res = await fetch(`/users/${selectedUser.id}/roles`, {
+      const res = await fetch(`/api/users/${selectedUser.id}/roles`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roles: updatedRoles })
@@ -195,7 +195,7 @@ export default function AdminUsers() {
     if (!window.confirm(`Are you sure you want to delete ${selectedUser.name}?`)) return;
 
     try {
-      const res = await fetch(`/users/${selectedUser.id}`, {
+      const res = await fetch(`/api/users/${selectedUser.id}`, {
         method: 'DELETE'
       });
 
