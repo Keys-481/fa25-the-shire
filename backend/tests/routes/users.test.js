@@ -18,9 +18,9 @@ let testUserId;
  * 3. Sends a DELETE request to remove the newly created user.
  * 4. Verifies that the deletion response status is 200 and confirms success.
  */
-test('POST /users and DELETE /api/users/:id', async () => {
+test('POST /api/users and DELETE /api/users/:id', async () => {
   const timestamp = Date.now();
-  const res = await request(app).post('/users').send({
+  const res = await request(app).post('/api/users').send({
     name: 'Route Tester',
     email: `route${timestamp}@test.com`,
     phone: '555-111-2222',
@@ -29,11 +29,14 @@ test('POST /users and DELETE /api/users/:id', async () => {
     roles: ['Advisor']
   });
 
+  console.log('Create response:', res.body);
   expect(res.statusCode).toBe(200);
   expect(res.body).toHaveProperty('userId');
-  testUserId = res.body.userId;
+
+  const testUserId = res.body.userId;
 
   const delRes = await request(app).delete(`/api/users/${testUserId}`);
+  console.log('Delete response:', delRes.body);
   expect(delRes.statusCode).toBe(200);
   expect(delRes.body).toEqual({ success: true });
 });
