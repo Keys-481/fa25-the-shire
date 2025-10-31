@@ -752,13 +752,13 @@ input:checked+.slider:before {
 
 .logout-button {
   position: fixed;
-  top: 12;
-  left: 12;
+  top: 12px;
+  left: 12px;
   padding: 8px 12px;
-  border-radius: 8;
-  border: 1px solid #ccc;
-  background: #fff;
+  border-radius: 8px;
+  border: 2px solid #f1632a;
+  background: rgba(15, 68, 153, 0.637);
   font-weight: 600;
   cursor: pointer;
-  z-index: 100;
+  z-index: 1000;
 }
