@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
 
@@ -11,7 +12,8 @@ import '../../styles/Styles.css'
  * @returns {JSX.Element} A styled admin dashboard with navigation buttons
  */
 export default function Dashboard() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { logout } = useAuth();
     return (
         <div>
             {/* Navigation bar */}

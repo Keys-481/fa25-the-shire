@@ -749,3 +749,16 @@ input:checked+.slider:before {
   font-weight: bold;
   width: fit-content;
 }
+
+.logout-button {
+  position: fixed;
+  top: 12;
+  left: 12;
+  padding: 8px 12px;
+  border-radius: 8;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 100;
+}
