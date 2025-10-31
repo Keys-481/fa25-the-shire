@@ -23,8 +23,8 @@ const SearchBar = forwardRef(function SearchBar({ onSearch, searchEndpoint, plac
     try {
       // Try modern parameter names, backend supports legacy q1/q2 for compatibility
       const params = new URLSearchParams();
-      if (query1) params.set('id', query1);
-      if (query2) params.set('name', query2);
+      if (query1) params.set('q1', query1);
+      if (query2) params.set('q2', query2);
 
       const url = `${searchEndpoint}?${params.toString()}`;
       const data = await api.get(url);
@@ -58,7 +58,6 @@ const SearchBar = forwardRef(function SearchBar({ onSearch, searchEndpoint, plac
         value={query1}
         onChange={(e) => setQuery1(e.target.value)}
         onKeyDown={handleKeyDown}
-        aria-label="Search by School ID"
       />
       <input
         type="text"
@@ -67,7 +66,6 @@ const SearchBar = forwardRef(function SearchBar({ onSearch, searchEndpoint, plac
         value={query2}
         onChange={(e) => setQuery2(e.target.value)}
         onKeyDown={handleKeyDown}
-        aria-label="Search by Student Name"
       />
     </div>
   );

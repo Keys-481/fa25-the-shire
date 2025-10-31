@@ -24,6 +24,7 @@ const app = express();
 // Import route handlers
 const studentRoutes = require('./src/routes/students');
 const courseRoutes = require('./src/routes/courses');
+const userRoutes = require('./src/routes/users');
 const authRoutes = require('./src/routes/auth');
 
 /**
@@ -67,6 +68,7 @@ app.get("/api/ready", (_req, res) => {
 // API routes (if more are added, just follow the format below)
 app.use('/api/students', studentRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 
 // Serve React app

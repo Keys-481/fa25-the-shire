@@ -56,9 +56,17 @@ CREATE TYPE permission_name AS ENUM('view_all_students', 'view_assigned_students
                                     'view_own_data', 'edit_degree_plan', 'comment_create',
                                     'comment_edit', 'comment_delete', 'enrollment_reporting',
                                     'graduation_reporting', 'user_create', 'user_modify', 'user_delete',
-                                    'user_grant_permissions');
+                                    'user_grant_permissions', 'course_create', 'course_modify', 'course_delete');
 
 ------- Core User and Access Management Tables -------
+
+-- Roles Table:
+-- Defines different user roles
+-- role_name is an ENUM type defined above (e.g., admin, advisor, student, accounting)
+CREATE TABLE roles (
+    role_id SERIAL PRIMARY KEY,
+    role_name role_name UNIQUE NOT NULL
+);
 
 -- Users Table:
 -- Stores user credentials and personal information
@@ -68,15 +76,9 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     phone_number VARCHAR(20) UNIQUE,
     first_name VARCHAR(50) NOT NULL,
-    last_name VARCHAR(50) NOT NULL
-);
-
--- Roles Table:
--- Defines different user roles
--- role_name is an ENUM type defined above (e.g., admin, advisor, student, accounting)
-CREATE TABLE roles (
-    role_id SERIAL PRIMARY KEY,
-    role_name role_name UNIQUE NOT NULL
+    last_name VARCHAR(50) NOT NULL,
+    public_id VARCHAR(9) UNIQUE NOT NULL,
+    default_view INT REFERENCES roles(role_id)
 );
 
 -- Permissions Table:
@@ -230,7 +232,8 @@ CREATE INDEX idx_certificate_courses_course_id ON certificate_courses(course_id)
 CREATE TABLE students (
     student_id SERIAL PRIMARY KEY,
     school_student_id VARCHAR(9) UNIQUE NOT NULL,
-    user_id INT REFERENCES users(user_id) ON DELETE CASCADE
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (school_student_id) REFERENCES users(public_id)
 );
 
 CREATE INDEX idx_students_user_id ON students(user_id);

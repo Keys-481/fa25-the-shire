@@ -32,20 +32,23 @@ INSERT INTO permissions (permission_id, permission_name) VALUES
 (10, 'user_create'),
 (11, 'user_modify'),
 (12, 'user_delete'),
-(13, 'user_grant_permissions');
+(13, 'user_grant_permissions'),
+(14, 'course_create'),
+(15, 'course_modify'),
+(16, 'course_delete');
 
 -- Insert role_permissions
 -- Admin: all permissions
 INSERT INTO role_permissions (role_id, permission_id) VALUES
-(1, 1), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13);
+(1, 1), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (1, 12), (1, 13), (1, 14), (1, 15), (1, 16);
 
 -- Advisor: view and edit degree plans, view reports
 INSERT INTO role_permissions (role_id, permission_id) VALUES
-(2, 4), (2, 5), (2, 6), (2, 7), (2, 8);
+(2,2), (2, 4), (2, 5), (2, 6), (2, 7), (2, 8);
 
 -- Student: view their own degree plan and add comments
 INSERT INTO role_permissions (role_id, permission_id) VALUES
-(3, 6), (3, 7);
+(3,3), (3, 6), (3, 7);
 
 -- Accounting: enrollement and graduation reporting
 INSERT INTO role_permissions (role_id, permission_id) VALUES
@@ -53,21 +56,21 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 
 -- Insert users
 -- Note: Passwords should be securely hashed, these are just placeholders
-INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name) VALUES
-(1, crypt('supersecurehash1', gen_salt('bf', 12)), 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User'),
-(2, crypt('supersecurehash2', gen_salt('bf', 12)), 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe'),
-(3, crypt('supersecurehash3', gen_salt('bf', 12)), 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith'),
-(4, crypt('supersecurehash4', gen_salt('bf', 12)), 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson'),
-(5, crypt('supersecurehash5', gen_salt('bf', 12)), 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams'),
-(6, crypt('supersecurehash6', gen_salt('bf', 12)), 'student3@u.boisestate.edu', '555-888-9999', 'Nora', 'Castillo'),
-(7, crypt('supersecurehash7', gen_salt('bf', 12)), 'student4@u.boisestate.edu', '555-000-1111', 'Gavin', 'Diaz'),
-(8, crypt('supersecurehash8', gen_salt('bf', 12)), 'student5@u.boisestate.edu', '555-101-2121', 'Maya', 'Ramos'),
-(9, crypt('supersecurehash9', gen_salt('bf', 12)), 'student6@u.boisestate.edu', '555-999-3333', 'Evan', 'Roberts'),
-(10, crypt('supersecurehash10', gen_salt('bf', 12)), 'student7@u.boisestate.edu', '666-333-4444', 'Zoe', 'King'),
-(11, crypt('supersecurehash11', gen_salt('bf', 12)), 'student8@u.boisestate.edu', '666-444-5555', 'Levi', 'Powell'),
-(12, crypt('supersecurehash12', gen_salt('bf', 12)), 'student9@u.boisestate.edu', '666-555-6666', 'Harper', 'Taylor'),
-(13, crypt('supersecurehash13', gen_salt('bf', 12)), 'student10@u.boisestate.edu', '666-222-7777', 'Charles', 'Murphy'),
-(14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Account', 'User');
+INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last_name, public_id, default_view) VALUES
+(1, crypt('supersecurehash1', gen_salt('bf', 12)), 'admin@boisestate.edu', '555-123-4567', 'Admin', 'User', '111122223', 1),
+(2, crypt('supersecurehash2', gen_salt('bf', 12)), 'advisor1@boisestate.edu', '555-987-6543', 'Jane', 'Doe', '444455556', 2),
+(3, crypt('supersecurehash3', gen_salt('bf', 12)), 'advisor2@boisestate.edu', '555-555-5555', 'John', 'Smith', '777788889', 2),
+(4, crypt('supersecurehash4', gen_salt('bf', 12)), 'student1@u.boisestate.edu', '555-222-3333', 'Alice', 'Johnson', '112299690', 3),
+(5, crypt('supersecurehash5', gen_salt('bf', 12)), 'student2@u.boisestate.edu', '555-444-1111', 'Bob', 'Williams', '113601927', 3),
+(6, crypt('supersecurehash6', gen_salt('bf', 12)), 'student3@u.boisestate.edu', '555-888-9999', 'Nora', 'Castillo', '114904338', 3),
+(7, crypt('supersecurehash7', gen_salt('bf', 12)), 'student4@u.boisestate.edu', '555-000-1111', 'Gavin', 'Diaz', '112214674', 3),
+(8, crypt('supersecurehash8', gen_salt('bf', 12)), 'student5@u.boisestate.edu', '555-101-2121', 'Maya', 'Ramos', '114907264', 3),
+(9, crypt('supersecurehash9', gen_salt('bf', 12)), 'student6@u.boisestate.edu', '555-999-3333', 'Evan', 'Roberts', '115005432', 3),
+(10, crypt('supersecurehash10', gen_salt('bf', 12)), 'student7@u.boisestate.edu', '666-333-4444', 'Zoe', 'King', '123106789', 3),
+(11, crypt('supersecurehash11', gen_salt('bf', 12)), 'student8@u.boisestate.edu', '666-444-5555', 'Levi', 'Powell', '167800890', 3),
+(12, crypt('supersecurehash12', gen_salt('bf', 12)), 'student9@u.boisestate.edu', '666-555-6666', 'Harper', 'Taylor', '177808901', 3),
+(13, crypt('supersecurehash13', gen_salt('bf', 12)), 'student10@u.boisestate.edu', '666-222-7777', 'Charles', 'Murphy', '115409012', 3),
+(14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Account', 'User', '122368754', 4);
 
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES

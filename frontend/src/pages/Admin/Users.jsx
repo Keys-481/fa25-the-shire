@@ -10,6 +10,9 @@
  * - Delete users
  */
 import { useEffect, useState } from 'react';
+import AddUser from '../../components/AdminUserComponents/AddUser';
+import EditUser from '../../components/AdminUserComponents/EditUser';
+import RoleList from '../../components/AdminUserComponents/RoleList';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
 
@@ -24,19 +27,21 @@ export default function AdminUsers() {
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserPhone, setNewUserPhone] = useState('');
   const [newUserPassword, setNewUserPassword] = useState('');
+  const [defaultView, setdefaultView] = useState('');
+  const [selectedRoles, setSelectedRoles] = useState(new Set());
 
-  const searchEndpoint = '/users/search'
+  const searchEndpoint = '/api/users/search';
 
   /**
- * Fetches all users and roles from the backend on component mount.
- * Initializes role toggle states.
- */
+   * Fetches all users and roles from the backend on component mount.
+   * Initializes role toggle states.
+   */
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [usersRes, rolesRes] = await Promise.all([
-          fetch('/users/all'),
-          fetch('/users/roles')
+          fetch('/api/users/all'),
+          fetch('/api/users/roles')
         ]);
 
         const usersData = await usersRes.json();
@@ -60,13 +65,13 @@ export default function AdminUsers() {
   }, []);
 
   /**
- * Fetches roles for the selected user and updates toggle states accordingly.
- */
+   * Fetches roles for the selected user and updates toggle states accordingly.
+   */
   useEffect(() => {
     const fetchUserRoles = async () => {
       if (selectedUser) {
         try {
-          const res = await fetch(`/users/${selectedUser.id}/roles`);
+          const res = await fetch(`/api/users/${selectedUser.id}/roles`);
           const userRoles = await res.json();
 
           const toggles = {};
@@ -84,14 +89,14 @@ export default function AdminUsers() {
   }, [selectedUser, roles]);
 
   /**
- * Refreshes user and role data from the backend.
- * Resets role toggles.
- */
+   * Refreshes user and role data from the backend.
+   * Resets role toggles.
+   */
   const refreshData = async () => {
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        fetch('/users/all'),
-        fetch('/users/roles')
+        fetch('/api/users/all'),
+        fetch('/api/users/roles')
       ]);
 
       const usersData = await usersRes.json();
@@ -111,28 +116,33 @@ export default function AdminUsers() {
   };
 
   /**
- * Handles adding a new user with selected roles.
- * Sends a POST request to the backend and updates state.
- */
+   * Handles adding a new user with selected roles.
+   * Sends a POST request to the backend and updates state.
+   */
   const handleAddUser = async () => {
-    const selectedRoles = Object.entries(roleToggles)
-      .filter(([_, isEnabled]) => isEnabled)
-      .map(([role]) => role);
+    const allRoles = Array.from(selectedRoles);
 
     try {
-      const res = await fetch('/users', {
+      const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newUserName, email: newUserEmail, phone: newUserPhone, password: newUserPassword, roles: selectedRoles })
+        body: JSON.stringify({
+          name: newUserName,
+          email: newUserEmail,
+          phone: newUserPhone,
+          password: newUserPassword,
+          default_view: defaultView,
+          roles: allRoles
+        })
       });
 
       if (res.ok) {
         alert('User added successfully');
         setIsAddingUser(false);
         setNewUserName('');
-        setRoleToggles(roles.reduce((acc, role) => ({ ...acc, [role]: false }), {}));
+        setdefaultView('');
         const newUser = await res.json();
-        setAllUsers(prev => [...prev, { id: newUser.userId, name: newUser.name, roles: selectedRoles }]);
+        setAllUsers(prev => [...prev, { id: newUser.userId, name: newUser.name, roles: allRoles }]);
         await refreshData();
       } else {
         alert('Failed to add user');
@@ -144,9 +154,9 @@ export default function AdminUsers() {
   };
 
   /**
- * Handles saving updated roles for the selected user.
- * Sends a PUT request to the backend.
- */
+   * Handles saving updated roles for the selected user.
+   * Sends a PUT request to the backend.
+   */
   const handleSave = async () => {
     if (!selectedUser) return;
 
@@ -155,7 +165,7 @@ export default function AdminUsers() {
       .map(([role]) => role);
 
     try {
-      const res = await fetch(`/users/${selectedUser.id}/roles`, {
+      const res = await fetch(`/api/users/${selectedUser.id}/roles`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roles: updatedRoles })
@@ -176,16 +186,16 @@ export default function AdminUsers() {
   };
 
   /**
- * Handles deleting the selected user.
- * Sends a DELETE request to the backend.
- */
+   * Handles deleting the selected user.
+   * Sends a DELETE request to the backend.
+   */
   const handleDelete = async () => {
     if (!selectedUser) return;
 
     if (!window.confirm(`Are you sure you want to delete ${selectedUser.name}?`)) return;
 
     try {
-      const res = await fetch(`/users/${selectedUser.id}`, {
+      const res = await fetch(`/api/users/${selectedUser.id}`, {
         method: 'DELETE'
       });
 
@@ -205,17 +215,17 @@ export default function AdminUsers() {
   };
 
   /**
- * Callback for handling search results from the SearchBar component.
- * @param {Array} results - Array of user objects returned from the search.
- */
+   * Callback for handling search results from the SearchBar component.
+   * @param {Array} results - Array of user objects returned from the search.
+   */
   const handleSearchResults = (results) => {
-    setSearchResults(results)
-  }
+    setSearchResults(results);
+  };
 
   /**
- * Toggles the state of a role checkbox.
- * @param {string} role - The role to toggle.
- */
+   * Toggles the state of a role checkbox.
+   * @param {string} role - The role to toggle.
+   */
   const handleToggle = (role) => {
     setRoleToggles(prev => ({
       ...prev,
@@ -245,10 +255,10 @@ export default function AdminUsers() {
                         key={index}
                         className={`result-item ${selectedUser?.id === item.id ? 'selected' : ''}`}
                         onClick={() => setSelectedUser(prev => (prev?.id === item.id ? null : item))}
-
                         style={{ cursor: 'pointer' }}
                       >
-                        {item.name}
+                        <strong>{item.name}</strong> <br />
+                        {`PID: ${item.public}`}
                       </li>
                     ))}
                   </ul>
@@ -259,143 +269,43 @@ export default function AdminUsers() {
 
           <div className='section-results'>
             {selectedUser ? (
-              // Edit User View
-              <div className='section-results-side'>
-                <div className='h2-row'>
-                  <h2>Edit User</h2>
-                  <div className="button-row">
-                    <button onClick={handleSave}>Save</button>
-                    <button onClick={handleDelete} className='error-message'>Delete</button>
-                  </div>
-                </div>
-                <div className='horizontal-line'></div>
-                <div className="toggle-container">
-                  {roles.map((role, index) => (
-                    <div key={index} className="toggle-row">
-                      <h3>{role}</h3>
-                      <label className="switch">
-                        <input
-                          type="checkbox"
-                          id={`toggle-${index}`}
-                          checked={roleToggles[role] || false}
-                          onChange={() => handleToggle(role)}
-                        />
-                        <span className="slider"></span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <EditUser
+                selectedUser={selectedUser}
+                roles={roles}
+                roleToggles={roleToggles}
+                handleToggle={handleToggle}
+                handleSave={handleSave}
+                handleDelete={handleDelete}
+              />
             ) : isAddingUser ? (
-              // Add New User View
-              <div className="section-results-side">
-                <div className='h2-row'>
-                  <h2>Add New User</h2>
-                  <div className="button-row">
-                    <button onClick={handleAddUser}>Add</button>
-                    <button onClick={() => setIsAddingUser(false)} style={{ marginLeft: '10px' }}>Cancel</button>
-                  </div>
-                </div>
-                <div className='horizontal-line'></div>
-                <div className='textbox-row'>
-                  <p className='layout'>Name:</p>
-                  <input
-                    type="text"
-                    value={newUserName}
-                    className='textbox'
-                    onChange={e => setNewUserName(e.target.value)}
-                    placeholder="Enter full name"
-                  />
-                </div>
-                <div className='textbox-row'>
-                  <p className='layout'>Email:</p>
-                  <input
-                    type="email"
-                    value={newUserEmail}
-                    className='textbox'
-                    onChange={e => setNewUserEmail(e.target.value)}
-                    placeholder="Enter email"
-                  />
-                </div>
-                <div className='textbox-row'>
-                  <p className='layout'>Phone Number:</p>
-                  <input
-                    type="tel"
-                    value={newUserPhone}
-                    className='textbox'
-                    onChange={e => setNewUserPhone(e.target.value)}
-                    placeholder="Enter phone number"
-                  />
-                </div>
-                <div className='textbox-row'>
-                  <p className='layout'>Password:</p>
-                  <input
-                    type="password"
-                    value={newUserPassword}
-                    className='textbox'
-                    onChange={e => setNewUserPassword(e.target.value)}
-                    placeholder="Enter password"
-                  />
-                </div>
-                <div className="toggle-container">
-                  {roles.map((role, index) => (
-                    <div key={index} className="toggle-row">
-                      <h3>{role}</h3>
-                      <label className="switch">
-                        <input
-                          type="checkbox"
-                          checked={roleToggles[role] || false}
-                          onChange={() => handleToggle(role)}
-                        />
-                        <span className="slider"></span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <AddUser
+                roles={roles}
+                defaultView={defaultView}
+                setdefaultView={setdefaultView}
+                newUserName={newUserName}
+                setNewUserName={setNewUserName}
+                newUserEmail={newUserEmail}
+                setNewUserEmail={setNewUserEmail}
+                newUserPhone={newUserPhone}
+                setNewUserPhone={setNewUserPhone}
+                newUserPassword={newUserPassword}
+                setNewUserPassword={setNewUserPassword}
+                handleAddUser={handleAddUser}
+                setIsAddingUser={setIsAddingUser}
+                selectedRoles={selectedRoles}
+                setSelectedRoles={setSelectedRoles}
+              />
             ) : (
-              // Role Listing View
-              <>
-                <div className='header-row'>
-                  <button onClick={() => {
-                    setSelectedUser(null);
-                    setIsAddingUser(true);
-                  }}> + Add User</button>
-                </div>
-                {roles.length === 0 ? (
-                  <p>Loading roles...</p>
-                ) : (
-                  roles.map(role => {
-                    const usersInRole = allUsers
-                      .filter(user => user.roles.includes(role))
-                      .map(user => user.name);
-
-                    return (
-                      <div key={role}>
-                        <div className='h2-row'>
-                          <h2>{role}</h2>
-                        </div>
-                        <div className='horizontal-line' />
-                        {usersInRole.length === 0 ? (
-                          <ul>
-                            <li><em>No users</em></li>
-                          </ul>
-                        ) : (
-                          <ul>
-                            {usersInRole.map((user, idx) => (
-                              <li key={idx}>{user}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </>
+              <RoleList
+                roles={roles}
+                allUsers={allUsers}
+                setIsAddingUser={setIsAddingUser}
+                setSelectedUser={setSelectedUser}
+              />
             )}
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

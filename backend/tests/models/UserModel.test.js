@@ -41,7 +41,8 @@ test('addUser creates and deletes a user safely', async () => {
     email,
     '555-000-0000',
     'securepass',
-    ['Student']
+    'Student', //default view
+    ['Student'] // roles
   );
 
   testUserId = result.userId;

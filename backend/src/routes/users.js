@@ -24,7 +24,8 @@ router.get('/search', async (req, res) => {
 
             return {
                 id: user.id,
-                name: `${user.name} – ${roles}`
+                name: `${user.name} – ${roles}`,
+                public: user.public
             };
         });
 
@@ -62,6 +63,7 @@ router.get('/all', async (req, res) => {
         const users = await UserModel.searchUsers('', ''); // empty filters = all users
         const formatted = users.map(user => ({
             id: user.id,
+            public: user.public,
             name: `${user.name}`,
             roles: user.roles.map(r => r.charAt(0).toUpperCase() + r.slice(1))
         }));
@@ -113,6 +115,28 @@ router.put('/:id/roles', async (req, res) => {
 });
 
 /**
+ * GET /roles/:roleName/permissions
+ * Retrieves permissions for a specific role.
+ *
+ * @param {string} roleName - Role name.
+ * @returns {Array<string>} Array of permission names.
+ */
+router.get('/roles/:roleName/permissions', async (req, res) => {
+  const roleName = req.params.roleName;
+
+  try {
+    const permissions = await UserModel.getRolePermissions(roleName);
+    res.json(permissions);
+  } catch (error) {
+    console.error(`Error fetching permissions for role ${roleName}:`, error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+/**
  * POST /
  * Adds a new user with specified roles.
  *
@@ -124,15 +148,14 @@ router.put('/:id/roles', async (req, res) => {
  * @returns {Object} Success status and new user ID.
  */
 router.post('/', async (req, res) => {
-    const { name, email, phone, password, roles } = req.body;
-
-    try {
-        const result = await UserModel.addUser(name, email, phone, password, roles);
-        res.json({ success: true, userId: result.userId });
-    } catch (error) {
-        console.error('Error adding user:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
+  const { name, email, phone, password, roles, default_view } = req.body;
+  try {
+    const result = await UserModel.addUser(name, email, phone, password, default_view, roles);
+    res.json({ success: true, userId: result.userId });
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 /**
@@ -152,6 +175,23 @@ router.delete('/:id', async (req, res) => {
         console.error(`Error deleting user ${userId}:`, error);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+/**
+ * GET /permissions
+ * Retrieves all available permissions.
+ *
+ * @returns {Array<string>} Array of permission names.
+ */
+router.get('/permissions', async (req, res) => {
+  try {
+    const result = await UserModel.getAllPermissions();
+    const permissions = result.map(p => p.permission_name);
+    res.json(permissions);
+  } catch (error) {
+    console.error('Error fetching all permissions:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;
