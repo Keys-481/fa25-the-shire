@@ -58,6 +58,7 @@ router.get('/search', requireUser, async (req, res) => {
         const roles = await AccessModel.getUserRoles(req.user.user_id);
         const isAdmin = roles.includes('admin');
         const isAdvisor = roles.includes('advisor');
+        const isStudent = roles.includes('student');
 
         let visible = students;
 
@@ -176,6 +177,17 @@ router.get('/:schoolId', async (req, res) => {
                 return res.status(404).json({ message: 'Student not found' });
             }
         }
+        if (userRoles.includes('student')) {
+            const studentUserResult = await StudentModel.getStudentByUserId(currentUser.user_id);
+            const studentUser = studentUserResult && studentUserResult.length > 0 ? studentUserResult[0] : null;
+            if (studentUser && studentUser.school_student_id === schoolId) {
+                return res.json(student);
+            } else {
+                return res.status(404).json({ message: 'Student not found' });
+            }
+        }
+
+        return res.status(403).json({ message: 'Forbidden: You do not have access to this student' });
 
     } catch (error) {
         console.error('Error fetching student:', error);
@@ -219,6 +231,13 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        }
+        else if (userRoles.includes('student')) {
+            const studentUserResult = await StudentModel.getStudentByUserId(currentUser.user_id);
+            const studentUser = studentUserResult && studentUserResult.length > 0 ? studentUserResult[0] : null;
+            if (studentUser && studentUser.school_student_id === schoolId) {
+                hasAccess = true;
+            }
         }
 
         if (hasAccess) {
@@ -296,6 +315,12 @@ router.get('/:schoolId/programs', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        } else if (userRoles.includes('student')) {
+            const studentUserResult = await StudentModel.getStudentByUserId(currentUser.user_id);
+            const studentUser = studentUserResult && studentUserResult.length > 0 ? studentUserResult[0] : null;
+            if (studentUser && studentUser.school_student_id === schoolId) {
+                hasAccess = true;
+            }
         }
 
         if (hasAccess) {
