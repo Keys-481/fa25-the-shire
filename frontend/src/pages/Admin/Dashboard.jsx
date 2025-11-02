@@ -1,6 +1,14 @@
+/**
+ * @file frontend/src/pages/admin/dashboard
+ * @description Dashboard for admin users
+ */
+
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
+import LogoutButton from '../../components/LogoutButton'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
+
 
 /**
  * Dashboard component for the Admin role.
@@ -11,14 +19,15 @@ import '../../styles/Styles.css'
  * @returns {JSX.Element} A styled admin dashboard with navigation buttons
  */
 export default function Dashboard() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { logout } = useAuth();
     return (
         <div>
             {/* Navigation bar */}
             <div className='navbar'>
                 <div style={{ position: 'absolute', left: '20px' }}>
-                    <button onClick={() => navigate('/')} className='back-button'>←</button>
-                </div>  {/* remove or change to a log out button later*/}
+                    <LogoutButton />
+                </div>
                 <img src={logo} alt="BSU-Logo" className='logo' />
             </div>
 

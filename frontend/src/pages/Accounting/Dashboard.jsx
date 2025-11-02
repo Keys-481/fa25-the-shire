@@ -1,4 +1,11 @@
+/**
+ * @file frontend/src/pages/accounting/dashboard
+ * @description Dashboard for accounting users
+ */
+
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
+import LogoutButton from '../../components/LogoutButton'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
 
@@ -9,15 +16,16 @@ import '../../styles/Styles.css'
  * @returns {JSX.Element} The main dashboard view for accounting
  */
 export default function AccountingDashboard() {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { logout } = useAuth();
 
     return (
         <div>
             {/* Navigation bar */}
             <div className='navbar'>
                 <div style={{ position: 'absolute', left: '20px' }}>
-                    <button onClick={() => navigate('/')} className='back-button'>←</button>
-                </div>  {/* remove or change to a log out button later*/}
+                    <LogoutButton />
+                </div>
                 <img src={logo} alt="BSU-Logo" className='logo' />
             </div>
 
