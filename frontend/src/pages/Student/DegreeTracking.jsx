@@ -5,22 +5,23 @@
 
 
 import { useState, useEffect } from "react";
+import { useAuth } from "../../auth/AuthProvider";
 import StudentNavBar from "../../components/NavBars/StudentNavBar";
 import ProgramSelector from "../../components/ProgramSelector";
 
 export default function StudentDegreeTracking() {
-    // Hardcoded single student 
-    const student = { id: "112299690", name: "Alice Johnson", email: "student1@u.boisestate.edu", phone: "555-222-3333" };  
-    // Hardccoded to alice for now as a placeholder student. Will update when we have log in functionality.
+    const { user } = useAuth();
+    const studentSchoolId = user?.school_student_id;
 
     const [programs, setPrograms] = useState([]);
     const [selectedProgram, setSelectedProgram] = useState(null);
 
-
     useEffect(() => {
+        if (!studentSchoolId) return;
+
         const fetchPrograms = async () => {
             try {
-                const response = await fetch(`/students/${student.id}/programs`);
+                const response = await fetch(`/api/students/${studentSchoolId}/programs`);
                 if (!response.ok) {
                     console.error("Failed to fetch programs:", response.statusText);
                     setPrograms([]);
@@ -28,7 +29,6 @@ export default function StudentDegreeTracking() {
                 }
 
                 const data = await response.json();
-
                 const studentPrograms = data.programs || [];
                 setPrograms(studentPrograms);
 
@@ -42,7 +42,7 @@ export default function StudentDegreeTracking() {
         };
 
         fetchPrograms();
-    }, [student.id]);
+    }, [studentSchoolId]);
 
     return (
         <div>
@@ -53,8 +53,8 @@ export default function StudentDegreeTracking() {
                 </div>
                 <div className="container">
                     <ProgramSelector
-                        student={student} // Pass the hardcoded student object
-                        programs={programs} // List of programs fetched from the server
+                        student={user} // Pass the logged-in student
+                        programs={programs}
                         selectedStudentProgram={selectedProgram}
                         setSelectedProgram={setSelectedProgram}
                     />
