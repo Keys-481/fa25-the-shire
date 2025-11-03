@@ -687,7 +687,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 
 -- Maya Ramos planned enrollments (Spring 2026)
 (33, 5, 2, 8, NULL), -- Maya Ramos planned OPWL-506 in Spring 2026
-(34, 5, 12, 8, NULL); -- Maya Ramos planned OPWL-508 in Spring 2026
+(34, 5, 12, 8, NULL), -- Maya Ramos planned OPWL-508 in Spring 2026
 
 -- Evan Roberts Completed enrollments (Spring 2024, Fall 2024, Spring 2025, Summer 2025)
 (35, 6, 8, 2, 'A'), -- Evan Roberts completed OPWL-529 in Spring 2024
@@ -714,7 +714,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (48, 7, 17, 7, NULL), -- Zoe King in-progress OPWL-575 in Fall 2025
 
 -- Zoe King planned enrollments (Spring 2026)
-(49, 7, 4, 8, NULL); -- Zoe King planned OPWL-518 in Spring 2026
+(49, 7, 4, 8, NULL), -- Zoe King planned OPWL-518 in Spring 2026
 
 -- Levi Powell Completed enrollments (Spring 2024, Fall 2024, Spring 2025, Summer 2025)
 (50, 8, 1, 2, 'A'), -- Levi Powell completed OPWL-536 in Spring 2024
