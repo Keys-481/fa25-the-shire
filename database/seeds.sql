@@ -762,13 +762,13 @@ INSERT INTO certificates (certificate_id, certificate_name, certificate_short_na
 INSERT INTO student_certificates (student_id, certificate_id, cert_status) VALUES
 (1, 1, 'in_progress'), -- Alice Johnson pursuing OD certificate
 (2, 1, 'in_progress'), -- Bob Williams pursuing OD certificate
-(3, 1, 'in_progress'); -- Nora Castillo pursuing OD certificate
-(4, 1, 'in_progress'); -- Gavin Diaz pursuing OD certificate
-(5, 1, 'in_progress'); -- Maya Ramos pursuing OD certificate
-(6, 1, 'in_progress'); -- Evan Roberts pursuing OD certificate
-(7, 1, 'in_progress'); -- Zoe King pursuing OD certificate
-(8, 1, 'in_progress'); -- Levi Powell pursuing OD certificate
-(9, 1, 'in_progress'); -- Harper Taylor pursuing OD certificate
+(3, 1, 'in_progress'), -- Nora Castillo pursuing OD certificate
+(4, 1, 'in_progress'), -- Gavin Diaz pursuing OD certificate
+(5, 1, 'in_progress'), -- Maya Ramos pursuing OD certificate
+(6, 1, 'in_progress'), -- Evan Roberts pursuing OD certificate
+(7, 1, 'in_progress'), -- Zoe King pursuing OD certificate
+(8, 1, 'in_progress'), -- Levi Powell pursuing OD certificate
+(9, 1, 'in_progress'), -- Harper Taylor pursuing OD certificate
 (10, 1, 'in_progress'); -- Charles Murphy pursuing OD certificate
 
 -- Insert into certificate_courses for OD Certificate Program (certificate overlap with program requirements)
