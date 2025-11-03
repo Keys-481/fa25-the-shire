@@ -56,7 +56,6 @@ function makeAppWithUser(mockUser) {
 
 /**
  * Tests for /students/search route
- * Currently only supports search by school ID (q1)
  */
 describe('GET /students/search', () => {
 

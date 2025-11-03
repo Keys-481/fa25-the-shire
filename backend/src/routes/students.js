@@ -219,6 +219,8 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        } else if (userRoles.includes('student')) {
+            hasAccess = currentUser.user_id === student.user_id;
         }
 
         if (hasAccess) {
@@ -296,6 +298,8 @@ router.get('/:schoolId/programs', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        } else if (userRoles.includes('student')) {
+            hasAccess = currentUser.user_id === student.user_id;
         }
 
         if (hasAccess) {
@@ -366,6 +370,8 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        } else if (userRoles.includes('student')) {
+            hasAccess = currentUser.user_id === student.user_id;
         }
 
         if (!hasAccess) {
