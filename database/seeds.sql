@@ -740,7 +740,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 
 -- Harper Taylor planned enrollments (Spring 2026)
 (66, 9, 6, 8, NULL), -- Harper Taylor planned OPWL-507 in Spring 2026
-(67, 9, 12, 8); -- Harper Taylor planned OPWL-508 in Spring 2026
+(67, 9, 12, 8, NULL), -- Harper Taylor planned OPWL-508 in Spring 2026
 
 -- Charles Murphy Completed enrollments (Spring 2025 and Summer 2025)
 (68, 10, 1, 5, 'A'), -- Charles Murphy completed OPWL-536 in Spring 2025
