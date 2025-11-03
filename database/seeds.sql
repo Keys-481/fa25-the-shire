@@ -524,7 +524,9 @@ INSERT INTO certificate_courses (certificate_id, course_id) VALUES
 
 -- Insert into degree_plan_comments
 INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_text) VALUES
-(1, 1, 2, 'Make sure you register for courses soon!'); -- Need better comment examples
+(1, 1, 2, 'Make sure you register for courses soon!'), -- Need better comment examples
+(2, 2, 3, 'Remember to check prerequisites before enrolling.'),
+(2, 2, 5, 'Very long comment to test the text field in the degree_plan_comments table. This comment goes on and on to ensure that the database can handle longer text entries without any issues. We want to make sure that advisors can leave detailed notes for students regarding their degree plans, course selections, and any other relevant information that may assist them in their academic journey.');
 
 
 -- TODO: Delete later this is a temporary measure

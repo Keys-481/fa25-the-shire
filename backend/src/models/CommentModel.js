@@ -19,7 +19,9 @@ async function createComment(programId, studentId, authorId, commentText) {
         const comment = commentText.trim();
         const result = await pool.query(
         `INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_text)
-         VALUES ($1, $2, $3, $4) RETURNING *`,
+         VALUES ($1, $2, $3, $4) RETURNING *,
+        (SELECT u.first_name FROM users u WHERE u.user_id = $3) AS first_name,
+        (SELECT u.last_name FROM users u WHERE u.user_id = $3) AS last_name`,
         [programId, studentId, authorId, comment]
     );
     return result.rows[0];
@@ -38,7 +40,12 @@ async function createComment(programId, studentId, authorId, commentText) {
 async function getCommentsByProgramAndStudent(programId, studentId) {
     try {
         const result = await pool.query(
-            `SELECT * FROM degree_plan_comments WHERE program_id = $1 AND student_id = $2 ORDER BY created_at DESC`,
+            `SELECT c.*,
+            u.first_name, u.last_name
+            FROM degree_plan_comments c
+            JOIN users u ON c.author_id = u.user_id
+            WHERE program_id = $1 AND student_id = $2
+            ORDER BY created_at DESC`,
             [programId, studentId]
         );
         return result.rows;

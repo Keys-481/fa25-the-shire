@@ -22,7 +22,11 @@ export default defineConfig(({ mode }) => {
         '/users': {
           target: BACKEND_URL,
           changeOrigin: true,
-        }
+        },
+        '/comments': {
+          target: BACKEND_URL,
+          changeOrigin: true,
+        },
       },
     },
   }

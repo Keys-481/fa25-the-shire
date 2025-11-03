@@ -4,6 +4,7 @@
  */
 
 import DegreePlan from "./DegreePlanComponents/DegreePlan";
+import CommentsContainer from "./DegreePlanComponents/CommentsContainer";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram }) {
     if (!student) {
@@ -33,7 +34,17 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
             </div>
 
             {selectedStudentProgram ? (
-                <DegreePlan student={student} program={selectedStudentProgram} />
+                <div className="degree-plan-comments-wrapper">
+                    <div style={{ flex: 7 }}>
+                        <DegreePlan student={student} program={selectedStudentProgram} />
+                    </div>
+                    <div style={{ flex: 3 }}>
+                        <CommentsContainer
+                            studentSchoolId={student.id}
+                            programId={selectedStudentProgram.program_id}
+                        />
+                    </div>
+                </div>
             ) : (
                 <p>Select a program to view the degree plan</p>
             )}
