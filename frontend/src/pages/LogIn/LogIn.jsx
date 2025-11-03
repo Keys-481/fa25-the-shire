@@ -62,92 +62,50 @@ export default function LogIn() {
 
     return (
         <main className="page-wrapper">
-            <div className="window">
-                <div className="title-bar"><h1>Log In</h1></div>
+            <div className='navbar'>
+                <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px' }} />
+            </div>
 
-                <form onSubmit={handleSubmit} data-testid="login-form" className="container">
-                    <label>
-                        Email or Phone Number
-                        <input
-                            data-testid="identifier"
-                            type="text"
-                            value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
-                            required
-                            autoComplete="username"
-                            placeholder="example@email.com"
-                        />
-                    </label>
+            <div className="window login-body">
+                <div className="login-card">
+                    <h1 className="login-title">Log In</h1>
 
-                    <label>
-                        Password
-                        <input
-                            data-testid="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            autoComplete="current-password"
-                        />
-                    </label>
+                    <form onSubmit={handleSubmit} data-testid="login-form" className="login-form">
+                        <label>
+                            Email or Phone Number
+                            <input
+                                data-testid="identifier"
+                                type="text"
+                                value={identifier}
+                                onChange={(e) => setIdentifier(e.target.value)}
+                                required
+                                autoComplete="username"
+                                placeholder="example@email.com"
+                            />
+                        </label>
 
-                    {error && (
-                        <div role="alert" data-testid="error" style={{ color: "red", marginTop: 10}}>
-                            {error}
-                        </div>
-                    )}
+                        <label>
+                            Password
+                            <input
+                                data-testid="password"
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                autoComplete="current-password"
+                            />
+                        </label>
 
-                    <button type="submit" data-testid="submit">Log In</button>
-                </form>
+                        {error && (
+                            <div role="alert" data-testid="error" style={{ color: "red", marginTop: 10}}>
+                                {error}
+                            </div>
+                        )}
+
+                        <button type="submit" data-testid="submit">Log In</button>
+                    </form>
+                </div>
             </div>
         </main>
     )
 }
-
-// /**
-//  * Placeholder Login page
-//  *
-//  * @component
-//  * @returns {JSX.Element} 
-//  */
-// export default function PlaceHolder_LogIn() {
-//     const navigate = useNavigate()
-//     return (
-//         <div className='page-wrapper'>
-//             {/* Navigation bar */}
-//             <div className='navbar'>
-//                 <img src={logo} alt="BSU-Logo" style={{ height: '45px', alignItems: 'center', top: '-3px' }} />
-//             </div>
-
-//             <div className='window'>
-//                 {/* Page Title */}
-//                 <div className='title-bar'>
-//                     <h1>User Log In</h1>
-//                 </div>
-//                 <div className='container'>
-//                     {/*  Main Content Area with Navigation Buttons */}
-//                     <div className='dashboard-container'>
-//                         <div className='button-row'>
-//                             {/* Administrator Button */}
-//                             <button className='square-button' onClick={() => navigate('/admin/dashboard')}>
-//                                 Administrator
-//                             </button>
-//                             {/* Advisor Button */}
-//                             <button className='square-button' onClick={() => navigate('/advisor/dashboard')}>
-//                                 Advisor
-//                             </button>
-//                             {/* Student Button */}
-//                             <button className='square-button' onClick={() => navigate('/student/dashboard')}>
-//                                 Student
-//                             </button>
-//                             {/* Accounting Button */}
-//                             <button className='square-button' onClick={() => navigate('/accounting/dashboard')}>
-//                                 Accounting
-//                             </button>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         </div>
-//     )
-// }

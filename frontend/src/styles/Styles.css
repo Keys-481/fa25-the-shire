@@ -9,7 +9,13 @@
   --planned: #fff1b2; /* Light yellow */
 }
 
+html, body {
+  height: 100%;
+}
 
+body {
+  margin: 0;
+}
 
 /************************/
 /*     Class Styles     */
@@ -23,6 +29,7 @@
   min-height: 100vh;
   width: 100%;
   background-color: transparent;
+  overflow: hidden;
 }
 
 /* Area includes everything but NavBar */
@@ -748,6 +755,66 @@ input:checked+.slider:before {
   border-radius: 4px;
   font-weight: bold;
   width: fit-content;
+}
+
+/** Login and Logout Styles **/
+
+.window.login-body {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--background);
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border: 1.5px solid var(--main);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  padding: 24px 28px;
+}
+
+.login-title {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-size: 22px;
+  color: var(--main);
+}
+
+.login-form {
+  display: grid;
+  gap: 12px;
+}
+
+.login-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--main);
+}
+
+.login-form input {
+  padding: 10px 12px;
+  border: 1px solid #cfd8e6;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--accent);
+  outline: none;
+}
+
+.login-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(9, 52, 122, 0.15);
 }
 
 .logout-button {
