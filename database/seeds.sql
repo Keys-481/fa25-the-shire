@@ -752,7 +752,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (72, 10, 8, 7, NULL), -- Charles Murphy in-progress OPWL-529 in Fall 2025
 
 -- Charles Murphy planned enrollments (Spring 2026)
-(73, 10, 10, 8); -- Charles Murphy planned OPWL-535 in Spring 2026
+(73, 10, 10, 8, NULL); -- Charles Murphy planned OPWL-535 in Spring 2026
 
 -- Insert into certificates
 INSERT INTO certificates (certificate_id, certificate_name, certificate_short_name, program_id) VALUES
