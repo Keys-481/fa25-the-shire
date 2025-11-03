@@ -673,7 +673,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 
 -- Gavin Diaz planned enrollments (Spring 2026)
 (25, 4, 6, 8, NULL), -- Gavin Diaz planned OPWL-507 in Spring 2026
-(26, 4, 12, 8, NULL); -- Gavin Diaz planned OPWL-508 in Spring 2026
+(26, 4, 12, 8, NULL), -- Gavin Diaz planned OPWL-508 in Spring 2026
 
 --Maya Ramos Completed enrollments (Spring 2025 and Summer 2025)
 (27, 5, 1, 5, 'A'), -- Maya Ramos completed OPWL-536 in Spring 2025
@@ -711,7 +711,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (47, 7, 15, 5, 'A-'), -- Zoe King completed OPWL-577 in Spring 2025
 
 -- Zoe King in-progress enrollments (Fall 2025)
-(48, 7, 17, 7, NULL); -- Zoe King in-progress OPWL-575 in Fall 2025
+(48, 7, 17, 7, NULL), -- Zoe King in-progress OPWL-575 in Fall 2025
 
 -- Zoe King planned enrollments (Spring 2026)
 (49, 7, 4, 8, NULL); -- Zoe King planned OPWL-518 in Spring 2026
@@ -723,7 +723,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 (53, 8, 19, 5, 'A'), -- Levi Powell completed OPWL-525 in Spring 2025
 (54, 8, 8, 4, 'B'), -- Levi Powell completed OPWL-529 in Fall 2024
 (55, 8, 10, 4, 'B-'), -- Levi Powell completed OPWL-535 in Fall 2024
-(56, 8, 11, 4, 'B+'); -- Levi Powell completed OPWL-537 in Fall 2024
+(56, 8, 11, 4, 'B+'), -- Levi Powell completed OPWL-537 in Fall 2024
 
 -- Harper Taylor Completed enrollments (Fall 2024, Spring 2025, Summer 2025)
 (57, 9, 1, 4, 'B'), -- Harper Taylor completed OPWL-536 in Fall 2024
@@ -749,7 +749,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 
 -- Charles Murphy in-progress enrollments (Fall 2025)
 (71, 10, 2, 7, NULL), -- Charles Murphy in-progress OPWL-506 in Fall 2025
-(72, 10, 8, 7, NULL); -- Charles Murphy in-progress OPWL-529 in Fall 2025
+(72, 10, 8, 7, NULL), -- Charles Murphy in-progress OPWL-529 in Fall 2025
 
 -- Charles Murphy planned enrollments (Spring 2026)
 (73, 10, 10, 8); -- Charles Murphy planned OPWL-535 in Spring 2026
