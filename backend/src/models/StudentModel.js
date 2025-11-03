@@ -107,9 +107,34 @@ async function getProgramsByStudentId(studentId) {
     }
 }
 
+/**
+ * Get all programs associated with a student by their school_student_id.
+ * @param {*} schoolStudentId - The school-level ID of the student.
+ * @returns A promise that resolves to an array of program objects.
+ */
+async function getProgramsBySchoolStudentId(schoolStudentId) {
+    try {
+        const result = await pool.query(
+            `SELECT p.program_id, p.program_name, p.program_type
+             FROM student_programs sp
+             JOIN students s ON sp.student_id = s.student_id
+             JOIN programs p ON sp.program_id = p.program_id
+             WHERE s.school_student_id = $1`,
+            [schoolStudentId]
+        );
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching programs by school_student_id:', error);
+        throw error;
+    }
+}
+
+
+
 module.exports = {
     getStudentBySchoolId,
     getProgramsByStudentId,
     getStudentByName,
-    getStudentBySchoolIdAndName
+    getStudentBySchoolIdAndName,
+    getProgramsBySchoolStudentId
 };
