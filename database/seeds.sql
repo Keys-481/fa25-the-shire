@@ -704,7 +704,7 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 -- Evan Roberts planned enrollments (Spring 2026)
 (43, 6, 2, 8, NULL), -- Evan Roberts planned OPWL-506 in Spring 2026
 (44, 6, 6, 8, NULL), -- Evan Roberts planned OPWL-507 in Spring 2026
-(45, 6, 12, 8); -- Evan Roberts planned OPWL-508 in Spring 2026
+(45, 6, 12, 8, NULL), -- Evan Roberts planned OPWL-508 in Spring 2026
 
 --Zoe King Completed enrollments (Fall 2024 and Spring 2025)
 (46, 7, 1, 4, 'A'), -- Zoe King completed OPWL-536 in Fall 2024
