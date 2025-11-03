@@ -187,6 +187,11 @@ router.get('/:schoolId', async (req, res) => {
             }
         }
 
+        console.log('User:', req.user);
+        console.log('Roles:', userRoles);
+        console.log('Requested schoolId:', schoolId);
+        console.log('Matched student:', student);
+
         return res.status(403).json({ message: 'Forbidden: You do not have access to this student' });
 
     } catch (error) {
