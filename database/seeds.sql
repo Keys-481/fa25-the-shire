@@ -149,7 +149,7 @@ INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (2, 8), -- Levi Powell assigned to John Smith
 (1, 9), -- Harper Taylor assigned to Jane Doe
 (2, 9), -- Harper Taylor assigned to John Smith
-(1, 10), -- Charles Murphy assigned to Jane Doe
+(1, 10); -- Charles Murphy assigned to Jane Doe
 
 -- Insert courses
 -- Note: `course_id` is the primary key (integer), and course_code is a unique string identifier
@@ -414,7 +414,7 @@ UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 3 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 3 AND program_id = 2 AND course_id = 14;  -- OPWL-571
-UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 8
 WHERE student_id = 3 AND program_id = 1 AND course_id = 6;   -- OPWL-507
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 3 AND program_id = 1 AND course_id = 3;   -- OPWL-560
@@ -447,15 +447,15 @@ WHERE student_id = 4 AND program_id = 1 AND course_id = 12;   -- OPWL-508
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
 WHERE student_id = 4 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
-WHERE student_id = 4 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+WHERE student_id = 4 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 4 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 4 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
-WHERE student_id = 4 AND program_id = 2 AND course_id = 2;   -- OPWL-506
+WHERE student_id = 4 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 4 AND program_id = 2 AND course_id = 4;   -- OPWL-518
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 4 AND program_id = 2 AND course_id = 12;   -- OPWL-508
+WHERE student_id = 4 AND program_id = 2 AND course_id = 12;   -- OPWL-508 (Overlap)
 
 -- Maya Ramos's degree plan for OPWL MS program (student_id = 5, program_id = 1)
  UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
@@ -479,15 +479,15 @@ WHERE student_id = 5 AND program_id = 1 AND course_id = 12;   -- OPWL-508
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
 WHERE student_id = 5 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 5 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+WHERE student_id = 5 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
 WHERE student_id = 5 AND program_id = 2 AND course_id = 7;   -- OPWL-531
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
-WHERE student_id = 5 AND program_id = 2 AND course_id = 10;   -- OPWL-535
+WHERE student_id = 5 AND program_id = 2 AND course_id = 10;   -- OPWL-535 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 5 AND program_id = 2 AND course_id = 2;   -- OPWL-506
+WHERE student_id = 5 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 5 AND program_id = 2 AND course_id = 12;   -- OPWL-508
+WHERE student_id = 5 AND program_id = 2 AND course_id = 12;   -- OPWL-508 (Overlap)
 
 -- Evan Roberts's degree plan for OPWL MS program (student_id = 6, program_id = 1)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 2  
@@ -517,29 +517,29 @@ WHERE student_id = 6 AND program_id = 1 AND course_id = 12;   -- OPWL-508
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
 WHERE student_id = 6 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
-WHERE student_id = 6 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+WHERE student_id = 6 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)  
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
-WHERE student_id = 6 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 6 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
-WHERE student_id = 6 AND program_id = 1 AND course_id = 3;   -- OPWL-560
+WHERE student_id = 6 AND program_id = 1 AND course_id = 3;   -- OPWL-560 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
 WHERE student_id = 6 AND program_id = 2 AND course_id = 17;   -- OPWL-575
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 6 AND program_id = 1 AND course_id = 2;   -- OPWL-506
+WHERE student_id = 6 AND program_id = 1 AND course_id = 2;   -- OPWL-506 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 6 AND program_id = 1 AND course_id = 6;   -- OPWL-507
+WHERE student_id = 6 AND program_id = 1 AND course_id = 6;   -- OPWL-507 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 6 AND program_id = 1 AND course_id = 12;   -- OPWL-508
+WHERE student_id = 6 AND program_id = 1 AND course_id = 12;   -- OPWL-508 (Overlap)
 
 -- Zoe King's degree plan for OD certificate program (student_id = 7, program_id = 1)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
-WHERE student_id = 7 AND program_id = 2 AND course_id = 1;   -- OPWL-536
+WHERE student_id = 7 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 7 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 7 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
 WHERE student_id = 7 AND program_id = 2 AND course_id = 17;  -- OPWL-575
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 7 AND program_id = 2 AND course_id = 4;   -- OPWL-518
+WHERE student_id = 7 AND program_id = 2 AND course_id = 4;   -- OPWL-518 (Overlap)
 
 -- Levi Powell's degree plan for OPWL MS program (student_id = 8, program_id = 1)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
@@ -561,9 +561,9 @@ WHERE student_id = 8 AND program_id = 1 AND course_id = 11;   -- OPWL-537
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
 WHERE student_id = 8 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
-WHERE student_id = 8 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+WHERE student_id = 8 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 8 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 8 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 
 -- Harper Taylor's degree plan for OPWL MS program (student_id = 9, program_id = 1)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
@@ -593,15 +593,15 @@ WHERE student_id = 9 AND program_id = 1 AND course_id = 12;   -- OPWL-508
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
 WHERE student_id = 9 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
-WHERE student_id = 9 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+WHERE student_id = 9 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 9 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 9 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
-WHERE student_id = 9 AND program_id = 2 AND course_id = 2;   -- OPWL-506
+WHERE student_id = 9 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 9 AND program_id = 2 AND course_id = 4;   -- OPWL-518
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 9 AND program_id = 2 AND course_id = 12;   -- OPWL-508
+WHERE student_id = 9 AND program_id = 2 AND course_id = 12;   -- OPWL-508 (Overlap) 
 
 -- Charles Murphy's degree plan for OPWL MS program (student_id = 10, program_id = 1)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
@@ -621,11 +621,11 @@ WHERE student_id = 10 AND program_id = 1 AND course_id = 10;   -- OPWL-535
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
 WHERE student_id = 10 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 10 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 10 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 10 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+WHERE student_id = 10 AND program_id = 1 AND course_id = 14;   -- OPWL-571 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
-WHERE student_id = 10 AND program_id = 2 AND course_id = 2;   -- OPWL-506
+WHERE student_id = 10 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
 
 -- Insert into enrollments
 INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grade) VALUES
