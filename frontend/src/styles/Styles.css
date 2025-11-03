@@ -75,6 +75,7 @@
 /* Area is within side-panel and below SearchBar */
 .side-panel-results {
   width: 100%;
+  max-height: 85%;
   top: 0px;
   left: 0px;
   border-right: 2px solid var(--main);
