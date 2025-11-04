@@ -15,7 +15,7 @@ export default function AdminCourses() {
   });
   const searchRef = useRef();
 
-  const searchEndpoint = '/courses/search';
+  const searchEndpoint = '/api/courses/search';
 
   /**
    * Handles search results returned from the SearchBar component.
@@ -61,7 +61,7 @@ export default function AdminCourses() {
    */
   const handleAddCourse = async () => {
     try {
-      const response = await fetch('/courses', {
+      const response = await fetch('/api/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseForm)
@@ -83,7 +83,7 @@ export default function AdminCourses() {
    */
   const handleUpdateCourse = async () => {
     try {
-      const response = await fetch(`/courses/${courseForm.id}`, {
+      const response = await fetch(`/api/courses/${courseForm.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseForm)
@@ -103,7 +103,7 @@ export default function AdminCourses() {
 
   const handleDeleteCourse = async () => {
     try {
-      const response = await fetch(`/courses/${selectedCourse.id}`, {
+      const response = await fetch(`/api/courses/${selectedCourse.id}`, {
         method: 'DELETE'
       });
 
