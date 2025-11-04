@@ -21,6 +21,7 @@ router.post("/login", async (req, res) => {
     try {
         const { rows } = await pool.query(
             `SELECT u.user_id,
+                    u.public_id,
                     u.email,
                     u.phone_number,
                     u.first_name,
@@ -63,6 +64,7 @@ router.post("/login", async (req, res) => {
             token: "dev-token",
             user: { 
                 id: user.user_id,
+                public_id: user.public_id,
                 email: user.email,
                 phone_number: user.phone_number,
                 first_name: user.first_name,

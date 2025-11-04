@@ -17,6 +17,8 @@ async function getStudentBySchoolId(schoolStudentId) {
         const result = await pool.query(
             `SELECT s.student_id,
                     s.school_student_id,
+                    u.public_id,
+                    u.user_id,
                     u.first_name,
                     u.last_name,
                     u.email,

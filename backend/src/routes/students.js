@@ -58,7 +58,6 @@ router.get('/search', requireUser, async (req, res) => {
         const roles = await AccessModel.getUserRoles(req.user.user_id);
         const isAdmin = roles.includes('admin');
         const isAdvisor = roles.includes('advisor');
-        const isStudent = roles.includes('student');
 
         let visible = students;
 
@@ -177,22 +176,6 @@ router.get('/:schoolId', async (req, res) => {
                 return res.status(404).json({ message: 'Student not found' });
             }
         }
-        if (userRoles.includes('student')) {
-            const studentUserResult = await StudentModel.getStudentByUserId(currentUser.user_id);
-            const studentUser = studentUserResult && studentUserResult.length > 0 ? studentUserResult[0] : null;
-            if (studentUser && studentUser.school_student_id === schoolId) {
-                return res.json(student);
-            } else {
-                return res.status(404).json({ message: 'Student not found' });
-            }
-        }
-
-        console.log('User:', req.user);
-        console.log('Roles:', userRoles);
-        console.log('Requested schoolId:', schoolId);
-        console.log('Matched student:', student);
-
-        return res.status(403).json({ message: 'Forbidden: You do not have access to this student' });
 
     } catch (error) {
         console.error('Error fetching student:', error);
@@ -236,13 +219,8 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
-        }
-        else if (userRoles.includes('student')) {
-            const studentUserResult = await StudentModel.getStudentByUserId(currentUser.user_id);
-            const studentUser = studentUserResult && studentUserResult.length > 0 ? studentUserResult[0] : null;
-            if (studentUser && studentUser.school_student_id === schoolId) {
-                hasAccess = true;
-            }
+        } else if (userRoles.includes('student')) {
+            hasAccess = currentUser.user_id === student.user_id;
         }
 
         if (hasAccess) {
@@ -321,11 +299,7 @@ router.get('/:schoolId/programs', async (req, res) => {
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
         } else if (userRoles.includes('student')) {
-            const studentUserResult = await StudentModel.getStudentByUserId(currentUser.user_id);
-            const studentUser = studentUserResult && studentUserResult.length > 0 ? studentUserResult[0] : null;
-            if (studentUser && studentUser.school_student_id === schoolId) {
-                hasAccess = true;
-            }
+            hasAccess = currentUser.user_id === student.user_id;
         }
 
         if (hasAccess) {
@@ -396,6 +370,8 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
+        } else if (userRoles.includes('student')) {
+            hasAccess = currentUser.user_id === student.user_id;
         }
 
         if (!hasAccess) {
@@ -455,63 +431,6 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
 
     } catch (error) {
         console.error('Error updating course status in degree plan:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
-
-router.get('/:schoolId/programs', async (req, res) => {
-    const { schoolId } = req.params;
-
-    try {
-        // mock user for development if middleware isn't setting req.user yet
-        req.user = req.user || { user_id: 1 };
-        const currentUser = req.user;
-        if (!currentUser || !currentUser.user_id) {
-            return res.status(401).json({ message: 'Unauthorized: No user info' });
-        }
-
-        // get student by schoolId
-        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
-        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
-
-        if (!student) {
-            return res.status(404).json({ message: 'Student not found' });
-        }
-
-        // check access permissions
-        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
-        let hasAccess = false;
-
-        if (userRoles.includes('admin')) {
-            hasAccess = true;
-        } else if (userRoles.includes('advisor')) {
-            // advisor can view if assigned to the student
-            const { rows } = await pool.query(
-                `SELECT 1
-                 FROM advisors a
-                 JOIN advising_relations ar ON ar.advisor_id = a.advisor_id
-                 WHERE a.user_id = $1 AND ar.student_id = $2
-                 LIMIT 1`,
-                [currentUser.user_id, student.student_id]
-            );
-            hasAccess = rows.length > 0;
-        } else if (userRoles.includes('student')) {
-            // allow student to view their own record (compare public/school id)
-            const userPublicId = currentUser.public_id || currentUser.school_student_id || currentUser.publicId || null;
-            if (userPublicId && String(userPublicId) === String(schoolId)) {
-                hasAccess = true;
-            }
-        }
-
-        if (!hasAccess) {
-            return res.status(403).json({ message: 'Forbidden: You do not have access to this student' });
-        }
-
-        const programs = await StudentModel.getProgramsBySchoolStudentId(schoolId) || [];
-        return res.json({ programs });
-    } catch (error) {
-        console.error('Error fetching student programs:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
