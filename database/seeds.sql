@@ -85,9 +85,9 @@ INSERT INTO user_roles (user_id, role_id) VALUES
 (8, 3), -- Maya Ramos (Student)
 (9, 3), -- Evan Roberts (Student)
 (10, 3), -- Zoe King (Student)
-(11, 3), -- Levi Powell (Student)
-(12, 3), -- Harper Taylor (Student)
-(13, 3), -- Charles Murphy (Student)
+(11, 3), -- Levi Powell (Student - student who needs an updated plan)
+(12, 3), -- Harper Taylor (Student - has not applied for graduation but should)
+(13, 3), -- Charles Murphy (Student - needs advisment for next semester)
 (14, 4); -- Accounting User
 
 -- Insert advisors
@@ -149,8 +149,7 @@ INSERT INTO advising_relations (advisor_id, student_id) VALUES
 (2, 8), -- Levi Powell assigned to John Smith
 (1, 9), -- Harper Taylor assigned to Jane Doe
 (2, 9), -- Harper Taylor assigned to John Smith
-(1, 10), -- Charles Murphy assigned to Jane Doe
-(2, 10); -- Charles Murphy assigned to John Smith
+(1, 10); -- Charles Murphy assigned to Jane Doe
 
 -- Insert courses
 -- Note: `course_id` is the primary key (integer), and course_code is a unique string identifier
@@ -415,6 +414,10 @@ UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 3 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 3 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 8
+WHERE student_id = 3 AND program_id = 1 AND course_id = 6;   -- OPWL-507
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 3 AND program_id = 1 AND course_id = 3;   -- OPWL-560
 
 -- Gavin Diaz's degree plan for OPWL MS program (student_id = 4, program_id = 1)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
@@ -444,16 +447,185 @@ WHERE student_id = 4 AND program_id = 1 AND course_id = 12;   -- OPWL-508
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
 WHERE student_id = 4 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
-WHERE student_id = 4 AND program_id = 2 AND course_id = 14;  -- OPWL-571
+WHERE student_id = 4 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
 UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
-WHERE student_id = 4 AND program_id = 2 AND course_id = 15;  -- OPWL-577
+WHERE student_id = 4 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
 UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
-WHERE student_id = 4 AND program_id = 2 AND course_id = 2;   -- OPWL-506
+WHERE student_id = 4 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
 WHERE student_id = 4 AND program_id = 2 AND course_id = 4;   -- OPWL-518
 UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
-WHERE student_id = 4 AND program_id = 2 AND course_id = 12;   -- OPWL-508
+WHERE student_id = 4 AND program_id = 2 AND course_id = 12;   -- OPWL-508 (Overlap)
 
+-- Maya Ramos's degree plan for OPWL MS program (student_id = 5, program_id = 1)
+ UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 5 AND program_id = 1 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 5 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 5 AND program_id = 1 AND course_id = 16;   -- OPWL-573
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 5 AND program_id = 1 AND course_id = 9;   -- OPWL-530
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 5 AND program_id = 1 AND course_id = 7;   -- OPWL-531
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 5 AND program_id = 1 AND course_id = 10;   -- OPWL-535
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 5 AND program_id = 1 AND course_id = 2;   -- OPWL-506
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 5 AND program_id = 1 AND course_id = 12;   -- OPWL-508
+
+-- Maya Ramos's degree plan for OD certificate program (student_id = 5, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 5 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 5 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 5 AND program_id = 2 AND course_id = 7;   -- OPWL-531
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 5 AND program_id = 2 AND course_id = 10;   -- OPWL-535 (Overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 5 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 5 AND program_id = 2 AND course_id = 12;   -- OPWL-508 (Overlap)
+
+-- Evan Roberts's degree plan for OPWL MS program (student_id = 6, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2  
+WHERE student_id = 6 AND program_id = 1 AND course_id = 8;   -- OPWL-529
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 6 AND program_id = 1 AND course_id = 10;   -- OPWL-535
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 6 AND program_id = 1 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 6 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 6 AND program_id = 1 AND course_id = 3;   -- OPWL-560
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 6 AND program_id = 1 AND course_id = 15;   -- OPWL-577
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 6 AND program_id = 1 AND course_id = 17;   -- OPWL-575
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 6 AND program_id = 1 AND course_id = 11;   -- OPWL-537
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 6 AND program_id = 1 AND course_id = 2;   -- OPWL-506
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 6 AND program_id = 1 AND course_id = 6;   -- OPWL-507
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 6 AND program_id = 1 AND course_id = 12;   -- OPWL-508
+
+--Evan Roberts's degree plan for OD certificate program (student_id = 6, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 6 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 6 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)  
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 6 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 6 AND program_id = 1 AND course_id = 3;   -- OPWL-560 (Overlap)
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 6 AND program_id = 2 AND course_id = 17;   -- OPWL-575
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 6 AND program_id = 1 AND course_id = 2;   -- OPWL-506 (Overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 6 AND program_id = 1 AND course_id = 6;   -- OPWL-507 (Overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 6 AND program_id = 1 AND course_id = 12;   -- OPWL-508 (Overlap)
+
+-- Zoe King's degree plan for OD certificate program (student_id = 7, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 7 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 7 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 7 AND program_id = 2 AND course_id = 17;  -- OPWL-575
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 7 AND program_id = 2 AND course_id = 4;   -- OPWL-518 (Overlap)
+
+-- Levi Powell's degree plan for OPWL MS program (student_id = 8, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 8 AND program_id = 1 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 8 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 8 AND program_id = 1 AND course_id = 15;   -- OPWL-577
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 8 AND program_id = 1 AND course_id = 19;   -- OPWL-525
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 8 AND program_id = 1 AND course_id = 8;   -- OPWL-529
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 8 AND program_id = 1 AND course_id = 10;   -- OPWL-535
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 8 AND program_id = 1 AND course_id = 11;   -- OPWL-537
+
+-- Levi Powell's degree plan for OD certificate program (student_id = 8, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 8 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 2
+WHERE student_id = 8 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 8 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
+
+-- Harper Taylor's degree plan for OPWL MS program (student_id = 9, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 9 AND program_id = 1 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 9 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 9 AND program_id = 1 AND course_id = 15;   -- OPWL-577
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 9 AND program_id = 1 AND course_id = 19;   -- OPWL-525
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 9 AND program_id = 1 AND course_id = 8;   -- OPWL-529
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 9 AND program_id = 1 AND course_id = 10;   -- OPWL-535
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 6
+WHERE student_id = 9 AND program_id = 1 AND course_id = 11;   -- OPWL-537
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 9 AND program_id = 1 AND course_id = 3;   -- OPWL-560
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 9 AND program_id = 1 AND course_id = 2;   -- OPWL-506
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 9 AND program_id = 1 AND course_id = 6;   -- OPWL-507
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 9 AND program_id = 1 AND course_id = 12;   -- OPWL-508
+
+-- Harper Taylor's degree plan for OD certificate program (student_id = 9, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 9 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 4
+WHERE student_id = 9 AND program_id = 2 AND course_id = 14;  -- OPWL-571 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 9 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 9 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 9 AND program_id = 2 AND course_id = 4;   -- OPWL-518
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 9 AND program_id = 2 AND course_id = 12;   -- OPWL-508 (Overlap) 
+
+-- Charles Murphy's degree plan for OPWL MS program (student_id = 10, program_id = 1)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 10 AND program_id = 1 AND course_id = 1;   -- OPWL-536
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 10 AND program_id = 1 AND course_id = 15;   -- OPWL-577
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 10 AND program_id = 1 AND course_id = 14;   -- OPWL-571
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 10 AND program_id = 1 AND course_id = 2;   -- OPWL-506
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 10 AND program_id = 1 AND course_id = 8;   -- OPWL-529
+UPDATE degree_plans SET course_status = 'Planned', semester_id = 8
+WHERE student_id = 10 AND program_id = 1 AND course_id = 10;   -- OPWL-535
+
+-- Charles Murphy's degree plan for OD certificate program (student_id = 10, program_id = 2)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 10 AND program_id = 2 AND course_id = 1;   -- OPWL-536 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 10 AND program_id = 2 AND course_id = 15;  -- OPWL-577 (Overlap)
+UPDATE degree_plans SET course_status = 'Completed', semester_id = 5
+WHERE student_id = 10 AND program_id = 1 AND course_id = 14;   -- OPWL-571 (Overlap)
+UPDATE degree_plans SET course_status = 'In Progress', semester_id = 7
+WHERE student_id = 10 AND program_id = 2 AND course_id = 2;   -- OPWL-506 (Overlap)
 
 -- Insert into enrollments
 INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grade) VALUES
@@ -501,7 +673,86 @@ INSERT INTO enrollments (enrollment_id, student_id, course_id, semester_id, grad
 
 -- Gavin Diaz planned enrollments (Spring 2026)
 (25, 4, 6, 8, NULL), -- Gavin Diaz planned OPWL-507 in Spring 2026
-(26, 4, 12, 8, NULL); -- Gavin Diaz planned OPWL-508 in Spring 2026
+(26, 4, 12, 8, NULL), -- Gavin Diaz planned OPWL-508 in Spring 2026
+
+--Maya Ramos Completed enrollments (Spring 2025 and Summer 2025)
+(27, 5, 1, 5, 'A'), -- Maya Ramos completed OPWL-536 in Spring 2025
+(28, 5, 14, 5, 'A-'), -- Maya Ramos completed OPWL-571 in Spring 2025
+(29, 5, 16, 6, 'B+'), -- Maya Ramos completed OPWL-573 in Summer 2025
+
+-- Maya Ramos in-progress enrollments (Fall 2025)
+(30, 5, 9, 7, NULL), -- Maya Ramos in-progress OPWL-530 in Fall 2025
+(31, 5, 7, 7, NULL), -- Maya Ramos in-progress OPWL-531 in Fall 2025
+(32, 5, 10, 7, NULL), -- Maya Ramos in-progress OPWL-535 in Fall 2025
+
+-- Maya Ramos planned enrollments (Spring 2026)
+(33, 5, 2, 8, NULL), -- Maya Ramos planned OPWL-506 in Spring 2026
+(34, 5, 12, 8, NULL), -- Maya Ramos planned OPWL-508 in Spring 2026
+
+-- Evan Roberts Completed enrollments (Spring 2024, Fall 2024, Spring 2025, Summer 2025)
+(35, 6, 8, 2, 'A'), -- Evan Roberts completed OPWL-529 in Spring 2024
+(36, 6, 10, 5, 'A-'), -- Evan Roberts completed OPWL-535 in Spring 2025
+(37, 6, 1, 2, 'B+'), -- Evan Roberts completed OPWL-536 in Spring 2024
+(38, 6, 14, 2, 'A-'), -- Evan Roberts completed OPWL-571 in Spring 2024
+(39, 6, 3, 4, 'B-'), -- Evan Roberts completed OPWL-560 in Fall 2024
+(40, 6, 15, 6, 'B+'), -- Evan Roberts completed OPWL-577 in Summer 2025
+(41, 6, 17, 6, 'A'), -- Evan Roberts completed OPWL-575 in Summer 2025
+
+-- Evan Roberts in-progress enrollments (Fall 2025)
+(42, 6, 11, 7, NULL), -- Evan Roberts in-progress OPWL-537 in Fall 2025
+
+-- Evan Roberts planned enrollments (Spring 2026)
+(43, 6, 2, 8, NULL), -- Evan Roberts planned OPWL-506 in Spring 2026
+(44, 6, 6, 8, NULL), -- Evan Roberts planned OPWL-507 in Spring 2026
+(45, 6, 12, 8, NULL), -- Evan Roberts planned OPWL-508 in Spring 2026
+
+--Zoe King Completed enrollments (Fall 2024 and Spring 2025)
+(46, 7, 1, 4, 'A'), -- Zoe King completed OPWL-536 in Fall 2024
+(47, 7, 15, 5, 'A-'), -- Zoe King completed OPWL-577 in Spring 2025
+
+-- Zoe King in-progress enrollments (Fall 2025)
+(48, 7, 17, 7, NULL), -- Zoe King in-progress OPWL-575 in Fall 2025
+
+-- Zoe King planned enrollments (Spring 2026)
+(49, 7, 4, 8, NULL), -- Zoe King planned OPWL-518 in Spring 2026
+
+-- Levi Powell Completed enrollments (Spring 2024, Fall 2024, Spring 2025, Summer 2025)
+(50, 8, 1, 2, 'A'), -- Levi Powell completed OPWL-536 in Spring 2024
+(51, 8, 14, 2, 'A-'), -- Levi Powell completed OPWL-571 in Spring 2024
+(52, 8, 15, 5, 'B+'), -- Levi Powell completed OPWL-577 in Spring 2025
+(53, 8, 19, 5, 'A'), -- Levi Powell completed OPWL-525 in Spring 2025
+(54, 8, 8, 4, 'B'), -- Levi Powell completed OPWL-529 in Fall 2024
+(55, 8, 10, 4, 'B-'), -- Levi Powell completed OPWL-535 in Fall 2024
+(56, 8, 11, 4, 'B+'), -- Levi Powell completed OPWL-537 in Fall 2024
+
+-- Harper Taylor Completed enrollments (Fall 2024, Spring 2025, Summer 2025)
+(57, 9, 1, 4, 'B'), -- Harper Taylor completed OPWL-536 in Fall 2024
+(58, 9, 14, 4, 'B-'), -- Harper Taylor completed OPWL-571 in Fall 2024
+(59, 9, 15, 5, 'A+'), -- Harper Taylor completed OPWL-577 in Spring 2025
+(60, 9, 19, 5, 'A-'), -- Harper Taylor completed OPWL-525 in Spring 2025
+(61, 9, 8, 6, 'A-'), -- Harper Taylor completed OPWL-529 in Summer 2025
+(62, 9, 10, 6, 'A-'), -- Harper Taylor completed OPWL-535 in Summer 2025
+(63, 9, 11, 6, 'B+'), -- Harper Taylor completed OPWL-537 in Summer 2025
+
+-- Harper Taylor in-progress enrollments (Fall 2025)
+(64, 9, 3, 7, NULL), -- Harper Taylor in-progress OPWL-560 in Fall 2025
+(65, 9, 2, 7, NULL), -- Harper Taylor in-progress OPWL-506 in Fall 2025
+
+-- Harper Taylor planned enrollments (Spring 2026)
+(66, 9, 6, 8, NULL), -- Harper Taylor planned OPWL-507 in Spring 2026
+(67, 9, 12, 8, NULL), -- Harper Taylor planned OPWL-508 in Spring 2026
+
+-- Charles Murphy Completed enrollments (Spring 2025 and Summer 2025)
+(68, 10, 1, 5, 'A'), -- Charles Murphy completed OPWL-536 in Spring 2025
+(69, 10, 15, 5, 'A-'), -- Charles Murphy completed OPWL-577 in Spring 2025
+(70, 10, 14, 5, 'B+'), -- Charles Murphy completed OPWL-571 in Spring 2025
+
+-- Charles Murphy in-progress enrollments (Fall 2025)
+(71, 10, 2, 7, NULL), -- Charles Murphy in-progress OPWL-506 in Fall 2025
+(72, 10, 8, 7, NULL), -- Charles Murphy in-progress OPWL-529 in Fall 2025
+
+-- Charles Murphy planned enrollments (Spring 2026)
+(73, 10, 10, 8, NULL); -- Charles Murphy planned OPWL-535 in Spring 2026
 
 -- Insert into certificates
 INSERT INTO certificates (certificate_id, certificate_name, certificate_short_name, program_id) VALUES
@@ -511,7 +762,14 @@ INSERT INTO certificates (certificate_id, certificate_name, certificate_short_na
 INSERT INTO student_certificates (student_id, certificate_id, cert_status) VALUES
 (1, 1, 'in_progress'), -- Alice Johnson pursuing OD certificate
 (2, 1, 'in_progress'), -- Bob Williams pursuing OD certificate
-(3, 1, 'in_progress'); -- Nora Castillo pursuing OD certificate
+(3, 1, 'in_progress'), -- Nora Castillo pursuing OD certificate
+(4, 1, 'in_progress'), -- Gavin Diaz pursuing OD certificate
+(5, 1, 'in_progress'), -- Maya Ramos pursuing OD certificate
+(6, 1, 'in_progress'), -- Evan Roberts pursuing OD certificate
+(7, 1, 'in_progress'), -- Zoe King pursuing OD certificate
+(8, 1, 'in_progress'), -- Levi Powell pursuing OD certificate
+(9, 1, 'in_progress'), -- Harper Taylor pursuing OD certificate
+(10, 1, 'in_progress'); -- Charles Murphy pursuing OD certificate
 
 -- Insert into certificate_courses for OD Certificate Program (certificate overlap with program requirements)
 INSERT INTO certificate_courses (certificate_id, course_id) VALUES
@@ -534,3 +792,7 @@ INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_tex
 SELECT setval('courses_course_id_seq', (SELECT MAX(course_id) FROM courses));
 -- Sets the 'users_user_id_seq' sequence to the current max user_id in 'users' to prevent ID conflicts when inserting.
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users) + 1);
+-- Sets the 'students_student_id_seq' sequence to the current max student_id in 'students' to prevent ID conflicts when inserting.
+SELECT setval('students_student_id_seq', (SELECT MAX(student_id) FROM students) + 1);
+-- Sets the 'advisors_advisor_id_seq' sequence to the current max advisor_id in 'advisors' to prevent ID conflicts when inserting.
+SELECT setval('advisors_advisor_id_seq', (SELECT MAX(advisor_id) FROM advisors) + 1);

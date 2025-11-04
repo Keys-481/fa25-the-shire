@@ -29,6 +29,16 @@ export default function AdminUsers() {
   const [newUserPassword, setNewUserPassword] = useState('');
   const [defaultView, setdefaultView] = useState('');
   const [selectedRoles, setSelectedRoles] = useState(new Set());
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+  const [allPermissions, setAllPermissions] = useState([]);
+  const [rolePermissionMap, setRolePermissionMap] = useState({});
+  const [assignedStudents, setAssignedStudents] = useState([]);
+  const [manualStudents, setManualStudents] = useState([]);
+  const [assignedAdvisors, setAssignedAdvisors] = useState([]);
+
 
   const searchEndpoint = '/api/users/search';
 
@@ -76,7 +86,9 @@ export default function AdminUsers() {
 
           const toggles = {};
           roles.forEach(role => {
-            toggles[role] = userRoles.includes(role);
+            const normalizedRole = role.role_name.toLowerCase();
+            const hasRole = userRoles.some(r => r.toLowerCase() === normalizedRole);
+            toggles[role.role_name] = hasRole;
           });
           setRoleToggles(toggles);
         } catch (err) {
@@ -87,6 +99,78 @@ export default function AdminUsers() {
 
     fetchUserRoles();
   }, [selectedUser, roles]);
+
+  /**
+   * Fetches basic details for the selected user.
+   * Populates edit fields when a user is selected.
+   */
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (selectedUser) {
+        const res = await fetch(`/api/users/${selectedUser.id}`);
+        const data = await res.json();
+        setEditName(data.name);
+        setEditEmail(data.email);
+        setEditPhone(data.phone_number);
+        setdefaultView(data.default_view);
+      }
+    };
+    fetchUserDetails();
+  }, [selectedUser]);
+
+  /**
+   * Fetches all permissions and maps role permissions.
+   * Updates state when roles change.
+   */
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const permsRes = await fetch('/api/users/permissions');
+        const perms = await permsRes.json();
+        setAllPermissions(perms);
+      } catch (err) {
+        console.error('Failed to fetch all permissions:', err);
+      }
+
+      const map = {};
+      for (const role of roles) {
+        try {
+          const res = await fetch(`/api/users/roles/${role.role_name}/permissions`);
+          const perms = await res.json();
+          map[role.role_name] = perms;
+        } catch (err) {
+          console.error(`Failed to fetch permissions for ${role.role_name}:`, err);
+          map[role.role_name] = [];
+        }
+      }
+      setRolePermissionMap(map);
+    };
+
+    if (roles.length > 0) {
+      fetchPermissions();
+    }
+  }, [roles]);
+
+  /**
+   * Fetches advising relationships for the selected user.
+   * Updates assigned students and advisors.
+   */
+  useEffect(() => {
+    const fetchAdvising = async () => {
+      if (selectedUser) {
+        const res = await fetch(`/api/users/${selectedUser.id}/advising`);
+        const data = await res.json();
+
+        // Preserve manual additions
+        const existingIds = new Set(data.students.map(s => s.user_id));
+        const preservedManuals = manualStudents.filter(s => !existingIds.has(s.user_id));
+
+        setAssignedStudents([...data.students, ...preservedManuals]);
+        setAssignedAdvisors(data.advisors || []);
+      }
+    };
+    fetchAdvising();
+  }, [selectedUser]);
 
   /**
    * Refreshes user and role data from the backend.
@@ -165,24 +249,62 @@ export default function AdminUsers() {
       .map(([role]) => role);
 
     try {
-      const res = await fetch(`/api/users/${selectedUser.id}/roles`, {
+      // 1. Update user details
+      const userRes = await fetch(`/api/users/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editName,
+          email: editEmail,
+          phone: editPhone,
+          password: editPassword,
+          default_view: defaultView
+        })
+      });
+
+      if (!userRes.ok) {
+        alert('Failed to update user details');
+        return;
+      }
+
+      // 2. Update roles
+      const rolesRes = await fetch(`/api/users/${selectedUser.id}/roles`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ roles: updatedRoles })
       });
 
-      if (res.ok) {
-        alert('Roles updated successfully');
-        setSearchResults([]);
-        setSelectedUser(null);
-        await refreshData();
-      } else {
+      if (!rolesRes.ok) {
         alert('Failed to update roles');
+        return;
       }
+
+      // 3. Update advising relationships
+      const allStudentAssignments = [...assignedStudents, ...manualStudents];
+      const advisingRes = await fetch(`/api/users/${selectedUser.id}/advising`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          advisorIds: assignedAdvisors.map(a => a.user_id),
+          studentIds: allStudentAssignments.map(s => s.user_id)
+        })
+      });
+
+
+      if (!advisingRes.ok) {
+        alert('Failed to update advising relationships');
+        return;
+      }
+
+      alert('User updated successfully');
+      setSearchResults([]);
+      setSelectedUser(null);
+      await refreshData();
     } catch (err) {
       console.error('Save error:', err);
-      alert('Error saving roles');
+      alert('Error saving user');
     }
+    setManualStudents([]);
   };
 
   /**
@@ -270,12 +392,32 @@ export default function AdminUsers() {
           <div className='section-results'>
             {selectedUser ? (
               <EditUser
-                selectedUser={selectedUser}
+                // selectedUser={selectedUser}
                 roles={roles}
                 roleToggles={roleToggles}
+                setRoleToggles={setRoleToggles}
                 handleToggle={handleToggle}
                 handleSave={handleSave}
                 handleDelete={handleDelete}
+                setSelectedUser={setSelectedUser}
+                defaultView={defaultView}
+                setdefaultView={setdefaultView}
+                editName={editName}
+                setEditName={setEditName}
+                editEmail={editEmail}
+                setEditEmail={setEditEmail}
+                editPhone={editPhone}
+                setEditPhone={setEditPhone}
+                editPassword={editPassword}
+                setEditPassword={setEditPassword}
+                allPermissions={allPermissions}
+                rolePermissionMap={rolePermissionMap}
+                assignedStudents={assignedStudents}
+                setAssignedStudents={setAssignedStudents}
+                manualStudents={manualStudents}
+                setManualStudents={setManualStudents}
+                assignedAdvisors={assignedAdvisors}
+                setAssignedAdvisors={setAssignedAdvisors}
               />
             ) : isAddingUser ? (
               <AddUser

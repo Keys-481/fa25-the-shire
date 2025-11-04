@@ -122,15 +122,15 @@ router.put('/:id/roles', async (req, res) => {
  * @returns {Array<string>} Array of permission names.
  */
 router.get('/roles/:roleName/permissions', async (req, res) => {
-  const roleName = req.params.roleName;
+    const roleName = req.params.roleName;
 
-  try {
-    const permissions = await UserModel.getRolePermissions(roleName);
-    res.json(permissions);
-  } catch (error) {
-    console.error(`Error fetching permissions for role ${roleName}:`, error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    try {
+        const permissions = await UserModel.getRolePermissions(roleName);
+        res.json(permissions);
+    } catch (error) {
+        console.error(`Error fetching permissions for role ${roleName}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 
@@ -148,14 +148,14 @@ router.get('/roles/:roleName/permissions', async (req, res) => {
  * @returns {Object} Success status and new user ID.
  */
 router.post('/', async (req, res) => {
-  const { name, email, phone, password, roles, default_view } = req.body;
-  try {
-    const result = await UserModel.addUser(name, email, phone, password, default_view, roles);
-    res.json({ success: true, userId: result.userId });
-  } catch (error) {
-    console.error('Error adding user:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    const { name, email, phone, password, roles, default_view } = req.body;
+    try {
+        const result = await UserModel.addUser(name, email, phone, password, default_view, roles);
+        res.json({ success: true, userId: result.userId });
+    } catch (error) {
+        console.error('Error adding user:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 /**
@@ -184,14 +184,119 @@ router.delete('/:id', async (req, res) => {
  * @returns {Array<string>} Array of permission names.
  */
 router.get('/permissions', async (req, res) => {
-  try {
-    const result = await UserModel.getAllPermissions();
-    const permissions = result.map(p => p.permission_name);
-    res.json(permissions);
-  } catch (error) {
-    console.error('Error fetching all permissions:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+    try {
+        const result = await UserModel.getAllPermissions();
+        const permissions = result.map(p => p.permission_name);
+        res.json(permissions);
+    } catch (error) {
+        console.error('Error fetching all permissions:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * PUT /:id
+ * Updates user details and default view.
+ *
+ * @param {string} id - User ID.
+ * @body {string} name - Full name.
+ * @body {string} email - Email address.
+ * @body {string} phone - Phone number.
+ * @body {string} password - Plaintext password (optional).
+ * @body {string} default_view - Role name for default view.
+ */
+router.get('/:id', async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const result = await UserModel.getUserById(userId);
+        res.json(result);
+    } catch (error) {
+        console.error(`Error fetching user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * GET /:id/advising
+ * Retrieves advising relationships for a specific user.
+ *
+ * @param {string} id - User ID.
+ * @returns {Object} Object containing arrays of assigned advisors and students.
+ */
+router.get('/:id/advising', async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const relations = await UserModel.getAdvisingRelations(userId);
+        res.json(relations);
+    } catch (error) {
+        console.error(`Error fetching advising relations for user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * POST /:id/advising
+ * Updates advising relationships for a specific user.
+ * 
+ * @param {string} id - User ID.
+ * @body {Array<string>} advisorIds - Array of advisor user IDs to assign.
+ * @body {Array<string>} studentIds - Array of student user IDs to assign.
+ */
+router.post('/:id/advising', async (req, res) => {
+    const userId = req.params.id;
+    const { advisorIds, studentIds } = req.body;
+
+    try {
+        await UserModel.updateAdvisingRelations(userId, advisorIds, studentIds);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(`Error updating advising relations for user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * PUT /:id
+ * Updates user details and default view.
+ *
+ * @param {string} id - User ID.
+ * @body {string} name - Full name.
+ * @body {string} email - Email address.
+ * @body {string} phone - Phone number.
+ * @body {string} password - Plaintext password (optional).
+ * @body {string} default_view - Role name for default view.
+ */
+router.put('/:id', async (req, res) => {
+    const userId = req.params.id;
+    const { name, email, phone, password, default_view } = req.body;
+
+    try {
+        await UserModel.updateUserDetails(userId, name, email, phone, password, default_view);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(`Error updating user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+/**
+ * GET /public/:publicId
+ * Retrieves basic user details by public ID.
+ * 
+ * @param {string} publicId - Public user ID.
+ * @returns {Object} User object with user_id and name.
+ */
+router.get('/public/:publicId', async (req, res) => {
+    const publicId = req.params.publicId;
+    try {
+        const result = await UserModel.getUserByPublicId(publicId);
+        if (!result) return res.status(404).json({ error: 'User not found' });
+        res.json(result);
+    } catch (error) {
+        console.error(`Error fetching user ${publicId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 module.exports = router;
