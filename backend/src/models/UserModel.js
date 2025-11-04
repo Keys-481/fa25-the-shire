@@ -393,6 +393,9 @@ async function updateUserDetails(userId, name, email, phone, password, defaultVi
 async function getUserById(userId) {
     const result = await pool.query(
         `SELECT 
+            u.public_id,
+            u.first_name,
+            u.last_name,
             CONCAT(u.first_name, ' ', u.last_name) AS name,
             u.email,
             u.phone_number,
@@ -448,7 +451,7 @@ async function getAdvisingRelations(userId) {
         let advisors = [];
         if (studentId) {
             const advisorRes = await client.query(
-                `SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name
+                `SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name, u.email, u.phone_number
                 FROM advising_relations ar
                 JOIN advisors a ON ar.advisor_id = a.advisor_id
                 JOIN users u ON a.user_id = u.user_id

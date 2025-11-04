@@ -1,6 +1,49 @@
 const express = require('express');
 const router = express.Router();
+const AccessModel = require('../models/AccessModel');
 const UserModel = require('../models/UserModel');
+
+
+/**
+ * GET /me
+ * Retrieves the currently authenticated user's profile.
+ *
+ * @returns {Object} User object with ID, name, email, phone, roles, and default view.
+ */
+/**
+ * GET /me
+ * Retrieves the currently authenticated user's profile.
+ */
+router.get('/me', async (req, res) => {
+    const userId = req.user?.user_id;
+    if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: No user found in request' });
+    }
+
+    try {
+        const result = await UserModel.getUserById(userId);
+        if (!result) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const roles = await AccessModel.getUserRoles(userId);
+
+        res.json({
+            user_id: userId,
+            id: result.public_id,
+            name: `${result.first_name} ${result.last_name}`,
+            email: result.email,
+            phone: result.phone_number,
+            default_view: result.default_view,
+            roles: roles
+        });
+    } catch (error) {
+        console.error(`Error fetching current user ${userId}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 
 /**
  * GET /search
@@ -132,9 +175,6 @@ router.get('/roles/:roleName/permissions', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-
-
 
 /**
  * POST /
