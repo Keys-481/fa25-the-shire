@@ -51,7 +51,7 @@ export default function ReportLayout({ courseCode }) {
       const semesters = Array.isArray(getNextFourSemesters()) ? getNextFourSemesters() : [];
 
       const res = await fetch(
-        `/courses/enrollments?courseCode=${encodeURIComponent(q)}`
+        `/api/courses/enrollments?courseCode=${encodeURIComponent(q)}`
       );
 
       if (!res.ok) {
