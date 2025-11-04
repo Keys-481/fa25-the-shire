@@ -780,8 +780,19 @@ INSERT INTO certificate_courses (certificate_id, course_id) VALUES
 (1, 7); -- OPWL-531
 
 
+-- Insert into degree_plan_comments
+INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_text) VALUES
+(1, 1, 2, 'Make sure you register for courses soon!'), -- Need better comment examples
+(2, 2, 3, 'Remember to check prerequisites before enrolling.'),
+(2, 2, 5, 'Very long comment to test the text field in the degree_plan_comments table. This comment goes on and on to ensure that the database can handle longer text entries without any issues. We want to make sure that advisors can leave detailed notes for students regarding their degree plans, course selections, and any other relevant information that may assist them in their academic journey.');
+
+
 -- TODO: Delete later this is a temporary measure
 -- Sets the 'courses_course_id_seq' sequence to the current max course_id in 'courses' to prevent ID conflicts when inserting.
 SELECT setval('courses_course_id_seq', (SELECT MAX(course_id) FROM courses));
 -- Sets the 'users_user_id_seq' sequence to the current max user_id in 'users' to prevent ID conflicts when inserting.
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users) + 1);
+-- Sets the 'students_student_id_seq' sequence to the current max student_id in 'students' to prevent ID conflicts when inserting.
+SELECT setval('students_student_id_seq', (SELECT MAX(student_id) FROM students) + 1);
+-- Sets the 'advisors_advisor_id_seq' sequence to the current max advisor_id in 'advisors' to prevent ID conflicts when inserting.
+SELECT setval('advisors_advisor_id_seq', (SELECT MAX(advisor_id) FROM advisors) + 1);

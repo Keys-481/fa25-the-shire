@@ -7,9 +7,16 @@
   --completed: #cecece; /* Light gray */
   --in-progress: #afebaf; /* Light green */
   --planned: #fff1b2; /* Light yellow */
+  --light-blue: #ecf2fc; /* Light blue for certificate alert and comment items */
 }
 
+html, body {
+  height: 100%;
+}
 
+body {
+  margin: 0;
+}
 
 /************************/
 /*     Class Styles     */
@@ -23,6 +30,7 @@
   min-height: 100vh;
   width: 100%;
   background-color: transparent;
+  overflow: hidden;
 }
 
 /* Area includes everything but NavBar */
@@ -75,6 +83,7 @@
 /* Area is within side-panel and below SearchBar */
 .side-panel-results {
   width: 100%;
+  max-height: 85%;
   top: 0px;
   left: 0px;
   border-right: 2px solid var(--main);
@@ -559,7 +568,7 @@ td {
 .certificate-alert {
   margin: 20px 30px;
   padding: 16px 20px;
-  background-color: #ecf2fc;
+  background-color: var(--light-blue);
   border: 1px solid #cfd8e6;
   border-left: 4px solid var(--accent);
   border-radius: 6px;
@@ -750,6 +759,66 @@ input:checked+.slider:before {
   width: fit-content;
 }
 
+/** Login and Logout Styles **/
+
+.window.login-body {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--background);
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border: 1.5px solid var(--main);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  padding: 24px 28px;
+}
+
+.login-title {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-size: 22px;
+  color: var(--main);
+}
+
+.login-form {
+  display: grid;
+  gap: 12px;
+}
+
+.login-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--main);
+}
+
+.login-form input {
+  padding: 10px 12px;
+  border: 1px solid #cfd8e6;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--accent);
+  outline: none;
+}
+
+.login-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(9, 52, 122, 0.15);
+}
+
 .logout-button {
   position: fixed;
   top: 12px;
@@ -761,4 +830,116 @@ input:checked+.slider:before {
   font-weight: 600;
   cursor: pointer;
   z-index: 1000;
+}
+
+/* Comments Styles */
+.degree-plan-comments-wrapper {
+  display: flex;
+  gap: 20px;
+  align-items: flext-start;
+}
+
+.comments-container {
+  background-color: var(--background);
+  border-left: 1px solid var(--secondary);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.comments-container h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--main);
+  margin-bottom: 10px;
+}
+
+.comment-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.comment-form {
+  display: flex;
+  gap: 8px;
+}
+
+.comment-form textarea {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 14px;
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  resize: vertical;
+  min-height: 40px;
+  color: var(--main);
+}
+
+.comment-form button {
+  background-color: var(--accent);
+  color: var(--background);
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  width: auto;
+}
+
+.comment-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comments-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.comment-item {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--light-blue);
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  gap: 4px;
+}
+
+.comment-author {
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.comment-timestamp {
+  font-size: 11px;
+  color: var(--secondary);
+  margin-bottom: 4px;
+  align-self: flex-end;
+}
+
+.comment-text {
+  color: var(--main);
+}
+
+.no-comments {
+  font-style: italic;
+  color: var(--secondary);
+  list-style-type: none;
 }

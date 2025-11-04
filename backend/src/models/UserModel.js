@@ -108,22 +108,58 @@ async function updateUserRoles(userId, roles) {
     try {
         await client.query('BEGIN');
 
+        // Get default view role ID
         const defaultViewRes = await client.query(
             `SELECT default_view FROM users WHERE user_id = $1`,
             [userId]
         );
         const defaultViewId = defaultViewRes.rows[0]?.default_view;
 
-        // Add new roles
+        // Get public_id for school_student_id
+        const publicIdRes = await client.query(
+            `SELECT public_id FROM users WHERE user_id = $1`,
+            [userId]
+        );
+        const schoolStudentId = publicIdRes.rows[0]?.public_id;
         const roleIds = new Set();
+
         for (const roleName of roles) {
+            const normalizedRole = roleName.trim().toLowerCase();
+            // Resolve role_id
             const roleRes = await client.query(
                 `SELECT role_id FROM roles WHERE LOWER(role_name::TEXT) = LOWER($1)`,
-                [roleName]
+                [normalizedRole]
             );
-
             if (roleRes.rows.length > 0) {
                 roleIds.add(roleRes.rows[0].role_id);
+            }
+
+            // Insert into students table
+            if (normalizedRole === 'student' && schoolStudentId) {
+                const existing = await client.query(
+                    `SELECT 1 FROM students WHERE user_id = $1`,
+                    [userId]
+                );
+                if (existing.rowCount === 0) {
+                    await client.query(
+                        `INSERT INTO students (school_student_id, user_id) VALUES ($1, $2)`,
+                        [schoolStudentId, userId]
+                    );
+                }
+            }
+
+            // Insert into advisors table
+            if (normalizedRole === 'advisor') {
+                const existingAdvisor = await client.query(
+                    `SELECT 1 FROM advisors WHERE user_id = $1`,
+                    [userId]
+                );
+                if (existingAdvisor.rowCount === 0) {
+                    await client.query(
+                        `INSERT INTO advisors (user_id) VALUES ($1)`,
+                        [userId]
+                    );
+                }
             }
         }
 
@@ -131,8 +167,10 @@ async function updateUserRoles(userId, roles) {
             roleIds.add(defaultViewId);
         }
 
+        // Clear existing roles
         await client.query(`DELETE FROM user_roles WHERE user_id = $1`, [userId]);
 
+        // Assign new roles
         for (const roleId of roleIds) {
             await client.query(
                 `INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)`,
@@ -287,6 +325,273 @@ async function getAllPermissions() {
     return result.rows;
 }
 
+/**
+ * Updates a user's profile information in the database.
+ *
+ * @async
+ * @function updateUserDetails
+ * @param {number} userId - The ID of the user to update.
+ * @param {string} name - Full name of the user (first and last name).
+ * @param {string} email - Email address of the user.
+ * @param {string} phone - Phone number of the user.
+ * @param {string|null} password - Plaintext password to be hashed (optional).
+ * @param {string} defaultView - Role name to set as the user's default view.
+ * @throws Will throw an error if the update fails or the default view role is invalid.
+ */
+async function updateUserDetails(userId, name, email, phone, password, defaultView) {
+    const client = await pool.connect();
+    const [firstName, ...rest] = name.trim().split(' ');
+    const lastName = rest.join(' ') || '';
+    const passwordHash = password ? await bcrypt.hash(password, 10) : null;
+
+    try {
+        await client.query('BEGIN');
+
+        const defaultViewRes = await client.query(
+            `SELECT role_id FROM roles WHERE LOWER(role_name::TEXT) = LOWER($1)`,
+            [defaultView]
+        );
+        const defaultViewId = defaultViewRes.rows[0]?.role_id;
+        if (!defaultViewId) throw new Error('Invalid default view role');
+
+        const updates = [
+            `first_name = $1`,
+            `last_name = $2`,
+            `email = $3`,
+            `phone_number = $4`,
+            `default_view = $5`
+        ];
+        const values = [firstName, lastName, email, phone, defaultViewId];
+
+        if (passwordHash) {
+            updates.push(`password_hash = $6`);
+            values.push(passwordHash);
+        }
+
+        await client.query(
+            `UPDATE users SET ${updates.join(', ')} WHERE user_id = $${values.length + 1}`,
+            [...values, userId]
+        );
+
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+/**
+ * Retrieves basic user details by user ID.
+ *
+ * @async
+ * @function getUserById
+ * @param {number} userId - The ID of the user to retrieve.
+ * @returns {Promise<Object>} An object containing the user's full name, email, phone number, and default view role name.
+ */
+async function getUserById(userId) {
+    const result = await pool.query(
+        `SELECT 
+            u.public_id,
+            u.first_name,
+            u.last_name,
+            CONCAT(u.first_name, ' ', u.last_name) AS name,
+            u.email,
+            u.phone_number,
+            r.role_name AS default_view
+        FROM users u
+        LEFT JOIN roles r ON u.default_view = r.role_id
+        WHERE u.user_id = $1`,
+        [userId]
+    );
+    return result.rows[0];
+}
+
+/**
+ * Retrieves advising relationships for a user.
+ *
+ * @async
+ * @function getAdvisingRelations
+ * @param {number} userId - The ID of the user to check.
+ * @returns {Promise<Object>} An object with two arrays:
+ *   - `students`: If the user is an advisor, an array of their assigned students.
+ *   - `advisors`: If the user is a student, an array of their assigned advisors.
+ */
+async function getAdvisingRelations(userId) {
+    const client = await pool.connect();
+    try {
+        // If user is an advisor, get their students
+        const advisorRes = await client.query(
+            `SELECT advisor_id FROM advisors WHERE user_id = $1`,
+            [userId]
+        );
+        const advisorId = advisorRes.rows[0]?.advisor_id;
+
+        let students = [];
+        if (advisorId) {
+            const studentRes = await client.query(
+                `SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name
+                FROM advising_relations ar
+                JOIN students s ON ar.student_id = s.student_id
+                JOIN users u ON s.user_id = u.user_id
+                WHERE ar.advisor_id = $1`,
+                [advisorId]
+            );
+            students = studentRes.rows;
+        }
+
+        // If user is a student, get their advisor
+        const studentRes = await client.query(
+            `SELECT student_id FROM students WHERE user_id = $1`,
+            [userId]
+        );
+        const studentId = studentRes.rows[0]?.student_id;
+
+        let advisors = [];
+        if (studentId) {
+            const advisorRes = await client.query(
+                `SELECT u.user_id, CONCAT(u.first_name, ' ', u.last_name) AS name, u.email, u.phone_number
+                FROM advising_relations ar
+                JOIN advisors a ON ar.advisor_id = a.advisor_id
+                JOIN users u ON a.user_id = u.user_id
+                WHERE ar.student_id = $1`,
+                [studentId]
+            );
+            advisors = advisorRes.rows;
+        }
+        return { students, advisors };
+    } finally {
+        client.release();
+    }
+}
+
+/**
+ * Updates advising relationships for a user.
+ *
+ * @async
+ * @function updateAdvisingRelations
+ * @param {number} userId - The ID of the user being edited.
+ * @param {Array<number>} advisorUserIds - Array of advisor user IDs to assign (if user is a student).
+ * @param {Array<number|string>} studentUserIds - Array of student user IDs or public IDs to assign (if user is an advisor).
+ * @throws Will throw an error if the transaction fails or if any user IDs cannot be resolved.
+ */
+async function updateAdvisingRelations(userId, advisorUserIds, studentUserIds) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // Get advisor_id if user is an advisor
+        const advisorRes = await client.query(
+            `SELECT advisor_id FROM advisors WHERE user_id = $1`,
+            [userId]
+        );
+        const isAdvisor = advisorRes.rows.length > 0;
+        const advisorId = advisorRes.rows[0]?.advisor_id;
+
+        // Get student_id if user is a student
+        const studentRes = await client.query(
+            `SELECT student_id FROM students WHERE user_id = $1`,
+            [userId]
+        );
+        const isStudent = studentRes.rows.length > 0;
+        const studentId = studentRes.rows[0]?.student_id;
+
+        // Remove existing relations
+        if (isAdvisor) {
+            await client.query(`DELETE FROM advising_relations WHERE advisor_id = $1`, [advisorId]);
+        }
+        if (isStudent) {
+            await client.query(`DELETE FROM advising_relations WHERE student_id = $1`, [studentId]);
+        }
+
+        // If user is advisor, insert new student relations
+        if (isAdvisor && studentUserIds?.length > 0) {
+            for (const studentIdentifier of studentUserIds) {
+                let resolvedUserId = studentIdentifier;
+
+                // If it's a public_id (string), resolve to user_id
+                if (typeof studentIdentifier === 'string') {
+                    const userRes = await client.query(
+                        `SELECT user_id FROM users WHERE public_id = $1`,
+                        [studentIdentifier]
+                    );
+                    resolvedUserId = userRes.rows[0]?.user_id;
+                }
+
+                if (!resolvedUserId) {
+                    console.warn(`Could not resolve student identifier: ${studentIdentifier}`);
+                    continue;
+                }
+
+                const res = await client.query(
+                    `SELECT student_id FROM students WHERE user_id = $1`,
+                    [resolvedUserId]
+                );
+                let sid = res.rows[0]?.student_id;
+
+                if (!sid) {
+                    const insertRes = await client.query(
+                        `INSERT INTO students (school_student_id, user_id)
+                        SELECT public_id, user_id FROM users WHERE user_id = $1
+                        RETURNING student_id`,
+                        [resolvedUserId]
+                    );
+                    sid = insertRes.rows[0]?.student_id;
+                }
+
+                if (sid) {
+                    await client.query(
+                        `INSERT INTO advising_relations (advisor_id, student_id) VALUES ($1, $2)`,
+                        [advisorId, sid]
+                    );
+                }
+            }
+        }
+
+        // If user is student, insert advisor relation
+        if (isStudent && Array.isArray(advisorUserIds)) {
+            for (const advisorUserId of advisorUserIds) {
+                const res = await client.query(
+                    `SELECT advisor_id FROM advisors WHERE user_id = $1`,
+                    [advisorUserId]
+                );
+                const aid = res.rows[0]?.advisor_id;
+
+                if (aid) {
+                    await client.query(
+                        `INSERT INTO advising_relations (advisor_id, student_id) VALUES ($1, $2)`,
+                        [aid, studentId]
+                    );
+                }
+            }
+        }
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+}
+
+/**
+ * Retrieves a user's internal ID and full name using their public ID.
+ *
+ * @async
+ * @function getUserByPublicId
+ * @param {string} publicId - The public ID of the user (e.g., school-assigned ID).
+ * @returns {Promise<Object|null>} An object with `user_id` and `name`, or `null` if not found.
+ */
+async function getUserByPublicId(publicId) {
+    const result = await pool.query(
+        `SELECT user_id, CONCAT(first_name, ' ', last_name) AS name FROM users WHERE public_id = $1`,
+        [publicId]
+    );
+    return result.rows[0];
+}
+
+
 module.exports = {
     searchUsers,
     getAllRoles,
@@ -295,5 +600,10 @@ module.exports = {
     addUser,
     deleteUser,
     getRolePermissions,
-    getAllPermissions
+    getAllPermissions,
+    updateUserDetails,
+    getUserById,
+    getAdvisingRelations,
+    updateAdvisingRelations,
+    getUserByPublicId
 };

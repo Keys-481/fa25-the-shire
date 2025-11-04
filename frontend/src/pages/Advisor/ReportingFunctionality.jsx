@@ -59,7 +59,7 @@ export default function ReportingFunctionality() {
             <p>Search for a Course</p>
             <SearchBar
               onSearch={handleSearchResults}
-              searchEndpoint="/courses/search"
+              searchEndpoint="/api/courses/search"
               placeholder1="Course Name"
               placeholder2="Course Code"
             />

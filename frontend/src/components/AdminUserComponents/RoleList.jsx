@@ -16,7 +16,7 @@ export default function RoleList({
     };
 
     return (
-        <>
+        <div className="section-results-side">
             <div className='header-row'>
                 <button onClick={() => {
                     setSelectedUser(null);
@@ -64,6 +64,6 @@ export default function RoleList({
                     );
                 })
             )}
-        </>
+        </div>
     );
 }

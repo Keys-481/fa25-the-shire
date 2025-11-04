@@ -45,6 +45,7 @@ async function getStudentByName(name) {
         const result = await pool.query(
             `SELECT s.student_id,
                     s.school_student_id,
+                    s.user_id,
                     u.first_name,
                     u.last_name,
                     u.email,
@@ -72,6 +73,7 @@ async function getStudentBySchoolIdAndName(schoolStudentId, name) {
         const result = await pool.query(
             `SELECT s.student_id,
                     s.school_student_id,
+                    s.user_id,
                     u.first_name,
                     u.last_name,
                     u.email,
