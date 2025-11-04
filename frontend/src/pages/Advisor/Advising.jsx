@@ -52,6 +52,7 @@ export default function Advising() {
   // Handle click on student from results list
   const handleStudentSelect = async (student) => {
     setSelectedStudent(student);
+    setSelectedProgram(null);
 
     try {
       const data = await api.get(`/api/students/${student.id}/programs`);
