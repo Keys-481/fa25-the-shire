@@ -785,3 +785,7 @@ INSERT INTO certificate_courses (certificate_id, course_id) VALUES
 SELECT setval('courses_course_id_seq', (SELECT MAX(course_id) FROM courses));
 -- Sets the 'users_user_id_seq' sequence to the current max user_id in 'users' to prevent ID conflicts when inserting.
 SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users) + 1);
+-- Sets the 'students_student_id_seq' sequence to the current max student_id in 'students' to prevent ID conflicts when inserting.
+SELECT setval('students_student_id_seq', (SELECT MAX(student_id) FROM students) + 1);
+-- Sets the 'advisors_advisor_id_seq' sequence to the current max advisor_id in 'advisors' to prevent ID conflicts when inserting.
+SELECT setval('advisors_advisor_id_seq', (SELECT MAX(advisor_id) FROM advisors) + 1);
