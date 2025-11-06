@@ -8,6 +8,7 @@ import { useAuth } from '../../auth/AuthProvider'
 import LogoutButton from '../../components/LogoutButton'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
+import AdvisorNavBar from '../../components/NavBars/AdvisorNavBar'
 
 /**
  * AdvisorDashboard component displays the main dashboard for advisors with navigation options.
@@ -21,13 +22,19 @@ export default function AdvisorDashboard() {
 
     return (
         <div>
+            <AdvisorNavBar />
             {/* Navigation bar */}
-            <div className='navbar'>
+
+            {/* <div className='navbar'>
                 <div style={{ position: 'absolute', left: '20px' }}>
                     <LogoutButton />
                 </div>
                 <img src={logo} alt="BSU-Logo" className='logo' />
-            </div>
+
+                <div style={{ position: 'absolute', right: '20px' }}>
+                    <NotificationsButton />
+                </div>
+            </div> */}
 
 
             <div className='window'>

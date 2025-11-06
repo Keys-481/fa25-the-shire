@@ -289,8 +289,8 @@ body {
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
+  justify-content: space-between;
+  padding: 0 20px;
   background-color: #09347a;
   border-bottom: 2px solid #f1632a;
   height: 60px;
@@ -299,6 +299,20 @@ body {
   top: 0;
   left: 0;
   box-sizing: border-box;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  width: 20%;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 20%;
+  gap: 12px;
 }
 
 .back-button {
@@ -820,16 +834,12 @@ input:checked+.slider:before {
 }
 
 .logout-button {
-  position: fixed;
-  top: 12px;
-  left: 12px;
   padding: 8px 12px;
   border-radius: 8px;
   border: 2px solid #f1632a;
   background: rgba(15, 68, 153, 0.637);
   font-weight: 600;
   cursor: pointer;
-  z-index: 1000;
 }
 
 /* Comments Styles */
@@ -942,4 +952,20 @@ input:checked+.slider:before {
   font-style: italic;
   color: var(--secondary);
   list-style-type: none;
+}
+
+/* Notifications Button Styles */
+.notifications-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background-color: var(--background);
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
 }

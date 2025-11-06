@@ -15,6 +15,9 @@ import ProtectedRoute from './ProtectedRoute.jsx'
 //login import
 import LogIn from '../pages/LogIn/LogIn.jsx'
 
+//notifications import
+import Notifications from '../pages/Notifications.jsx'
+
 //admin imports
 import AdminCourses from '../pages/Admin/Courses'
 import AdminDashboard from '../pages/Admin/Dashboard'
@@ -52,6 +55,9 @@ export default function AppRoutes() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
+
+            {/* Notifications Route */}
+            <Route path="/notifications" element={<Notifications />} />
 
             {/* Admin Routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

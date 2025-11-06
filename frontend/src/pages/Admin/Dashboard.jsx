@@ -8,6 +8,7 @@ import { useAuth } from '../../auth/AuthProvider'
 import LogoutButton from '../../components/LogoutButton'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
+import AdminNavBar from '../../components/NavBars/AdminNavBar'
 
 
 /**
@@ -24,12 +25,17 @@ export default function Dashboard() {
     return (
         <div>
             {/* Navigation bar */}
-            <div className='navbar'>
+            <AdminNavBar />
+            {/* <div className='navbar'>
                 <div style={{ position: 'absolute', left: '20px' }}>
                     <LogoutButton />
                 </div>
                 <img src={logo} alt="BSU-Logo" className='logo' />
-            </div>
+
+                <div style={{ position: 'absolute', right: '20px' }}>
+                    <NotificationsButton />
+                </div>
+            </div> */}
 
             {/* Main Content */}
             <div className='window'>

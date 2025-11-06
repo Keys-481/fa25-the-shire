@@ -8,6 +8,7 @@ import { useAuth } from '../../auth/AuthProvider'
 import LogoutButton from '../../components/LogoutButton'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
+import AccountingNavBar from '../../components/NavBars/AccountingNavBar'
 
 /**
  * AccountingDashboard component displays the main dashboard for accounting with navigation options.
@@ -21,13 +22,18 @@ export default function AccountingDashboard() {
 
     return (
         <div>
-            {/* Navigation bar */}
-            <div className='navbar'>
+            {/* Navigation bar */}\
+            <AccountingNavBar />
+            {/* <div className='navbar'>
                 <div style={{ position: 'absolute', left: '20px' }}>
                     <LogoutButton />
                 </div>
                 <img src={logo} alt="BSU-Logo" className='logo' />
-            </div>
+
+                <div style={{ position: 'absolute', right: '20px' }}>
+                    <NotificationsButton />
+                </div>
+            </div> */}
 
             <div className='window'>
                 {/* Page Title */}
