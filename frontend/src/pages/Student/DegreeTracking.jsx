@@ -4,45 +4,82 @@
  * This file allows students to view their degree progress and plans */
 
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import StudentNavBar from "../../components/NavBars/StudentNavBar";
 import ProgramSelector from "../../components/ProgramSelector";
+import { useAuth } from "../../auth/AuthProvider.jsx"; // use the auth provider to get current user
 
 export default function StudentDegreeTracking() {
-    // Hardcoded single student 
-    const student = { id: "112299690", name: "Alice Johnson", email: "student1@u.boisestate.edu", phone: "555-222-3333" };  
-    // Hardccoded to alice for now as a placeholder student. Will update when we have log in functionality.
+    // get logged-in user
+    const { user } = useAuth();
 
+    // keep a local student object (we'll set it once we know which id works)
+    const [student, setStudent] = useState(null);
     const [programs, setPrograms] = useState([]);
     const [selectedProgram, setSelectedProgram] = useState(null);
 
-
     useEffect(() => {
-        const fetchPrograms = async () => {
+        if (!user || !user.public_id) {
+            setPrograms([]);
+            setSelectedProgram(null);
+            setStudent(null);
+            return;
+        }
+
+        let cancelled = false;
+        (async () => {
             try {
-                const response = await fetch(`/students/${student.id}/programs`);
-                if (!response.ok) {
-                    console.error("Failed to fetch programs:", response.statusText);
-                    setPrograms([]);
-                    return;
+                const encoded = encodeURIComponent(user.public_id);
+                const res = await fetch(`/api/students/${encoded}/programs`, {
+                    credentials: "same-origin",
+                    headers: { "Accept": "application/json" },
+                });
+                    if (!res.ok) {
+                        console.error('Failed to fetch student programs');
+                        return;
+                    }
+
+                    const data = await res.json();
+                    const studentPrograms = data.programs || (data.programs === undefined && data.programs === null ? [] : data.programs) || [];
+
+                    if (!cancelled) {
+                        setPrograms(studentPrograms);
+                        setSelectedProgram(studentPrograms.length > 0 ? studentPrograms[0] : null);
+
+                        // build a minimal student object expected by ProgramSelector / DegreePlan
+                        const name = user.name ?? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
+                        setStudent({
+                            id: String(user.public_id),
+                            name: name || undefined,
+                            email: user.email,
+                            phone: user.phone ?? user.phone_number
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error fetching student programs:', err);
                 }
-
-                const data = await response.json();
-
-                const studentPrograms = data.programs || [];
-                setPrograms(studentPrograms);
-
-                if (studentPrograms.length > 0) {
-                    setSelectedProgram(studentPrograms[0]);
-                }
-            } catch (error) {
-                console.error("Error fetching student programs:", error);
-                setPrograms([]);
             }
-        };
+        )();
 
-        fetchPrograms();
-    }, [student.id]);
+        return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
+
+    if (!user || !student) {
+        return (
+            <div>
+                <StudentNavBar />
+                <div className="window">
+                    <div className="title-bar">
+                        <h1>Degree Tracking</h1>
+                    </div>
+                    <div className="container">
+                        <p>Please log in to view your degree tracking.</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div>
@@ -53,8 +90,8 @@ export default function StudentDegreeTracking() {
                 </div>
                 <div className="container">
                     <ProgramSelector
-                        student={student} // Pass the hardcoded student object
-                        programs={programs} // List of programs fetched from the server
+                        student={student}
+                        programs={programs}
                         selectedStudentProgram={selectedProgram}
                         setSelectedProgram={setSelectedProgram}
                     />
