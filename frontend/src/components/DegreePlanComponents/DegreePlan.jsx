@@ -11,7 +11,7 @@ import { useApiClient } from "../../lib/apiClient";
 /**
  * DegreePlan component displays the degree plan for a specific student.
  */
-export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId }) {
+export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId , userIsStudent=false }) {
     const api = useApiClient();
     const base_url = '/api/students';
 
@@ -113,7 +113,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
             {/* Degree Plan Section */}
             <div className="degree-plan-content">
                 {viewType === 'requirements' ? (
-                    <RequirementsView courses={courses} program={program} studentId={studentId}/>
+                    <RequirementsView courses={courses} program={program} studentId={studentId} userIsStudent={userIsStudent} />
                 ) : (
                     <SemesterView courses={courses} program={program} />
                 )}

@@ -11,7 +11,8 @@ export default function CourseRow({
     editingCourse,
     setEditingCourse,
     rowStyle,
-    requirementId
+    requirementId,
+    userIsStudent=false
 }) {
     const statusClass = (course.course_status || "unplanned").toLowerCase().replace(/\s/g, "-");
 
@@ -48,12 +49,14 @@ export default function CourseRow({
             ))}
 
             <td className="edit-cell-anchor">
-                <button
-                    className={`course-status-edit-btn ${editingCourse === course.course_id ? 'active' : ''}`}
-                    onClick={() => setEditingCourse(course.course_id)}
-                >
-                <PencilLine size={16} />
-                </button>
+                {!userIsStudent && (
+                    <button
+                        className={`course-status-edit-btn ${editingCourse === course.course_id ? 'active' : ''}`}
+                        onClick={() => setEditingCourse(course.course_id)}
+                    >
+                        <PencilLine size={16} />
+                    </button>
+                )}
             </td>
         </tr>
     )
