@@ -57,7 +57,7 @@ async function getCommentsByProgramAndStudent(programId, studentId) {
             FROM degree_plan_comments c
             JOIN users u ON c.author_id = u.user_id
             WHERE program_id = $1 AND student_id = $2
-            ORDER BY created_at DESC`,
+            ORDER BY created_at`,
             [programId, studentId]
         );
         return result.rows;
