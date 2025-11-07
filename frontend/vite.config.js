@@ -11,19 +11,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       proxy: {
-        '/students': {
-          target: BACKEND_URL,
-          changeOrigin: true,
-        },
-        '/courses': {
-          target: BACKEND_URL,
-          changeOrigin: true,
-        },
-        '/users': {
-          target: BACKEND_URL,
-          changeOrigin: true,
-        },
-        '/comments': {
+        '/api': {
           target: BACKEND_URL,
           changeOrigin: true,
         },
