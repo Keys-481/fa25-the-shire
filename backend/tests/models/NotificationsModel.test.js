@@ -71,20 +71,28 @@ describe('NotificationsModel', () => {
         });
     });
 
-    test('markNotificationAsRead updates the notification to is_read = true', async () => {
+    test('markNotificationReadState updates the notification to is_read = true', async () => {
         // Get one notification to mark as read
         const result = await pool.query(
             `SELECT notification_id FROM comment_notifications WHERE is_read = false LIMIT 1`
         );
         const notificationId = result.rows[0].notification_id;
 
-        await NotificationsModel.markNotificationAsRead(notificationId);
+        await NotificationsModel.markNotificationReadState(notificationId, true);
 
         const updated = await pool.query(
             `SELECT is_read FROM comment_notifications WHERE notification_id = $1`,
             [notificationId]
         );
         expect(updated.rows[0].is_read).toBe(true);
+
+        // Revert back to unread
+        await NotificationsModel.markNotificationReadState(notificationId, false);
+        const reverted = await pool.query(
+            `SELECT is_read FROM comment_notifications WHERE notification_id = $1`,
+            [notificationId]
+        );
+        expect(reverted.rows[0].is_read).toBe(false);
     });
 
 });

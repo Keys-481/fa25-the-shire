@@ -3,6 +3,7 @@ import { Bell } from 'lucide-react'
 import logo from '../../assets/images/boise_state_wbg.png'
 import '../../styles/Styles.css'
 import LogoutButton from '../LogoutButton.jsx'
+import NotifButton from '../NotifButton.jsx'
 
 /**
  * AdminNavBar component displays a top navigation bar for admin pages that  
@@ -32,12 +33,9 @@ export default function AdminNavBar() {
       <img src={logo} alt="BSU-Logo" className='logo'/>
 
       <div className='navbar-right'>
-        <button
-          className="notifications-button"
-          onClick={() => navigate('/notifications')}
-        >
-          <Bell size={20} />
-        </button>
+        <div>
+          <NotifButton />
+        </div>
 
         <div>
           <LogoutButton />

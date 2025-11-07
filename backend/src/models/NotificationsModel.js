@@ -35,15 +35,17 @@ async function createNewCommentNotif(comment) {
 /**
  * Mark a notification as read.
  * @param {*} notificationId - The ID of the notification to mark as read.
+ * @param {*} isRead - Boolean indicating whether the notification is read or unread.
  */
-async function markNotificationAsRead(notificationId) {
+async function markNotificationReadState(notificationId, isRead) {
     try {
-        await pool.query(
+        const results = await pool.query(
             `UPDATE comment_notifications
-            SET is_read = TRUE
-            WHERE notification_id = $1`,
-            [notificationId]
+            SET is_read = $1
+            WHERE notification_id = $2`,
+            [isRead, notificationId]
         );
+        return results.rowCount;
     } catch (error) {
         console.error('Error marking notification as read:', error);
         throw error;
@@ -73,6 +75,6 @@ async function getNotificationsForUser(userId) {
 
 module.exports = {
     createNewCommentNotif,
-    markNotificationAsRead,
+    markNotificationReadState,
     getNotificationsForUser,
 };

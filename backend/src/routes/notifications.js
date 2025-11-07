@@ -29,4 +29,33 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * route PUT /notifications/:id/read
+ * Marks a specific notification as read
+ */
+router.put('/:id/read', async (req, res) => {
+    if (!req.user || !req.user.user_id) {
+        return res.status(401).json({ message: 'Unauthorized: User ID is required' });
+    }
+
+    const notificationId = req.params.id;
+    const { is_read } = req.body;
+
+    if (typeof is_read !== 'boolean') {
+        return res.status(400).json({ message: 'is_read boolean is required in request body' });
+    }
+
+    try {
+        const result = await NotificationsModel.markNotificationReadState(notificationId, is_read);
+
+        if (!result) {
+            return res.status(404).json({ message: 'Notification not found or does not authorized' });
+        }
+        return res.status(200).json({ message: 'Notification marked as read' });
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;

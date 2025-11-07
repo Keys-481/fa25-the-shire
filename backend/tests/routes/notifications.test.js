@@ -104,3 +104,46 @@ describe('GET /notifications', () => {
         expect(response.body.message).toBe('Unauthorized: User ID is required');
     });
 });
+
+/**
+ * Tests for PUT /notifications/:id/read route
+ */
+describe('PUT /notifications/:id/read', () => {
+    // test for successful marking of notification as read
+    test('returns 200 for successfully marking notification as read', async () => {
+        const mockUser = { user_id: 1 }; // admin in seed data
+        const app = makeAppWithUser(mockUser);
+
+        const response = await request(app)
+            .put('/notifications/1/read')
+            .send({ is_read: true });
+
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Notification marked as read');
+    });
+
+    // test for missing user_id
+    test('returns 401 for missing user_id', async () => {
+        const app = makeAppWithUser(null);
+
+        const response = await request(app)
+            .put('/notifications/1/read')
+            .send({ is_read: true });
+
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('Unauthorized: User ID is required');
+    });
+
+    // test for invalid request body
+    test('returns 400 for invalid request body', async () => {
+        const mockUser = { user_id: 1 }; // admin in seed data
+        const app = makeAppWithUser(mockUser);
+
+        const response = await request(app)
+            .put('/notifications/1/read')
+            .send({});
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('is_read boolean is required in request body');
+    });
+});
