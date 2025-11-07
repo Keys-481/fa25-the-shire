@@ -982,6 +982,9 @@ input:checked+.slider:before {
   border: none;
   width: 16px;
   height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Notifications */
@@ -989,14 +992,6 @@ input:checked+.slider:before {
   padding: 20px;
   overflow-y: auto;
   border-radius: 8px;
-}
-
-.notif-toolbar {
-  width: 95%;
-  margin: 0 auto 10px auto;
-  display: flex;
-  justify-content: flex-start;
-  border: none;
 }
 
 .notif-actions {
