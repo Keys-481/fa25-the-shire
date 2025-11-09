@@ -2,18 +2,21 @@
  * File: frontend/src/components/DegreePlanComponents/RequirementsView.jsx
  * This file defines the RequirementsView component to display courses grouped by program requirements.
  */
-import { useState, useEffect } from "react";
-import { buildHierarchy, flattenHierarchy, calculateCompletedCredits } from "./utils/requirementsHelpers";
-import CourseEditRow from "./reqViewComps/CourseEditRow";
+import { useEffect, useState } from "react";
+import { useApiClient } from "../../lib/apiClient";
 import CertificateAlert from "./reqViewComps/CertificateAlert";
+import CourseEditRow from "./reqViewComps/CourseEditRow";
 import CourseRow from "./reqViewComps/CourseRow";
+import { buildHierarchy, calculateCompletedCredits, flattenHierarchy } from "./utils/requirementsHelpers";
 
 /**
  * RequirementsView component displays courses grouped by program requirements.
  * @param {*} courses - array of course objects to display
  * @returns {JSX.Element} - The rendered requirements view
  */
-export default function RequirementsView( { courses, program, semesters=[], student, studentId, onCourseUpdated } ) {
+export default function RequirementsView( { courses, program, semesters=[], studentId, userIsStudent=false } ) {
+    const api = useApiClient();
+
     const [localCourses, setLocalCourses] = useState(courses);
     const [editingCourse, setEditingCourse] = useState(null);
     const [newStatus, setNewStatus] = useState('Unplanned');
@@ -36,7 +39,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
     }, [editingCourse, localCourses]);
 
     if (!courses || courses.length === 0) {
-        return <p>No courses found</p>
+        return <p>No courses found</p>;
     }
 
     if (!program?.program_type) {
@@ -72,7 +75,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
 
     // Handler to save updated course status from editing mode
     async function handleSaveStatus(course) {
-        const schoolId = studentId ?? student?.id ?? student?.school_student_id;
+        const schoolId = studentId;
         let chosenSemesterId = null;
         if (newStatus === 'Unplanned') {
             chosenSemesterId = null;
@@ -86,35 +89,14 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         }
 
         try {
-            const res = await fetch(`/api/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    courseId: course.course_id,
-                    status: newStatus,
-                    semesterId: chosenSemesterId,
-                    programId: program.program_id
-                })
+            const updated = await api.patch(`/api/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
+                courseId: course.course_id,
+                status: newStatus,
+                semesterId: chosenSemesterId,
+                programId: program.program_id
             });
 
-            if (!res.ok) {
-                let errorMessage = 'Failed to update course status.';
-                try {
-                    const data = await res.json();
-                    if (data?.message) {
-                        errorMessage = data.message;
-                    }
-                } catch (error) {
-                    console.error("Error parsing response:", error);
-                }
-                throw new Error(errorMessage);
-            }
-
-            const updated = await res.json();
             console.log("Course status updated:", updated);
-
             setEditingCourse(null);
 
             setLocalCourses(prev =>
@@ -179,6 +161,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                         setEditingCourse={setEditingCourse}
                         rowStyle={rowStyle}
                         requirementId={req.requirement_id}
+                        userIsStudent={userIsStudent}
                     />
                 );
 

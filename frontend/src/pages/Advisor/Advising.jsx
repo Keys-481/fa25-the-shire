@@ -9,7 +9,6 @@ import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar";
 import SearchBar from "../../components/SearchBar";
 import ProgramSelector from "../../components/ProgramSelector";
 import { useApiClient } from "../../lib/apiClient";
-import DegreePlan from "../../components/DegreePlanComponents/DegreePlan";
 
 /**
  * Advising component displays the Advising page for the advisors.
@@ -124,6 +123,7 @@ export default function Advising() {
                   programs={programs}
                   selectedStudentProgram={selectedProgram}
                   setSelectedProgram={setSelectedProgram}
+                  userIsStudent={false}
                 />
               </div>
             </div>

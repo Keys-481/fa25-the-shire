@@ -6,7 +6,7 @@
 import DegreePlan from "./DegreePlanComponents/DegreePlan";
 import CommentsContainer from "./DegreePlanComponents/CommentsContainer";
 
-export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram }) {
+export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram, userIsStudent=false }) {
     if (!student) {
         return <p className="p2">No student selected</p>;
     }
@@ -36,7 +36,7 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
             {selectedStudentProgram ? (
                 <div className="degree-plan-comments-wrapper">
                     <div style={{ flex: 7 }}>
-                        <DegreePlan student={student} program={selectedStudentProgram} />
+                        <DegreePlan student={student} program={selectedStudentProgram} userIsStudent={userIsStudent} />
                     </div>
                     <div style={{ flex: 3 }}>
                         <CommentsContainer

@@ -196,7 +196,6 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
 
     try {
         // Expect req.user to be set by middleware (mock or real auth)
-        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
         const currentUser = req.user;
         if (!currentUser || !currentUser.user_id) {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
@@ -275,7 +274,6 @@ router.get('/:schoolId/programs', async (req, res) => {
 
     try {
         // Expect req.user to be set by middleware (mock or real auth)
-        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
         const currentUser = req.user;
         if (!currentUser || !currentUser.user_id) {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
@@ -339,7 +337,6 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
 
     try {
         // Expect req.user to be set by middleware (mock or real auth)
-        req.user = req.user || { user_id: 1 }; // mock user for development (no login yet)
         const currentUser = req.user;
         if (!currentUser || !currentUser.user_id) {
             return res.status(401).json({ message: 'Unauthorized: No user info' });
@@ -370,9 +367,7 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
             hasAccess = true;
         } else if (userRoles.includes('advisor')) {
             hasAccess = await AccessModel.isAdvisorOfStudent(currentUser.user_id, student.student_id);
-        } else if (userRoles.includes('student')) {
-            hasAccess = currentUser.user_id === student.user_id;
-        }
+        } // students cannot update their own degree plans
 
         if (!hasAccess) {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });

@@ -8,8 +8,10 @@ import { useState, useEffect, useMemo } from "react";
 import StudentNavBar from "../../components/NavBars/StudentNavBar";
 import ProgramSelector from "../../components/ProgramSelector";
 import { useAuth } from "../../auth/AuthProvider.jsx"; // use the auth provider to get current user
+import { useApiClient } from "../../lib/apiClient";
 
 export default function StudentDegreeTracking() {
+    const api = useApiClient();
     // get logged-in user
     const { user } = useAuth();
 
@@ -30,31 +32,23 @@ export default function StudentDegreeTracking() {
         (async () => {
             try {
                 const encoded = encodeURIComponent(user.public_id);
-                const res = await fetch(`/api/students/${encoded}/programs`, {
-                    credentials: "same-origin",
-                    headers: { "Accept": "application/json" },
-                });
-                    if (!res.ok) {
-                        console.error('Failed to fetch student programs');
-                        return;
-                    }
+                const data = await api.get(`/api/students/${encoded}/programs`);
 
-                    const data = await res.json();
-                    const studentPrograms = data.programs || (data.programs === undefined && data.programs === null ? [] : data.programs) || [];
+                const studentPrograms = data.programs || (data.programs === undefined && data.programs === null ? [] : data.programs) || [];
 
-                    if (!cancelled) {
-                        setPrograms(studentPrograms);
-                        setSelectedProgram(studentPrograms.length > 0 ? studentPrograms[0] : null);
+                if (!cancelled) {
+                    setPrograms(studentPrograms);
+                    setSelectedProgram(studentPrograms.length > 0 ? studentPrograms[0] : null);
 
-                        // build a minimal student object expected by ProgramSelector / DegreePlan
-                        const name = user.name ?? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
-                        setStudent({
-                            id: String(user.public_id),
-                            name: name || undefined,
-                            email: user.email,
-                            phone: user.phone ?? user.phone_number
-                        });
-                    }
+                    // build a minimal student object expected by ProgramSelector / DegreePlan
+                    const name = user.name ?? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
+                    setStudent({
+                        id: String(user.public_id),
+                        name: name || undefined,
+                        email: user.email,
+                        phone: user.phone ?? user.phone_number
+                    });
+                }
                 } catch (err) {
                     console.error('Error fetching student programs:', err);
                 }
@@ -94,6 +88,7 @@ export default function StudentDegreeTracking() {
                         programs={programs}
                         selectedStudentProgram={selectedProgram}
                         setSelectedProgram={setSelectedProgram}
+                        userIsStudent={true}
                     />
                 </div>
             </div>
