@@ -4,7 +4,7 @@
 -- Drop tables in a specific order to avoid foreign key constraints errors
 DROP TABLE IF EXISTS
     degree_plan_comments,
-    notifications,
+    comment_notifications,
     degree_plans,
     student_programs,
     enrollments,
@@ -47,7 +47,6 @@ CASCADE;
 CREATE TYPE grade AS ENUM('A+','A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'D-', 'F', 'W');
 CREATE TYPE program_type AS ENUM('masters', 'certificate', 'undergraduate');
 CREATE TYPE requirement_type AS ENUM('core', 'elective', 'culminating_activity', 'portfolio', 'thesis', 'research', 'misc');
-CREATE TYPE notif_type AS ENUM('info', 'warning', 'alert');
 CREATE TYPE cert_status AS ENUM('in_progress', 'completed');
 CREATE TYPE role_name AS ENUM('admin', 'advisor', 'student', 'accounting');
 CREATE TYPE semester_type AS ENUM('FA', 'SP', 'SU');
@@ -336,16 +335,23 @@ CREATE TABLE degree_plan_comments (
 CREATE INDEX idx_degree_plan_comments_student_program ON degree_plan_comments(program_id, student_id);
 CREATE INDEX idx_degree_plan_comments_author_id ON degree_plan_comments(author_id);
 
--- Notifications Table:
--- Stores notifications for users
--- notif_type is an ENUM type defined above (info, warning, alert)
-CREATE TABLE notifications (
+-- Comment Notifications Table:
+-- Stores notifications triggered by comments on degree plans
+CREATE TABLE comment_notifications (
     notification_id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    recipient_id INT REFERENCES users(user_id) ON DELETE CASCADE,
+    triggered_by INT REFERENCES users(user_id) ON DELETE SET NULL,
+    title TEXT,
     notif_message TEXT NOT NULL,
-    notif_type notif_type NOT NULL,
+    comment_id INT REFERENCES degree_plan_comments(comment_id) ON DELETE CASCADE,
+    program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
+    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    read_at TIMESTAMP
+    is_read BOOLEAN DEFAULT FALSE
 );
 
-CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+CREATE INDEX idx_notifications_recipient_id ON comment_notifications(recipient_id);
+CREATE INDEX idx_notifications_triggered_by ON comment_notifications(triggered_by);
+CREATE INDEX idx_notifications_comment ON comment_notifications(comment_id);
+CREATE INDEX idx_notifications_program_student ON comment_notifications(program_id, student_id);
+CREATE INDEX idx_notifications_user_unread ON comment_notifications(recipient_id, is_read, created_at DESC);

@@ -289,8 +289,8 @@ body {
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
+  justify-content: space-between;
+  padding: 0 20px;
   background-color: #09347a;
   border-bottom: 2px solid #f1632a;
   height: 60px;
@@ -299,6 +299,20 @@ body {
   top: 0;
   left: 0;
   box-sizing: border-box;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  width: 20%;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 20%;
+  gap: 12px;
 }
 
 .back-button {
@@ -820,16 +834,12 @@ input:checked+.slider:before {
 }
 
 .logout-button {
-  position: fixed;
-  top: 12px;
-  left: 12px;
   padding: 8px 12px;
   border-radius: 8px;
   border: 2px solid #f1632a;
   background: rgba(15, 68, 153, 0.637);
   font-weight: 600;
   cursor: pointer;
-  z-index: 1000;
 }
 
 /* Comments Styles */
@@ -942,4 +952,162 @@ input:checked+.slider:before {
   font-style: italic;
   color: var(--secondary);
   list-style-type: none;
+}
+
+/* Notifications Button Styles */
+.notifications-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--accent);
+  cursor: pointer;
+  position: relative;
+}
+
+.notifications-button .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background-color: #f1632a;
+  color: var(--background);
+  font-weight: bold;
+  font-size: 10px;
+  border-radius: 50%;
+  border: none;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Notifications */
+.notifications-container {
+  padding: 20px;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.notif-actions {
+  background-color: transparent;
+  border: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.notif-table {
+  width: 95%;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.notif-table thead th {
+  text-align: left;
+  background-color: var(--accent);
+  color: var(--background);
+  padding: 10px;
+  border-bottom: 2px solid #cfd8e6;
+  font-weight: 600;
+}
+
+.mark-read-btn,
+.notif-delete-btn {
+  background: var(--background);
+  color: var(--accent);
+  border: none;
+  border-radius: 50%;
+  padding:10px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+}
+
+.mark-read-btn:hover,
+.notif-delete-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.mark-read-btn:disabled,
+.notif-delete-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.mark-read-icon-btn .icon {
+  width: 12px;
+  height: 12px;
+  color: var(--accent);
+}
+
+.notif-row td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+.notif-row.read {
+  background-color: #f5f8ff;
+  color: var(--secondary);
+}
+
+.notif-row.unread {
+  background-color: #ffffff;
+  font-weight: 600;
+}
+
+.notif-row:hover {
+  background-color: #ecf2fc;
+  cursor: pointer;
+}
+
+.notif-checkbox {
+  width: 30px;
+  padding: 4px 6px;
+}
+
+.notif-checkbox input {
+  transform: scale(0.9);
+  cursor: pointer;
+}
+
+.notif-timestamp {
+  color: var(--secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.notif-message {
+  color: var(--main);
+  width: 50%;
+}
+
+.notif-title {
+  font-weight: 600;
+  color: var(--accent);
+  width: 20%;
+}
+
+.no-notifs {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 16px;
+  color: var(--secondary);
+  border: 1px dashed #cfd8e6;
+  border-radius: 10px;
+  width: 70%;
+  margin: 40px auto;
+  font-style: italic;
+  opacity: 0.85;
 }

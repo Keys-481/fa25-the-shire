@@ -4,10 +4,10 @@
  */
 
 const pool = require('../db');
-
+const NotificationsModel = require('./NotificationsModel');
 
 /**
- * Inserts a new comment into the degree_plan_comments table.
+ * Inserts a new comment into the degree_plan_comments table
  * @param {*} programId - ID of the program the comment is associated with.
  * @param {*} studentId - ID of the student the comment is associated with.
  * @param {*} authorId - ID of the user creating the comment.
@@ -24,7 +24,19 @@ async function createComment(programId, studentId, authorId, commentText) {
         (SELECT u.last_name FROM users u WHERE u.user_id = $3) AS last_name`,
         [programId, studentId, authorId, comment]
     );
-    return result.rows[0];
+
+    const newComment = result.rows[0];
+
+    // trigger notifications for relevant users
+    await NotificationsModel.createNewCommentNotif({
+        author_id: authorId,
+        notif_message: comment,
+        comment_id: newComment.comment_id,
+        program_id: programId,
+        student_id: studentId,
+    })
+
+    return newComment;
     } catch (error) {
         console.error('Error creating comment:', error);
         throw error;
@@ -45,7 +57,7 @@ async function getCommentsByProgramAndStudent(programId, studentId) {
             FROM degree_plan_comments c
             JOIN users u ON c.author_id = u.user_id
             WHERE program_id = $1 AND student_id = $2
-            ORDER BY created_at DESC`,
+            ORDER BY created_at`,
             [programId, studentId]
         );
         return result.rows;
