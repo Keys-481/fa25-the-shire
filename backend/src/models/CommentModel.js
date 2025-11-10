@@ -67,7 +67,26 @@ async function getCommentsByProgramAndStudent(programId, studentId) {
     }
 }
 
+/**
+ * Deletes a comment by its ID.
+ * @param {*} commentId - ID of the comment to delete.
+ * @returns The deleted comment object.
+ */
+async function deleteCommentById(commentId) {
+    try {
+        const result = await pool.query(
+            `DELETE FROM degree_plan_comments WHERE comment_id = $1 RETURNING *`,
+            [commentId]
+        );
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     createComment,
     getCommentsByProgramAndStudent,
+    deleteCommentById
 };

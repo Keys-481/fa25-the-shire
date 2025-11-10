@@ -109,4 +109,16 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.delete('/:commentId', async (req, res) => {
+    const { commentId } = req.params;
+    const currentUserId = req.user.user_id;
+
+    try {
+        
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;
