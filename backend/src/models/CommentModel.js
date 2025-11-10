@@ -53,7 +53,7 @@ async function getCommentsByProgramAndStudent(programId, studentId) {
     try {
         const result = await pool.query(
             `SELECT c.*,
-            u.first_name, u.last_name
+            u.first_name, u.last_name, u.user_id
             FROM degree_plan_comments c
             JOIN users u ON c.author_id = u.user_id
             WHERE program_id = $1 AND student_id = $2

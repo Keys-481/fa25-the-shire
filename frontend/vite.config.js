@@ -15,11 +15,7 @@ export default defineConfig(({ mode }) => {
           target: BACKEND_URL,
           changeOrigin: true,
         },
-        '/notifications': {
-          target: BACKEND_URL,
-          changeOrigin: true,
-        },
       },
     },
-  }
+  };
 });

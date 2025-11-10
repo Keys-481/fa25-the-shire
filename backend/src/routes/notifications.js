@@ -17,11 +17,9 @@ router.get('/', async (req, res) => {
     }
 
     const currentUserId = req.user.user_id;
-    console.log(`Fetching notifications for user ID: ${currentUserId}`);
 
     try {
         const notifications = await NotificationsModel.getNotificationsForUser(currentUserId);
-        console.log(`Fetched notifications for user ID ${currentUserId}:`, notifications);
         return res.status(200).json({ notifications });
     } catch (error) {
         console.error('Error fetching notifications:', error);

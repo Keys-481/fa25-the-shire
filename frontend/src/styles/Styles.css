@@ -846,7 +846,7 @@ input:checked+.slider:before {
 .degree-plan-comments-wrapper {
   display: flex;
   gap: 20px;
-  align-items: flext-start;
+  align-items: flex-start;
 }
 
 .comments-container {
@@ -952,6 +952,16 @@ input:checked+.slider:before {
   font-style: italic;
   color: var(--secondary);
   list-style-type: none;
+}
+
+.delete-comment-btn {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--secondary);
+  align-self: flex-end;
+  padding: 0;
 }
 
 /* Notifications Button Styles */

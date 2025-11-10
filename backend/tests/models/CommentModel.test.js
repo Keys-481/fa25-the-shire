@@ -58,4 +58,24 @@ describe('CommentModel', () => {
             expect(comment).toHaveProperty('created_at');
         });
     });
+
+    // test for deleting a comment by ID
+    test('deleteCommentById deletes a comment by its ID', async () => {
+        // First, create a new comment to delete
+        const programId = 1;
+        const studentId = 1;
+        const authorId = 2;
+        const commentText = 'Comment to be deleted.';
+
+        const newComment = await CommentModel.createComment(programId, studentId, authorId, commentText);
+        const commentId = newComment.comment_id;
+
+        // delete comment and confirm deletion
+        const deletedComment = await CommentModel.deleteCommentById(commentId);
+        expect(deletedComment.comment_id).toBe(commentId);
+
+        const comments = await CommentModel.getCommentsByProgramAndStudent(programId, studentId);
+        expect(comments).not.toContainEqual(expect.objectContaining({ comment_id: commentId }));
+    });
+
 });

@@ -3,6 +3,7 @@
  * Container component for displaying and adding comments related to a degree plan.
  */
 
+import { Ellipsis } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useApiClient } from '../../lib/apiClient';
 
@@ -11,10 +12,36 @@ import { useApiClient } from '../../lib/apiClient';
  * @param {*} param0 - Props containing the comment object.
  * @returns {JSX.Element} The rendered CommentItem component.
  */
-function CommentItem({ comment }) {
+function CommentItem({ comment, student, userIsStudent=false, setComments }) {
+    const api = useApiClient();
     const authorHandle = `@${comment.first_name}_${comment.last_name}`;
+    const canDelete = !userIsStudent || (userIsStudent && comment.user_id === student.user_id);
+
+    // handle delete comment
+    const handleCommentDeleted = (deletedCommentId) => {
+        if (!deletedCommentId) return;
+
+        const confirm = window.confirm('Are you sure you want to delete this comment?');
+        if (!confirm) return;
+
+        (async () => {
+            try {
+                await api.del(`/api/comments/${deletedCommentId}`);
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+                alert('Error deleting comment: ' + (error?.message || 'Unknown error'));
+            }
+        })();
+        setComments((prevComments) => prevComments.filter(comment => comment.comment_id !== deletedCommentId));
+    }
+
     return (
         <li className="comment-item">
+            {canDelete && (
+                <button className="delete-comment-btn" onClick={() => handleCommentDeleted(comment.comment_id)}>
+                    <Ellipsis />
+                </button>
+            )}
             <span className="comment-author">{authorHandle}:</span>
             <span className="comment-text">{comment.comment_text}</span>
             {comment.created_at && (
@@ -83,7 +110,7 @@ function CommentForm({ studentSchoolId, programId, onCommentPosted }) {
  * @param {*} param0 - Props containing studentSchoolId and programId.
  * @returns {JSX.Element} The rendered CommentsContainer component.
  */
-export default function CommentsContainer({ studentSchoolId, programId }) {
+export default function CommentsContainer({ student, studentSchoolId, programId, userIsStudent=false }) {
     const api = useApiClient();
     const [ comments, setComments ] = useState([]);
     const [ loading, setLoading ] = useState(true);
@@ -138,7 +165,13 @@ export default function CommentsContainer({ studentSchoolId, programId }) {
                     <li className="no-comments">No comments yet.</li>
                 ) : (
                     comments.map((comment) => (
-                        <CommentItem key={comment.comment_id} comment={comment} />
+                        <CommentItem
+                            key={comment.comment_id}
+                            comment={comment}
+                            student={student}
+                            userIsStudent={userIsStudent}
+                            setComments={setComments}
+                        />
                     ))
                 )}
             </ul>

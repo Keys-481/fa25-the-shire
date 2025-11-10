@@ -40,8 +40,10 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
                     </div>
                     <div style={{ flex: 3 }}>
                         <CommentsContainer
+                            student={student}
                             studentSchoolId={student.id}
                             programId={selectedStudentProgram.program_id}
+                            userIsStudent={userIsStudent}
                         />
                     </div>
                 </div>
