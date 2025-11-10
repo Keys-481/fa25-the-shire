@@ -3,7 +3,7 @@
  * This file defines the ProgramSelector component to select a program for a student.
  */
 
-import CommentsContainer from "./CommentsContainer";
+import CommentsContainer from "./CommentComps/CommentsContainer";
 import DegreePlan from "./DegreePlanComponents/DegreePlan";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram, userIsStudent=false }) {

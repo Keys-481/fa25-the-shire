@@ -3,7 +3,7 @@
  * CommentForm component for adding new comments.
  */
 import { useState } from 'react';
-import { useApiClient } from '../lib/apiClient.js';
+import { useApiClient } from '../../lib/apiClient.js';
 
 /**
  * CommentForm component for displaying a form to add a new comment.

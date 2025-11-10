@@ -5,17 +5,17 @@
 
 import { Ellipsis } from 'lucide-react';
 import { useEffect } from 'react';
-import { useAuth } from '../auth/AuthProvider.jsx';
-import { useApiClient } from '../lib/apiClient.js';
+import { useAuth } from '../../auth/AuthProvider.jsx';
+import { useApiClient } from '../../lib/apiClient';
 
 /**
  * CommentItem component for displaying a single comment.
  * @param {*} param0 - Props containing the comment object.
  * @returns {JSX.Element} The rendered CommentItem component.
  */
-function CommentItem({ comment, userIsStudent=false, setComments, openMenuId, setOpenMenuId }) {
-    if (!comment || !comment.comment_id || !setComments || !openMenuId || !setOpenMenuId) return null;
-    
+export default function CommentItem({ comment, userIsStudent=false, setComments, openMenuId, setOpenMenuId }) {
+    if (!comment || !comment.comment_id || !setComments) return null;
+
     const api = useApiClient();
     const { user } = useAuth();
     

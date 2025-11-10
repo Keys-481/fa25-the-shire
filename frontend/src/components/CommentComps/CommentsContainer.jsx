@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useApiClient } from '../lib/apiClient.js';
+import { useApiClient } from '../../lib/apiClient.js';
 import CommentForm from './CommentForm.jsx';
 import CommentItem from './CommentItem.jsx';
 
@@ -13,15 +13,13 @@ import CommentItem from './CommentItem.jsx';
  * @param {*} param0 - Props containing studentSchoolId and programId.
  * @returns {JSX.Element} The rendered CommentsContainer component.
  */
-export default function CommentsContainer({ student, studentSchoolId, programId, userIsStudent=false }) {
+export default function CommentsContainer({ studentSchoolId, programId, userIsStudent=false }) {
+
     const api = useApiClient();
     const [ comments, setComments ] = useState([]);
     const [ loading, setLoading ] = useState(true);
     const [ error, setError ] = useState('');
     const [ openMenuId, setOpenMenuId ] = useState(null);
-
-    console.log("CommentsContainer props:", { studentSchoolId, programId });
-
 
     // fetch comments when studentSchoolId or programId changes
     useEffect(() => {
@@ -33,6 +31,7 @@ export default function CommentsContainer({ student, studentSchoolId, programId,
             try {
                 const data = await api.get(`/api/comments?programId=${encodeURIComponent(programId)}&studentSchoolId=${encodeURIComponent(studentSchoolId)}`);
                 setComments(data);
+                console.log('Fetched comments:', data);
             } catch (error) {
                 console.error('Error fetching comments:', error);
                 setError('Failed to load comments');
