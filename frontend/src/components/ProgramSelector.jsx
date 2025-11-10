@@ -3,8 +3,8 @@
  * This file defines the ProgramSelector component to select a program for a student.
  */
 
+import CommentsContainer from "./CommentsContainer";
 import DegreePlan from "./DegreePlanComponents/DegreePlan";
-import CommentsContainer from "./DegreePlanComponents/CommentsContainer";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram, userIsStudent=false }) {
     if (!student) {
@@ -12,9 +12,9 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
     }
 
     return (
-        <>
+        <div className={`program-selector-wrapper ${userIsStudent ? 'student-layout' : 'advisor-layout'}`}>
             <div className="program-selector">
-                <h3>Select Program:</h3>
+                <h3 style={{ margin: '15px' }}>Select Program:</h3>
                 {programs.length > 0 ? (
                     <ul className="results-list">
                         {programs.map((program, index) => (
@@ -35,21 +35,21 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
 
             {selectedStudentProgram ? (
                 <div className="degree-plan-comments-wrapper">
-                    <div style={{ flex: 7 }}>
-                        <DegreePlan student={student} program={selectedStudentProgram} userIsStudent={userIsStudent} />
-                    </div>
-                    <div style={{ flex: 3 }}>
-                        <CommentsContainer
-                            student={student}
-                            studentSchoolId={student.id}
-                            programId={selectedStudentProgram.program_id}
-                            userIsStudent={userIsStudent}
-                        />
-                    </div>
+                    <DegreePlan
+                        student={student}
+                        program={selectedStudentProgram}
+                        userIsStudent={userIsStudent}
+                    />
+                    <CommentsContainer
+                        student={student}
+                        studentSchoolId={student.id}
+                        programId={selectedStudentProgram.program_id}
+                        userIsStudent={userIsStudent}
+                    />
                 </div>
             ) : (
                 <p>Select a program to view the degree plan</p>
             )}
-        </>
+        </div>
     )
 }

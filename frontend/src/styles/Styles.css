@@ -842,23 +842,54 @@ input:checked+.slider:before {
   cursor: pointer;
 }
 
-/* Comments Styles */
+/* wrapper for degree plan and comments - inside ProgramSelector */
+.program-selector-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.program-selector-wrapper.student-layout {
+  flex-direction: row;
+}
+
+.program-selector-wrapper.student-layout .program-selector {
+  width: 25%;
+  border-right: 1px solid var(--secondary);
+}
+
+.program-selector-wrapper.advisor-layout {
+  flex-direction: column;
+}
+
+.program-selector-wrapper.advisor-layout .degree-plan-comments-wrapper {
+  margin-right: 25%;
+}
+
 .degree-plan-comments-wrapper {
   display: flex;
-  gap: 20px;
   align-items: flex-start;
+  min-height: calc(100vh - 60px);
+  margin-right: 22%;
+  overflow-x: hidden;
+}
+
+.degree-plan-container {
+  flex: 1;
 }
 
 .comments-container {
+  position: fixed;
+  top: 60px;
+  right: 0;
+  width: 20%;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
   background-color: var(--background);
   border-left: 1px solid var(--secondary);
+  border: 1px solid var(--secondary);
   padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  flex: 1;
-  min-height: 0;
-  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
 }
 
 .comments-container h4 {
@@ -915,7 +946,6 @@ input:checked+.slider:before {
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  max-height: 400px;
 }
 
 .comment-item {
@@ -930,6 +960,73 @@ input:checked+.slider:before {
   word-wrap: break-word;
   white-space: pre-wrap;
   gap: 4px;
+  position: relative;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment-menu-btn {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--secondary);
+  padding: 0;
+}
+
+.comment-menu {
+  position: absolute;
+  top: 28px;
+  right: 8px;
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  padding: 0;
+  min-width: 80px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+  list-style: none;
+  margin: 0;
+  overflow: hidden;
+}
+
+.comment-menu li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: block;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.comment-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  margin: 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--main);
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.comment-menu button:last-child {
+  border-bottom: none;
+}
+
+.comment-menu button:disabled {
+  color: var(--secondary);
+  cursor: not-allowed;
+}
+
+.comment-menu button:hover:not(:disabled) {
+  background-color: rgba(0,0,0,0.05);
 }
 
 .comment-author {
@@ -952,16 +1049,6 @@ input:checked+.slider:before {
   font-style: italic;
   color: var(--secondary);
   list-style-type: none;
-}
-
-.delete-comment-btn {
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--secondary);
-  align-self: flex-end;
-  padding: 0;
 }
 
 /* Notifications Button Styles */

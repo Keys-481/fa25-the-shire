@@ -109,9 +109,12 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * route DELETE /comments/:commentId
+ * Deletes a specific comment by its ID
+ */
 router.delete('/:commentId', async (req, res) => {
     const { commentId } = req.params;
-    const currentUserId = req.user.user_id;
 
     if (!commentId) {
             return res.status(400).json({ message: 'Missing commentId parameter' });
