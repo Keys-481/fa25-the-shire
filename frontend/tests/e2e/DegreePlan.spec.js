@@ -134,14 +134,15 @@ test.describe('DegreePlan edit course status', () => {
         await expect(page.getByText('Master of Science in Organizational Performance and Workplace Learning'))
             .toBeVisible({ timeout: 15000 });
 
-        // Click the desired program
-        await page.getByText('Master of Science in Organizational Performance and Workplace Learning').click();
-
         // Wait for degree plan to load
-        await page.waitForResponse(
-            r => /\/(api\/)?students\/112299690\/degree-plan/.test(r.url()) && r.ok(),
-            { timeout: 30000 }
-        );
+        await Promise.all([
+            page.waitForResponse(
+                r => /\/(api\/)?students\/112299690\/degree-plan/.test(r.url()) &&
+                ([200, 204, 304].includes(r.status())),
+                { timeout: 30000 }
+            ),
+            page.getByText('Master of Science in Organizational Performance and Workplace Learning').click(),
+        ]);
 
         // Wait for known course to be visible
         const courseRowElement = page.locator('tr', { hasText: 'OPWL-507' }).first();
