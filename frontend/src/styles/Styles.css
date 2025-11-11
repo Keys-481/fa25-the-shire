@@ -1111,3 +1111,36 @@ input:checked+.slider:before {
   font-style: italic;
   opacity: 0.85;
 }
+
+/** Logout Warning */
+.popup-wrapper {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+}
+
+.popup-box {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  width: min(420px, 92%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+#session-timeout-title {
+  margin: 0 0 0.25rem;
+}
+
+.popup-text {
+  margin: 0;
+}
+
+.popup-button {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  gap: 8px;
+}
