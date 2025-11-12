@@ -1106,17 +1106,17 @@ input:checked+.slider:before {
 }
 
 .notif-row.read {
-  background-color: #f5f8ff;
+  background-color: var(--light-blue);
   color: var(--secondary);
 }
 
 .notif-row.unread {
-  background-color: #ffffff;
+  background-color: transparent;
   font-weight: 600;
 }
 
 .notif-row:hover {
-  background-color: #ecf2fc;
+  background-color: color-mix(in srgb, var(--light-blue) 90%, black);
   cursor: pointer;
 }
 
