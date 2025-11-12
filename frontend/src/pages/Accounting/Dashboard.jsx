@@ -3,12 +3,12 @@
  * @description Dashboard for accounting users
  */
 
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
-import LogoutButton from '../../components/LogoutButton'
-import logo from '../../assets/images/boise_state_wbg.png'
-import '../../styles/Styles.css'
 import AccountingNavBar from '../../components/NavBars/AccountingNavBar'
+import { useApiClient } from '../../lib/apiClient'
+import '../../styles/Styles.css'
 
 /**
  * AccountingDashboard component displays the main dashboard for accounting with navigation options.
@@ -19,6 +19,26 @@ import AccountingNavBar from '../../components/NavBars/AccountingNavBar'
 export default function AccountingDashboard() {
     const navigate = useNavigate();
     const { logout } = useAuth();
+    const api = useApiClient();
+
+    /**
+     * useEffect hook that runs each time the Dashboard component mounts.
+     */
+    useEffect(() => {
+        (async () => {
+            try {
+                const me = await api.get("/api/users/me");
+                const prefs = me.preferences;
+                if (prefs) {
+                    document.body.classList.toggle("dark-theme", prefs.theme === "dark");
+                    document.documentElement.style.setProperty("--font-size-change", prefs.font_size_change);
+                    document.documentElement.style.setProperty("--font-family-change", prefs.font_family);
+                }
+            } catch (err) {
+                console.error("Failed to apply preferences:", err);
+            }
+        })();
+    }, []);
 
     return (
         <div>
@@ -43,20 +63,20 @@ export default function AccountingDashboard() {
                 {/*  Main Content Area with Navigation Buttons */}
                 <div className='container'>
                     <div className='dashboard-container'>
-                    <div className='button-row'>
-                        {/* Navigation Button */}
-                        <button className='square-button' onClick={() => navigate('/accounting/graduation-report')}>
-                            Graduation Report
-                        </button>
-                        {/* Reporting Functionality Button */}
-                        <button className='square-button' onClick={() => navigate('/accounting/reporting-functionality')}>
-                            Enrollment Report
-                        </button>
-                        {/* Settings Button */}
-                        <button className='square-button' onClick={() => navigate('/accounting/settings')}>
-                            Settings
-                        </button>
-                    </div>
+                        <div className='button-row'>
+                            {/* Navigation Button */}
+                            <button className='square-button' onClick={() => navigate('/accounting/graduation-report')}>
+                                Graduation Report
+                            </button>
+                            {/* Reporting Functionality Button */}
+                            <button className='square-button' onClick={() => navigate('/accounting/reporting-functionality')}>
+                                Enrollment Report
+                            </button>
+                            {/* Settings Button */}
+                            <button className='square-button' onClick={() => navigate('/accounting/settings')}>
+                                Settings
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

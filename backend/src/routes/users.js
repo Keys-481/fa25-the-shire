@@ -26,6 +26,7 @@ router.get('/me', async (req, res) => {
         }
 
         const roles = await AccessModel.getUserRoles(userId);
+        const preferences = await UserModel.getUserPreferences(userId);
 
         res.json({
             user_id: userId,
@@ -34,7 +35,8 @@ router.get('/me', async (req, res) => {
             email: result.email,
             phone: result.phone_number,
             default_view: result.default_view,
-            roles: roles
+            roles: roles,
+            preferences: preferences
         });
     } catch (error) {
         console.error(`Error fetching current user ${userId}:`, error);
