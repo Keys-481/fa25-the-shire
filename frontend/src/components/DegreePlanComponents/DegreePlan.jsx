@@ -15,7 +15,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
     const api = useApiClient();
     const base_url = '/api/students';
 
-    const studentId = useMemo(() => student?.id ?? propStudentId ?? null, [student, propStudentId]);
+    const studentId = useMemo(() => student?.school_student_id ?? student?.id ?? propStudentId ?? null, [student, propStudentId]);
     const thisProgramId = useMemo(() => {
         if (program?.program_id) return program.program_id;
         if (program?.programId) return program.programId;

@@ -5,8 +5,15 @@
 
 import DegreePlan from "./DegreePlanComponents/DegreePlan";
 import CommentsContainer from "./DegreePlanComponents/CommentsContainer";
+import { useEffect, useState } from "react";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram, userIsStudent=false }) {
+    const [currentProgram, setCurrentProgram] = useState(selectedStudentProgram);
+
+    useEffect(() => {
+        setCurrentProgram(selectedStudentProgram);
+    }, [selectedStudentProgram]);
+
     if (!student) {
         return <p className="p2">No student selected</p>;
     }
@@ -20,8 +27,11 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
                         {programs.map((program, index) => (
                             <li
                                 key={index}
-                                onClick={() => setSelectedProgram(program)}
-                                className={`result-item ${selectedStudentProgram?.program_id === program.program_id ? 'selected' : ''}`}
+                                onClick={() => {
+                                    setSelectedProgram(program);
+                                    setCurrentProgram(program);
+                                }}
+                                className={`result-item ${currentProgram?.program_id === program.program_id ? 'selected' : ''}`}
                             >
                                 <strong>{program.program_name}</strong>
                                 <br />
@@ -36,12 +46,12 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
             {selectedStudentProgram ? (
                 <div className="degree-plan-comments-wrapper">
                     <div style={{ flex: 7 }}>
-                        <DegreePlan student={student} program={selectedStudentProgram} userIsStudent={userIsStudent} />
+                        <DegreePlan student={student} program={currentProgram} userIsStudent={userIsStudent} />
                     </div>
                     <div style={{ flex: 3 }}>
                         <CommentsContainer
-                            studentSchoolId={student.id}
-                            programId={selectedStudentProgram.program_id}
+                            studentSchoolId={student.id || student.school_student_id}
+                            programId={currentProgram?.program_id}
                         />
                     </div>
                 </div>
