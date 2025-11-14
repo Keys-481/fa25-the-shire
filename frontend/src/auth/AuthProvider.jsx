@@ -3,9 +3,10 @@ import TimeoutPopup from "../components/TimeoutPopup";
 
 // Config (change to shorter time when testing)
 // Milliseconds (in a second) * seconds (in a minute) * minutes
-const IDLE_TIME_MS = 1000 * 60 * 30; // Use this for testing: 1000 * 20; 
+const IDLE_TIME_MS = 1000 * 60 * 30; // Use this for testing: 1000 * 20;
 const WARNING_TIME_MS = 1000 * 60 * 25; // Use this for testing: 1000 * 5;
 const COUNTDOWN = Math.ceil((IDLE_TIME_MS - WARNING_TIME_MS) / 1000);
+const ALLOW_CROSS_TAB_REMOVE_WARNING = false;
 
 const STORAGE = {
     AUTH: "auth",
@@ -29,10 +30,6 @@ export function AuthProvider({ children }) {
         return raw ? JSON.parse(raw) : { isAuthed: false, token: null, user: null };
     });
 
-    useEffect(() => {
-        localStorage.setItem(STORAGE.AUTH, JSON.stringify(auth));
-    }, [auth]);
-
     const isAuthed = !!auth?.isAuthed;
 
     // Idle warning state and timers
@@ -43,6 +40,17 @@ export function AuthProvider({ children }) {
     const countdownIntervalRef = useRef(null);
     const deadlineRef = useRef(null);
     const warnAtRef = useRef(null);
+    const showWarningRef = useRef(false);
+
+    // Persist auth
+    useEffect(() => {
+        localStorage.setItem(STORAGE.AUTH, JSON.stringify(auth));
+    }, [auth]);
+
+    // Persist warning
+    useEffect(() => {
+        showWarningRef.current = showWarning;
+    }, [showWarning]);
 
     // Helper method that reads last user activity
     const getLastActivity = () => {
@@ -100,8 +108,12 @@ export function AuthProvider({ children }) {
     };
 
     // Mark user as active and reset timers/warnings
-    const markActivity = () => {
+    const markActivity = ({ force = false } = {}) => {
         if (!isAuthed) return;
+
+        // Prevent activity from removing warning
+        if (showWarningRef.current && !force) return;
+
         setShowWarning(false);
         clearInterval(countdownIntervalRef.current);
         const ts = setLastActivity();
@@ -133,6 +145,8 @@ export function AuthProvider({ children }) {
         const onStorage = (e) => {
             // Another tab is logged in
             if (e.key === STORAGE.LAST_ACTIVITY && isAuthed) {
+                // Prevent cross-tab activities from hiding the warning
+                if (showWarningRef.current && !ALLOW_CROSS_TAB_REMOVE_WARNING) return;
                 const last = getLastActivity();
                 if (last) scheduleTimers(last);
             }
@@ -168,7 +182,8 @@ export function AuthProvider({ children }) {
     }
 
     const handleStay = () => {
-        markActivity();
+        // Allow button to remove warning
+        markActivity({ force: true });
     }
 
     const value = useMemo(() => ({
