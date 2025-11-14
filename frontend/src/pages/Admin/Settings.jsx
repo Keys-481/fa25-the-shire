@@ -21,6 +21,10 @@ export default function AdminSettings() {
   const [newView, setNewView] = useState('');
   const [viewUpdateStatus, setViewUpdateStatus] = useState(null);
   const [advisors, setAdvisors] = useState([]);
+  const [isDark, setIsDark] = useState(false);
+  const [theme, setTheme] = useState('light');
+  const [fontSize, setFontSize] = useState('0px');
+  const [fontFamily, setFontFamily] = useState('Arial, sans-serif');
   const api = useApiClient();
   const roleSettingsRoutes = {
     admin: '/admin/settings',
@@ -40,9 +44,21 @@ export default function AdminSettings() {
         setUserInfo(data);
         setNewView(data.default_view);
 
+        // Fetch preferences separately
+        const prefs = await api.get(`/api/users/${data.user_id}/preferences`);
+        if (prefs) {
+          setTheme(prefs.theme);
+          setFontSize(prefs.font_size_change);
+          setFontFamily(prefs.font_family);
+
+          document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
+          document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
+          document.documentElement.style.setProperty('--font-family-change', prefs.font_family);
+        }
+
+
         // Fetch advisor info
         const advisingData = await api.get(`/api/users/${data.user_id}/advising`);
-        console.log('Advising response:', advisingData);
         if (advisingData?.advisors?.length > 0) {
           setAdvisors(advisingData.advisors);
         }
@@ -51,6 +67,28 @@ export default function AdminSettings() {
       }
     })();
   }, []);
+
+
+/**
+ * useEffect hook that runs once on component mount to initialize user interface preferences.
+ * Fetches user preferences for theme, font size, and font family, then applies them to the document.
+ * 
+ * @async
+ * @function useEffect
+ * @returns {void} No return value; side effects update DOM and component state.
+ */
+  useEffect(() => {
+    (async () => {
+      const prefs = await api.get(`/api/users/${data.user_id}/preferences`);
+      if (prefs) {
+        setIsDark(prefs.theme === 'dark'); // set state
+        document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
+        document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
+        document.documentElement.style.setProperty('--font-family-change', prefs.font_family);
+      }
+    })();
+  }, []);
+
 
   if (!userInfo) return <p>Loading user info...</p>;
 
@@ -107,12 +145,8 @@ export default function AdminSettings() {
                     <button
                       onClick={async () => {
                         try {
-                          await api.put(`/api/users/${userInfo.id}`, {
-                            name: userInfo.name,
-                            email: userInfo.email,
-                            phone: userInfo.phone,
-                            password: newPassword,
-                            default_view: userInfo.default_view
+                          await api.put(`/api/users/${userInfo.user_id}/password`, {
+                            password: newPassword
                           });
                           setPasswordUpdateStatus('Password updated successfully.');
                           setNewPassword('');
@@ -165,8 +199,6 @@ export default function AdminSettings() {
               )}
               {viewType === 'settings' && (
                 <div>
-                  {/* TODO: Add Generic Settings Later */}
-
                   {/* If user has more than 1 role display */}
                   {userInfo.roles?.length > 1 && (
                     <div>
@@ -201,8 +233,94 @@ export default function AdminSettings() {
                       </div>
 
                       {viewUpdateStatus && <p>{viewUpdateStatus}</p>}
+                      <div className='horizontal-line'></div>
                     </div>
                   )}
+
+                  {/* Generic Settings */}
+
+                  <div>
+                    {/* Theme Toggle */}
+                    <div className="toggle-row">
+                      <p><strong>Dark Theme:</strong></p>
+                      <label className="switch">
+                        <input
+                          type="checkbox"
+                          checked={theme === 'dark'}
+                          onChange={async (e) => {
+                            const newTheme = e.target.checked ? 'dark' : 'light';
+                            setTheme(newTheme);
+                            document.body.classList.toggle('dark-theme', newTheme === 'dark');
+                            try {
+                              await api.put(`/api/users/${userInfo.user_id}/preferences`, {
+                                theme: newTheme,
+                                font_size_change: fontSize,
+                                font_family: fontFamily
+                              });
+                            } catch (err) {
+                              console.error('Theme update failed:', err);
+                            }
+                          }}
+                        />
+                        <span className="slider"></span>
+                      </label>
+                    </div>
+
+                    {/* Font Size Selector */}
+                    <div className="textbox-row">
+                      <p><strong>Font Size:</strong></p>
+                      <select
+                        className="textbox"
+                        value={fontSize}
+                        onChange={async (e) => {
+                          const size = e.target.value;
+                          setFontSize(size);
+                          document.documentElement.style.setProperty('--font-size-change', size);
+                          try {
+                            await api.put(`/api/users/${userInfo.user_id}/preferences`, {
+                              theme,
+                              font_size_change: size,
+                              font_family: fontFamily
+                            });
+                          } catch (err) {
+                            console.error('Font size update failed:', err);
+                          }
+                        }}
+                      >
+                        <option value="-2px">Small</option>
+                        <option value="0px">Medium</option>
+                        <option value="4px">Large</option>
+                      </select>
+                    </div>
+
+                    {/* Font Family Selector */}
+                    <div className="textbox-row">
+                      <p><strong>Font Family:</strong></p>
+                      <select
+                        className="textbox"
+                        value={fontFamily}
+                        onChange={async (e) => {
+                          const family = e.target.value;
+                          setFontFamily(family);
+                          document.documentElement.style.setProperty('--font-family-change', family);
+                          try {
+                            await api.put(`/api/users/${userInfo.user_id}/preferences`, {
+                              theme,
+                              font_size_change: fontSize,
+                              font_family: family
+                            });
+                          } catch (err) {
+                            console.error('Font family update failed:', err);
+                          }
+                        }}
+                      >
+                        <option value="Arial, sans-serif">Arial</option>
+                        <option value="'Courier New', monospace">Courier</option>
+                        <option value="'Times New Roman', serif">Times</option>
+                        <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

@@ -14,6 +14,18 @@ const STORAGE = {
     LOGOUT_REASON: "logoutReason",
 };
 
+/**
+ * Resets all user interface preferences back to default values.
+ *
+ * @function resetPreferences
+ * @returns {void} Performs DOM side effects; does not return a value.
+ */
+function resetPreferences() {
+    document.body.classList.remove("dark-theme");
+    document.documentElement.style.setProperty("--font-size-change", "0px");
+    document.documentElement.style.setProperty("--font-family-change", "Arial, sans-serif");
+}
+
 const AuthContext = createContext(null);
 const now = () => Date.now();
 
@@ -177,6 +189,7 @@ export function AuthProvider({ children }) {
         localStorage.setItem(STORAGE.LOGOUT_REASON, reason || "timeout");
         setAuth({ isAuthed: false, token: null, user: null });
         setShowWarning(false);
+        resetPreferences();
         clearTimers();
         window.location.href = "/login";
     }
