@@ -109,4 +109,28 @@ router.get('/', async (req, res) => {
     }
 });
 
+/**
+ * route DELETE /comments/:commentId
+ * Deletes a specific comment by its ID
+ */
+router.delete('/:commentId', async (req, res) => {
+    const { commentId } = req.params;
+
+    if (!commentId) {
+            return res.status(400).json({ message: 'Missing commentId parameter' });
+    }
+
+    try {
+        const deletedComment = await CommentModel.deleteCommentById(commentId);
+        if (!deletedComment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+        // return success response
+        return res.json({ message: 'Comment deleted successfully', commentId: deletedComment.comment_id });
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;

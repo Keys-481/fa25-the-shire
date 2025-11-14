@@ -89,7 +89,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
                 </div>
                 <p>
                     <span>Email:</span> {email}
-                    <span className="degree-plan-content">|</span>
+                    <span style={{ margin: '20px' }}>|</span>
                     <span>Phone:</span> {phone}
                 </p>
                 <p><span>Program:</span> {programName}</p>

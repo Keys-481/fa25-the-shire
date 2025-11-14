@@ -254,7 +254,6 @@ router.get('/:schoolId/degree-plan', async (req, res) => {
                     };
                 })
             );
-            console.log("Degree Plan: ", degreePlan);
             return res.json({ student, programId, viewType, degreePlan, totalRequiredCredits });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to this student\'s degree plan' });
@@ -421,7 +420,6 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
         if (!updatedCourse) {
             return res.status(404).json({ message: 'Course not found in student\'s degree plan' });
         }
-        console.log("Updated Course: ", updatedCourse);
         return res.json(updatedCourse);
 
     } catch (error) {
