@@ -3,12 +3,12 @@
  * @description Dashboard for student users
  */
 
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
-import LogoutButton from '../../components/LogoutButton'
-import logo from '../../assets/images/boise_state_wbg.png'
-import '../../styles/Styles.css'
 import StudentNavBar from '../../components/NavBars/StudentNavBar'
+import { useApiClient } from '../../lib/apiClient'
+import '../../styles/Styles.css'
 
 /**
  * StudentDashboard component displays the main dashboard for students with navigation options.
@@ -19,21 +19,31 @@ import StudentNavBar from '../../components/NavBars/StudentNavBar'
 export default function StudentDashboard() {
     const navigate = useNavigate()
     const { logout } = useAuth();
+    const api = useApiClient();
 
+    /**
+     * useEffect hook that runs each time the Dashboard component mounts.
+     */
+    useEffect(() => {
+        (async () => {
+            try {
+                const me = await api.get("/api/users/me");
+                const prefs = me.preferences;
+                if (prefs) {
+                    document.body.classList.toggle("dark-theme", prefs.theme === "dark");
+                    document.documentElement.style.setProperty("--font-size-change", prefs.font_size_change);
+                    document.documentElement.style.setProperty("--font-family-change", prefs.font_family);
+                }
+            } catch (err) {
+                console.error("Failed to apply preferences:", err);
+            }
+        })();
+    }, []);
+    
     return (
         <div>
             {/* Navigation bar */}
             <StudentNavBar />
-            {/* <div className='navbar'>
-                <div style={{ position: 'absolute', left: '20px' }}>
-                    <LogoutButton />
-                </div>
-                <img src={logo} alt="BSU-Logo" className='logo' />
-
-                <div style={{ position: 'absolute', right: '20px' }}>
-                    <NotificationsButton />
-                </div>
-            </div> */}
 
             <div className='window'>
                 {/* Page Title */}
@@ -43,16 +53,16 @@ export default function StudentDashboard() {
                 {/*  Main Content Area with Navigation Buttons */}
                 <div className='container'>
                     <div className='dashboard-container'>
-                    <div className='button-row'>
-                        {/* Navigation Button */}
-                        <button className='square-button' onClick={() => navigate('/student/degree-tracking')}>
-                            Degree Tracking
-                        </button>
-                        {/* Settings Button */}
-                        <button className='square-button' onClick={() => navigate('/student/settings')}>
-                            Settings
-                        </button>
-                    </div>
+                        <div className='button-row'>
+                            {/* Navigation Button */}
+                            <button className='square-button' onClick={() => navigate('/student/degree-tracking')}>
+                                Degree Tracking
+                            </button>
+                            {/* Settings Button */}
+                            <button className='square-button' onClick={() => navigate('/student/settings')}>
+                                Settings
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -72,6 +72,23 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (13, crypt('supersecurehash13', gen_salt('bf', 12)), 'student10@u.boisestate.edu', '666-222-7777', 'Charles', 'Murphy', '115409012', 3),
 (14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Account', 'User', '122368754', 4);
 
+-- Insert user settings
+INSERT INTO user_settings (user_id, theme, font_size_change, font_family) VALUES
+(1, 'light', '0px', 'Arial, sans-serif'),
+(2, 'light', '0px', 'Arial, sans-serif'),
+(3, 'light', '0px', 'Arial, sans-serif'),
+(4, 'light', '0px', 'Arial, sans-serif'),
+(5, 'light', '0px', 'Arial, sans-serif'),
+(6, 'light', '0px', 'Arial, sans-serif'),
+(7, 'light', '0px', 'Arial, sans-serif'),
+(8, 'light', '0px', 'Arial, sans-serif'),
+(9, 'light', '0px', 'Arial, sans-serif'),
+(10, 'light', '0px', 'Arial, sans-serif'),
+(11, 'light', '0px', 'Arial, sans-serif'),
+(12, 'light', '0px', 'Arial, sans-serif'),
+(13, 'light', '0px', 'Arial, sans-serif'),
+(14, 'light', '0px', 'Arial, sans-serif');
+
 -- Assign roles to users
 INSERT INTO user_roles (user_id, role_id) VALUES
 (1, 1), -- Admin User

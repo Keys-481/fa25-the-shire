@@ -1,7 +1,7 @@
 /**  File: frontend/src/components/ReportLayout.jsx
  *  Component to display enrollment report for a selected course across next 4 semesters.
  * */
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 //
 export default function ReportLayout({ courseCode }) {
@@ -89,8 +89,8 @@ export default function ReportLayout({ courseCode }) {
 
   // Render the report table
   return (
-    <table className="report-table" style={{ width: "100%", borderCollapse: "collapse" }}>
-      <thead style={{ backgroundColor: "#f0f0f0" }}>
+    <table className="requirements-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+      <thead>
         <tr>
           <th>Course Code</th>
           {semesterLabels.map((label) => (

@@ -3,9 +3,9 @@
  * This file defines the ProgramSelector component to select a program for a student.
  */
 
-import DegreePlan from "./DegreePlanComponents/DegreePlan";
-import CommentsContainer from "./DegreePlanComponents/CommentsContainer";
 import { useEffect, useState } from "react";
+import CommentsContainer from "./CommentComps/CommentsContainer";
+import DegreePlan from "./DegreePlanComponents/DegreePlan";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram, userIsStudent=false }) {
     const [currentProgram, setCurrentProgram] = useState(selectedStudentProgram);
@@ -19,9 +19,9 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
     }
 
     return (
-        <>
+        <div className={`program-selector-wrapper ${userIsStudent ? 'student-layout' : 'advisor-layout'}`}>
             <div className="program-selector">
-                <h3>Select Program:</h3>
+                <h3 style={{ margin: '15px' }}>Select Program:</h3>
                 {programs.length > 0 ? (
                     <ul className="results-list">
                         {programs.map((program, index) => (
@@ -45,19 +45,21 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
 
             {selectedStudentProgram ? (
                 <div className="degree-plan-comments-wrapper">
-                    <div style={{ flex: 7 }}>
-                        <DegreePlan student={student} program={currentProgram} userIsStudent={userIsStudent} />
-                    </div>
-                    <div style={{ flex: 3 }}>
-                        <CommentsContainer
-                            studentSchoolId={student.id || student.school_student_id}
-                            programId={currentProgram?.program_id}
-                        />
-                    </div>
+                    <DegreePlan
+                        student={student}
+                        program={currentProgram}
+                        userIsStudent={userIsStudent}
+                    />
+                    <CommentsContainer
+                        student={student}
+                        studentSchoolId={student.id || student.school_student_id}
+                        programId={currentProgram?.program_id}
+                        userIsStudent={userIsStudent}
+                    />
                 </div>
             ) : (
                 <p>Select a program to view the degree plan</p>
             )}
-        </>
+        </div>
     )
 }

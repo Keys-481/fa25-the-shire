@@ -1,4 +1,16 @@
-import { createContext, use, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+
+/**
+ * Resets all user interface preferences back to default values.
+ *
+ * @function resetPreferences
+ * @returns {void} Performs DOM side effects; does not return a value.
+ */
+function resetPreferences() {
+    document.body.classList.remove("dark-theme");
+    document.documentElement.style.setProperty("--font-size-change", "0px");
+    document.documentElement.style.setProperty("--font-family-change", "Arial, sans-serif");
+}
 
 const AuthContext = createContext(null);
 
@@ -15,6 +27,9 @@ export function AuthProvider({ children }) {
         return raw ? JSON.parse(raw) : { isAuthed: false, token: null, user: null };
     });
 
+    /**
+     * useEffect hook that persists authentication state to localStorage.
+     */
     useEffect(() => {
         localStorage.setItem("auth", JSON.stringify(auth));
     }, [auth]);
@@ -24,7 +39,10 @@ export function AuthProvider({ children }) {
         user: auth.user,
         token: auth.token,
         login: ({ token, user }) => setAuth({ isAuthed: true, token, user }),
-        logout: () => setAuth({ isAuthed: false, token: null, user: null }),
+        logout: () => {
+            setAuth({ isAuthed: false, token: null, user: null });
+            resetPreferences();
+        },
     }), [auth]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

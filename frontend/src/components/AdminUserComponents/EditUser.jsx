@@ -106,8 +106,8 @@ export default function EditUser({
         <h2>Edit User</h2>
         <div className="button-row">
           <button onClick={handleSave}>Save</button>
-          <button onClick={handleDelete} className='error-message'>Delete</button>
           <button onClick={handleCancel} style={{ marginLeft: '10px' }}>Cancel</button>
+          <button onClick={handleDelete} className='error-message'>Delete</button>
         </div>
       </div>
       <div className='horizontal-line'></div>

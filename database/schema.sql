@@ -26,7 +26,8 @@ DROP TABLE IF EXISTS
     programs,
     courses,
     certificates,
-    program_requirements
+    program_requirements,
+    user_settings
 CASCADE;
 
 
@@ -78,6 +79,15 @@ CREATE TABLE users (
     last_name VARCHAR(50) NOT NULL,
     public_id VARCHAR(9) UNIQUE NOT NULL,
     default_view INT REFERENCES roles(role_id)
+);
+
+-- User Settings Table:
+-- Stores user interface preferences
+CREATE TABLE user_settings (
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE PRIMARY KEY,
+    theme VARCHAR(20) NOT NULL DEFAULT 'light', -- e.g., 'light' or 'dark' --
+    font_size_change VARCHAR(10) NOT NULL DEFAULT '0px', -- e.g., '0px', '4px', '-2px' --
+    font_family VARCHAR(100) NOT NULL DEFAULT 'Arial, sans-serif' -- e.g., 'Arial, sans-serif', 'Times New Roman, serif' --
 );
 
 -- Permissions Table:
