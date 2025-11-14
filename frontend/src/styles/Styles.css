@@ -8,6 +8,23 @@
   --in-progress: #afebaf; /* Light green */
   --planned: #fff1b2; /* Light yellow */
   --light-blue: #ecf2fc; /* Light blue for certificate alert and comment items */
+  --error-red: red;
+
+  --font-size-change: 0px;
+  --font-family-change: 'Arial, sans-serif';
+}
+
+/* Dark theme override */
+body.dark-theme {
+  --background: #252525;
+  --main: #f0f0f0;
+  --accent: #f1632a;
+  --secondary: #6d6d6d;
+  --completed: #3a3a3a; /* Dark gray */
+  --in-progress: #2e4d2e; /* Dark green */
+  --planned: #4d4d23; /* Dark yellow */
+  --light-blue: #2a3a4d; /* Dark blue for certificate alert and comment items */
+  --error-red: #9b0505;
 }
 
 html, body {
@@ -16,6 +33,9 @@ html, body {
 
 body {
   margin: 0;
+  font-family: var(--font-family-change);
+  background-color: var(--background);
+  color: var(--main);
 }
 
 /************************/
@@ -139,20 +159,24 @@ body {
   padding: 6px 12px;
   border: 2px solid var(--main);
   border-radius: 5px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   width: 300px;
   margin-left: 10px;
   color: var(--accent);
+  background-color: var(--background);
+  font-family: var(--font-family-change);
 }
 
 .search-textbox {
   padding: 10px;
-  font-size: 16px;
+  font-size: calc(16px + var(--font-size-change));
   border-radius: 50px;
   border: 1px solid var(--main);
   color: var(--accent);
   margin-top: 5px;
   margin-left: 10px;
+  background-color: var(--background);
+  font-family: var(--font-family-change);
 }
 
 .horizontal-line-half {
@@ -215,7 +239,7 @@ body {
 }
 
 .error-message {
-  color: red;
+  color: var(--error-red);
 }
 
 
@@ -226,6 +250,9 @@ body {
   color: var(--accent);
   max-width: 90%;
   margin: 0 auto;
+  padding-top: 5px;
+  font-family: var(--font-family-change);
+  font-size: calc(14px + var(--font-size-change));
 }
 
 .result-item {
@@ -233,7 +260,8 @@ body {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  background-color: #f9f9f9;
+  background-color: var(--background);
+  color: var(--accent);
   margin: 0 auto 10px auto;
   cursor: pointer;
 }
@@ -270,7 +298,7 @@ body {
   color: var(--main);
   border: 1px solid var(--main);
   border-radius: 8px;
-  font-size: 1.2rem;
+  font-size: calc(1.2rem + var(--font-size-change));
   font-weight: bold;
   cursor: pointer;
   display: flex;
@@ -278,6 +306,7 @@ body {
   transition: transform 0.2s ease;
   padding: 1rem;
   box-shadow: none;
+  font-family: var(--font-family-change);
 }
 
 .square-button:hover {
@@ -336,17 +365,17 @@ body {
 h1 {
   margin: 2px;
   color: var(--main);
-  font-size: 22px;
+  font-size: calc(22px + var(--font-size-change));
   margin-left: 10px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-change);
 }
 
 h2 {
   margin: 2px;
   color: var(--main);
-  font-size: 18px;
+  font-size: calc(18px + var(--font-size-change));
   margin-left: 5px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-change);
   font-weight: bold;
   position: relative;
   width: 60%;
@@ -355,9 +384,9 @@ h2 {
 h3 {
   margin: 2px;
   color: var(--main);
-  font-size: 16px;
+  font-size: calc(16px + var(--font-size-change));
   margin-left: 5px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-change);
   font-weight: bold;
   position: relative;
   width: 60%;
@@ -366,17 +395,29 @@ h3 {
 p {
   margin: 2px;
   color: var(--main);
-  font-size: 15px;
+  font-size: calc(15px + var(--font-size-change));
   margin-left: 10px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-change);
+}
+
+textarea {
+  font-family: var(--font-family-change);
+  color: var(--main);
+  background-color: var(--background);
+}
+
+li {
+  color: var(--main);
+  font-size: calc(15px + var(--font-size-change));
+  font-family: var(--font-family-change);
 }
 
 .p2 {
   color: var(--main);
-  font-size: 15px;
+  font-size: calc(15px + var(--font-size-change));
   margin: 10px;
   font-weight: bold;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-family-change);
 }
 
 button {
@@ -385,17 +426,19 @@ button {
   color: var(--background);
   border: 2px solid var(--main);
   border-radius: 5px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   cursor: pointer;
   margin-bottom: 5px;
   margin-right: 10px;
   margin-left: 10px;
+  font-family: var(--font-family-change);
 }
 
 button.inactive {
   background-color: var(--background);
   color: var(--main);
   border: 1px solid var(--secondary);
+  font-family: var(--font-family-change);
 }
 
 span {
@@ -445,7 +488,7 @@ td {
 
 .requirement-header-cell {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: calc(1rem + var(--font-size-change));
   text-align: left;
   padding: 8px 10px;
   border-top: 2px solid #b9c9e0;
@@ -480,7 +523,7 @@ td {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem + var(--font-size-change));
   font-family: inherit;
 }
 
@@ -502,7 +545,7 @@ td {
 }
 
 .requirements-table td {
-  background-color: #ffffff;
+  background-color: var(--background);
   padding: 6px 10px;
   border-bottom: 1px solid #e5e8ee;
   text-align: left;
@@ -587,9 +630,9 @@ td {
   border-left: 4px solid var(--accent);
   border-radius: 6px;
   color: var(--accent);
-  font-size: 0.95rem;
-  font-family: Arial, sans-serif;
-  line-height: 1.5; /* ✅ adds breathing room */
+  font-size: calc(0.95rem + var(--font-size-change));
+  font-family: var(--font-family-change);
+  line-height: 1.5; /* Adds breathing room */
 }
 
 .certificate-alert-header {
@@ -602,7 +645,7 @@ td {
   background: none;
   border: none;
   color: var(--accent);
-  font-size: 0.9rem;
+  font-size: calc(0.9rem + var(--font-size-change));
   cursor: pointer;
   font-weight: 600;
   text-decoration: underline;
@@ -648,7 +691,7 @@ td {
   background-color: var(--accent);
   color: var(--background);
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: calc(1.1rem + var(--font-size-change));
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }
@@ -669,13 +712,13 @@ td {
 .semester-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: calc(0.95rem + var(--font-size-change));
   border: none;
   margin: 0;
 }
 
 .semester-table th {
-  background-color: #ecf2fc;
+  background-color: var(--light-blue);
   color: var(--accent);
   font-weight: 600;
   padding: 10px 12px;
@@ -697,7 +740,7 @@ td {
   justify-content: space-between;
   align-items: center;
   padding: 5px;
-  background: #eee;
+  background: var(--background);
   margin-top: 10px;
 }
 
@@ -793,7 +836,7 @@ input:checked+.slider:before {
 .login-card {
   width: 100%;
   max-width: 420px;
-  background: #fff;
+  background: var(--background);
   border: 1.5px solid var(--main);
   border-radius: 12px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
@@ -803,7 +846,7 @@ input:checked+.slider:before {
 .login-title {
   margin: 0 0 12px 0;
   text-align: center;
-  font-size: 22px;
+  font-size: calc(22px + var(--font-size-change));
   color: var(--main);
 }
 
@@ -823,7 +866,7 @@ input:checked+.slider:before {
   padding: 10px 12px;
   border: 1px solid #cfd8e6;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   color: var(--accent);
   outline: none;
 }
@@ -837,9 +880,12 @@ input:checked+.slider:before {
   padding: 8px 12px;
   border-radius: 8px;
   border: 2px solid #f1632a;
-  background: rgba(15, 68, 153, 0.637);
+  background: transparent;
   font-weight: 600;
   cursor: pointer;
+  z-index: 1000;
+  font-family: var(--font-family-change);
+  color: #FFFFFF;
 }
 
 /* wrapper for degree plan and comments - inside ProgramSelector */
@@ -894,10 +940,11 @@ input:checked+.slider:before {
 
 .comments-container h4 {
   margin: 0;
-  font-size: 16px;
+  font-size: calc(16px + var(--font-size-change));
   font-weight: bold;
   color: var(--main);
   margin-bottom: 10px;
+  background-color: var(--background);
 }
 
 .comment-form-wrapper {
@@ -915,7 +962,7 @@ input:checked+.slider:before {
 .comment-form textarea {
   flex: 1;
   padding: 6px 10px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   border: 1px solid var(--secondary);
   border-radius: 5px;
   resize: vertical;
@@ -955,7 +1002,7 @@ input:checked+.slider:before {
   border: 1px solid var(--secondary);
   border-radius: 5px;
   padding: 8px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   line-height: 1.4;
   word-wrap: break-word;
   white-space: pre-wrap;
@@ -1035,7 +1082,7 @@ input:checked+.slider:before {
 }
 
 .comment-timestamp {
-  font-size: 11px;
+  font-size: calc(11px + var(--font-size-change));
   color: var(--secondary);
   margin-bottom: 4px;
   align-self: flex-end;
@@ -1074,7 +1121,7 @@ input:checked+.slider:before {
   background-color: #f1632a;
   color: var(--background);
   font-weight: bold;
-  font-size: 10px;
+  font-size: calc(10px + var(--font-size-change));
   border-radius: 50%;
   border: none;
   width: 16px;
@@ -1103,7 +1150,8 @@ input:checked+.slider:before {
   width: 95%;
   margin: 0 auto;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
+  font-family: var(--font-family-change);
 }
 
 .notif-table thead th {
@@ -1155,17 +1203,17 @@ input:checked+.slider:before {
 }
 
 .notif-row.read {
-  background-color: #f5f8ff;
+  background-color: var(--light-blue);
   color: var(--secondary);
 }
 
 .notif-row.unread {
-  background-color: #ffffff;
+  background-color: transparent;
   font-weight: 600;
 }
 
 .notif-row:hover {
-  background-color: #ecf2fc;
+  background-color: color-mix(in srgb, var(--light-blue) 90%, black);
   cursor: pointer;
 }
 
@@ -1181,7 +1229,8 @@ input:checked+.slider:before {
 
 .notif-timestamp {
   color: var(--secondary);
-  font-size: 12px;
+  font-size: calc(12px + var(--font-size-change));
+  font-family: var(--font-family-change);
   white-space: nowrap;
 }
 
@@ -1199,7 +1248,8 @@ input:checked+.slider:before {
 .no-notifs {
   text-align: center;
   padding: 60px 20px;
-  font-size: 16px;
+  font-size: calc(16px + var(--font-size-change));
+  font-family: var(--font-family-change);
   color: var(--secondary);
   border: 1px dashed #cfd8e6;
   border-radius: 10px;

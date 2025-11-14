@@ -3,12 +3,12 @@
  * @description Dashboard for advisor users
  */
 
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
-import LogoutButton from '../../components/LogoutButton'
-import logo from '../../assets/images/boise_state_wbg.png'
-import '../../styles/Styles.css'
 import AdvisorNavBar from '../../components/NavBars/AdvisorNavBar'
+import { useApiClient } from '../../lib/apiClient'
+import '../../styles/Styles.css'
 
 /**
  * AdvisorDashboard component displays the main dashboard for advisors with navigation options.
@@ -19,24 +19,30 @@ import AdvisorNavBar from '../../components/NavBars/AdvisorNavBar'
 export default function AdvisorDashboard() {
     const navigate = useNavigate();
     const { logout } = useAuth();
+    const api = useApiClient();
+
+    /**
+     * useEffect hook that runs each time the Dashboard component mounts.
+     */
+    useEffect(() => {
+        (async () => {
+            try {
+                const me = await api.get("/api/users/me");
+                const prefs = me.preferences;
+                if (prefs) {
+                    document.body.classList.toggle("dark-theme", prefs.theme === "dark");
+                    document.documentElement.style.setProperty("--font-size-change", prefs.font_size_change);
+                    document.documentElement.style.setProperty("--font-family-change", prefs.font_family);
+                }
+            } catch (err) {
+                console.error("Failed to apply preferences:", err);
+            }
+        })();
+    }, []);
 
     return (
         <div>
             <AdvisorNavBar />
-            {/* Navigation bar */}
-
-            {/* <div className='navbar'>
-                <div style={{ position: 'absolute', left: '20px' }}>
-                    <LogoutButton />
-                </div>
-                <img src={logo} alt="BSU-Logo" className='logo' />
-
-                <div style={{ position: 'absolute', right: '20px' }}>
-                    <NotificationsButton />
-                </div>
-            </div> */}
-
-
             <div className='window'>
                 {/* Page Title */}
                 <div className='title-bar'>

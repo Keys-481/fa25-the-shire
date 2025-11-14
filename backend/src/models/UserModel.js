@@ -234,7 +234,14 @@ async function addUser(name, email, phone, password, defaultView, roles) {
         );
         const userId = userRes.rows[0].user_id;
 
-        // Resolve role_ids
+        // Insert default user_settings row
+        await client.query(
+            `INSERT INTO user_settings (user_id, theme, font_size_change, font_family)
+       VALUES ($1, 'light', '0px', 'Arial, sans-serif')`,
+            [userId]
+        );
+
+        // Assign roles
         const roleIds = new Set();
         for (const roleName of roles) {
             const roleRes = await client.query(
@@ -591,6 +598,75 @@ async function getUserByPublicId(publicId) {
     return result.rows[0];
 }
 
+/**
+ * Retrieves the saved user interface preferences for a given user.
+ *
+ * Executes a SQL query against the `user_settings` table to fetch
+ * the theme, font size adjustment, and font family associated with
+ * the specified user ID.
+ *
+ * @async
+ * @function getUserPreferences
+ * @param {number} userId - The unique numeric identifier of the user.
+ * @returns {Promise<Object>} An object containing the user's preferences:
+ *   { theme: string, font_size_change: string, font_family: string }.
+ * @throws Will propagate any database query errors.
+ */
+async function getUserPreferences(userId) {
+    const result = await pool.query(
+        `SELECT theme, font_size_change, font_family 
+     FROM user_settings 
+     WHERE user_id = $1`,
+        [userId]
+    );
+    return result.rows[0];
+}
+
+/**
+ * Updates the user interface preferences for a given user.
+ *
+ * Executes a SQL UPDATE against the `user_settings` table to persist
+ * changes to theme, font size adjustment, and font family.
+ *
+ * @async
+ * @function updateUserPreferences
+ * @param {number} userId - The unique numeric identifier of the user.
+ * @param {string} theme - The theme preference (e.g., 'light' or 'dark').
+ * @param {string} size - The font size adjustment (e.g., '0px', '2px').
+ * @param {string} family - The font family preference (e.g., 'Arial, sans-serif').
+ * @returns {Promise<void>} Resolves when the update completes successfully.
+ * @throws Will propagate any database query errors.
+ */
+async function updateUserPreferences(userId, theme, size, family) {
+    await pool.query(
+        `UPDATE user_settings 
+     SET theme = $1, font_size_change = $2, font_family = $3 
+     WHERE user_id = $4`,
+        [theme, size, family, userId]
+    );
+}
+
+/**
+ * Updates the stored password for a given user.
+ *
+ * Hashes the provided plaintext password using bcrypt before saving
+ * it to the `users` table. The password is stored in the `password_hash`
+ * column to ensure secure authentication.
+ *
+ * @async
+ * @function updateUserPassword
+ * @param {number} userId - The unique numeric identifier of the user.
+ * @param {string} password - The new plaintext password to be hashed.
+ * @returns {Promise<void>} Resolves when the update completes successfully.
+ * @throws Will propagate any database query errors.
+ */
+async function updateUserPassword(userId, password) {
+    const passwordHash = await bcrypt.hash(password, 10);
+    await pool.query(
+        `UPDATE users SET password_hash = $1 WHERE user_id = $2`,
+        [passwordHash, userId]
+    );
+}
 
 module.exports = {
     searchUsers,
@@ -605,5 +681,8 @@ module.exports = {
     getUserById,
     getAdvisingRelations,
     updateAdvisingRelations,
-    getUserByPublicId
+    getUserByPublicId,
+    getUserPreferences,
+    updateUserPreferences,
+    updateUserPassword
 };

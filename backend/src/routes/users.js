@@ -3,7 +3,6 @@ const router = express.Router();
 const AccessModel = require('../models/AccessModel');
 const UserModel = require('../models/UserModel');
 
-
 /**
  * GET /me
  * Retrieves the currently authenticated user's profile.
@@ -27,6 +26,7 @@ router.get('/me', async (req, res) => {
         }
 
         const roles = await AccessModel.getUserRoles(userId);
+        const preferences = await UserModel.getUserPreferences(userId);
 
         res.json({
             user_id: userId,
@@ -35,15 +35,14 @@ router.get('/me', async (req, res) => {
             email: result.email,
             phone: result.phone_number,
             default_view: result.default_view,
-            roles: roles
+            roles: roles,
+            preferences: preferences
         });
     } catch (error) {
         console.error(`Error fetching current user ${userId}:`, error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-
 
 /**
  * GET /search
@@ -319,7 +318,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-
 /**
  * GET /public/:publicId
  * Retrieves basic user details by public ID.
@@ -337,6 +335,79 @@ router.get('/public/:publicId', async (req, res) => {
         console.error(`Error fetching user ${publicId}:`, error);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+
+/**
+ * GET /:id/preferences
+ *
+ * Retrieves the saved user interface preferences for a specific user.
+ * Calls UserModel.getUserPreferences to fetch theme, font size, and font family
+ * from the database and returns them as JSON.
+ *
+ * @route GET /api/users/:id/preferences
+ * @param {string} req.params.id - The unique numeric identifier of the user.
+ * @returns {Object} 200 - JSON object containing user preferences:
+ *   { theme: string, font_size_change: string, font_family: string }
+ * @returns {Object} 500 - Internal server error if the query fails.
+ */
+router.get('/:id/preferences', async (req, res) => {
+  try {
+    const prefs = await UserModel.getUserPreferences(req.params.id);
+    res.json(prefs);
+  } catch (err) {
+    console.error('Error fetching preferences:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * PUT /:id/preferences
+ *
+ * Updates the user interface preferences for a specific user.
+ * Accepts theme, font size adjustment, and font family in the request body,
+ * and persists them to the database via UserModel.updateUserPreferences.
+ *
+ * @route PUT /api/users/:id/preferences
+ * @param {string} req.params.id - The unique numeric identifier of the user.
+ * @param {string} req.body.theme - The theme preference ('light' or 'dark').
+ * @param {string} req.body.font_size_change - The font size adjustment (e.g., '0px', '2px').
+ * @param {string} req.body.font_family - The font family preference (e.g., 'Arial, sans-serif').
+ * @returns {Object} 200 - JSON object { success: true } if update succeeds.
+ * @returns {Object} 500 - Internal server error if the update fails.
+ */
+router.put('/:id/preferences', async (req, res) => {
+  const { theme, font_size_change, font_family } = req.body;
+  try {
+    await UserModel.updateUserPreferences(req.params.id, theme, font_size_change, font_family);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error updating preferences:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * PUT /:id/password
+ *
+ * Updates the stored password for a specific user.
+ * Accepts a plaintext password in the request body, hashes it securely using bcrypt,
+ * and updates the password_hash column in the users table via UserModel.updateUserPassword.
+ *
+ * @route PUT /api/users/:id/password
+ * @param {string} req.params.id - The unique numeric identifier of the user.
+ * @param {string} req.body.password - The new plaintext password to be hashed and stored.
+ * @returns {Object} 200 - JSON object { success: true } if update succeeds.
+ * @returns {Object} 500 - Internal server error if the update fails.
+ */
+router.put('/:id/password', async (req, res) => {
+  const { password } = req.body;
+  try {
+    await UserModel.updateUserPassword(req.params.id, password);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error updating password:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;
