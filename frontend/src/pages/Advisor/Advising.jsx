@@ -43,7 +43,15 @@ export default function Advising() {
   }, [api]);
 
   // Handle search results from SearchBar component
-  const handleSearchResults = (results) => {
+  const handleSearchResults = (results, query) => {
+    const isEmptySearch = !query || ((!query.q1 || query.q1.trim() === "") && (!query.q2 || query.q2.trim() === ""));
+
+    if (isEmptySearch) {
+      setHasSearched(false);
+      setResults([]);
+      return;
+    }
+
     setResults(results);
     setHasSearched(true);
   }
@@ -67,7 +75,7 @@ export default function Advising() {
   // render results message only after a search has been made
   const renderResults = () => {
     if (!hasSearched) {
-      return null;
+      return renderStudentList(assigned);
     }
 
     if (results.length === 0) {
@@ -75,17 +83,19 @@ export default function Advising() {
     }
 
     // render results list
-    return (
-      <ul className="results-list" data-testid="search-results">
-        {results.map((student, index) => (
+    return renderStudentList(results);
+  }
+
+  const renderStudentList = (list) => (
+    <ul className="results-list" data-testid="search-results">
+        {list.map((student, index) => (
           <li key={index} className={`result-item ${selectedStudent?.id === student.id ? 'selected' : ''}`} onClick={() => handleStudentSelect(student)}>
             <strong>{student.name}</strong> <br />
             {student.id}
           </li>
         ))}
       </ul>
-    );
-  }
+  );
 
   return (
     <div>
