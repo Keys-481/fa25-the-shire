@@ -33,9 +33,10 @@ async function createNewCommentNotif(comment) {
 }
 
 /**
- * Mark a notification as read.
- * @param {*} notificationId - The ID of the notification to mark as read.
+ * Mark a notification as read or unread.
+ * @param {*} notificationId - The ID of the notification to mark as read or unread.
  * @param {*} isRead - Boolean indicating whether the notification is read or unread.
+ * @returns The number of rows updated.
  */
 async function markNotificationReadState(notificationId, isRead) {
     try {
@@ -73,8 +74,28 @@ async function getNotificationsForUser(userId) {
     }
 }
 
+/**
+ * Delete a notification by its ID.
+ * @param {*} notificationId - The ID of the notification to delete.
+ * @return The number of rows deleted.
+ */
+async function deleteNotification(notificationId) {
+    try {
+        const results = await pool.query(
+            `DELETE FROM comment_notifications
+            WHERE notification_id = $1`,
+            [notificationId]
+        );
+        return results.rowCount;
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     createNewCommentNotif,
     markNotificationReadState,
     getNotificationsForUser,
+    deleteNotification
 };
