@@ -31,7 +31,7 @@ const SearchBar = forwardRef(function SearchBar({ onSearch, searchEndpoint, plac
 
       // Normalize response to an array for caller
       const list = Array.isArray(data) ? data : Array.isArray(data?.results) ? data.results : [];
-      onSearch?.(list);
+      onSearch?.(list, { q1: query1, q2: query2 });
     } catch (error) {
       console.error('[SearchBar] Search failed:', error?.message || error);
       onSearch?.([]);
