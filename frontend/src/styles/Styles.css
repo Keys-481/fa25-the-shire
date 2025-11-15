@@ -1208,13 +1208,19 @@ input:checked+.slider:before {
 }
 
 .notif-row.read {
-  background-color: var(--light-blue);
+  background-color: #ebecee;
+  color: var(--secondary);
+  font-weight: normal;
+}
+
+.notif-row.read .notif-main {
   color: var(--secondary);
 }
 
 .notif-row.unread {
-  background-color: transparent;
+  background-color: var(--background);
   font-weight: 600;
+  color: var(--main);
 }
 
 .notif-row:hover {
