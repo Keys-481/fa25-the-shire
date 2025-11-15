@@ -985,6 +985,10 @@ input:checked+.slider:before {
   cursor: not-allowed;
 }
 
+.comment-form button:hover {
+  background-color: color-mix(in srgb, var(--accent) 90%, black);
+}
+
 .comments-list {
   list-style-type: none;
   padding-left: 0;
@@ -1019,7 +1023,7 @@ input:checked+.slider:before {
 .comment-menu-btn {
   border: none;
   background: transparent;
-  font-size: 16px;
+  font-size: calc(14px + var(--font-size-change));
   cursor: pointer;
   color: var(--secondary);
   padding: 0;
@@ -1059,8 +1063,9 @@ input:checked+.slider:before {
   text-align: left;
   cursor: pointer;
   color: var(--main);
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   box-sizing: border-box;
+  font-family: var(--font-family-change);
 }
 
 .comment-menu button:last-child {
@@ -1181,7 +1186,7 @@ input:checked+.slider:before {
 
 .mark-read-btn:hover,
 .notif-delete-btn:hover {
-  background-color: #f0f0f0;
+  background-color: color-mix(in srgb, var(--light-blue) 90%, black);
 }
 
 .mark-read-btn:disabled,
@@ -1239,17 +1244,6 @@ input:checked+.slider:before {
   width: 60%;
 }
 
-.notif-message {
-  color: var(--main);
-  width: 50%;
-}
-
-.notif-title {
-  font-weight: 600;
-  color: var(--accent);
-  width: 20%;
-}
-
 .no-notifs {
   text-align: center;
   padding: 60px 20px;
@@ -1289,7 +1283,7 @@ input:checked+.slider:before {
 }
 
 .notif-detail-header h2 {
-  font-size: 18px;
+  font-size: calc(18px + var(--font-size-change));
   font-weight: 600;
   color: var(--main);
 }
@@ -1297,7 +1291,7 @@ input:checked+.slider:before {
 .notif-detail-header button {
   background: none;
   border: none;
-  font-size: 16px;
+  font-size: calc(16px + var(--font-size-change));
   cursor: pointer;
   color: var(--main);
   transition: color 0.2s ease;
@@ -1310,7 +1304,7 @@ input:checked+.slider:before {
 .notif-summary {
   font-weight: 600;
   margin-bottom: 15px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   color: var(--main);
 }
 
@@ -1331,7 +1325,7 @@ input:checked+.slider:before {
 
 .notif-comment p {
   margin: 0;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   color: var(--accent);
   line-height: 1.5;
   word-wrap: break-word;
@@ -1340,7 +1334,7 @@ input:checked+.slider:before {
 .view-comment-btn {
   display: inline-block;
   padding: 10px 16px;
-  font-size: 14px;
+  font-size: calc(14px + var(--font-size-change));
   color: var(--background);
   background-color: var(--accent);
   border: none;
@@ -1350,5 +1344,5 @@ input:checked+.slider:before {
 }
 
 .view-comment-btn:hover {
-  background-color: #072b5e;
+  background-color: color-mix(in srgb, var(--accent) 90%, black);
 }

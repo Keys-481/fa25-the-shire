@@ -180,6 +180,7 @@ export default function Notifications() {
                                                         type="checkbox"
                                                         checked={selectedNotifications.includes(notif.notification_id)}
                                                         onChange={() => handleSelectNotif(notif.notification_id)}
+                                                        onClick={(e) => e.stopPropagation()}
                                                     />
                                                 </td>
                                                 <td className="notif-main">{formatNotification(notif)}</td>
