@@ -113,7 +113,7 @@ export default function Notifications() {
             if (selectedNotifications.length === 0) return;
 
             // make sure user confirms deletion
-            if (!window.confirm('Are you sure you want to delete the selected notifications? This action cannot be undone.')) {
+            if (!window.confirm('Are you sure you want to delete the selected notifications?')) {
                 return;
             }
 
