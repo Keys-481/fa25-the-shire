@@ -133,4 +133,28 @@ router.delete('/:commentId', async (req, res) => {
     }
 });
 
+/**
+ * route PUT /comments/:commentId
+ * Updates a specific comment by its ID
+ */
+router.put('/:commentId', async (req, res) => {
+    const { commentId } = req.params;
+    const { newText } = req.body;
+
+    if (!commentId || !newText) {
+        return res.status(400).json({ message: 'Missing required parameters: commentId, newText' });
+    }
+
+    try {
+        const updatedComment = await CommentModel.updateComment(commentId, newText);
+        if (!updatedComment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+        return res.json(updatedComment);
+    } catch (error) {
+        console.error('Error updating comment:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;

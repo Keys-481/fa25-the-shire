@@ -85,8 +85,36 @@ async function deleteCommentById(commentId) {
     }
 }
 
+/**
+ * Update a comment by its ID.
+ * @param {*} commentId - ID of the comment to update.
+ * @param {*} newText - New text content for the comment.
+ * @returns The updated comment object.
+ */
+async function updateComment(commentId, newText) {
+    try {
+        const result = await pool.query(
+            `WITH updated AS (
+                UPDATE degree_plan_comments
+                SET comment_text = $1
+                WHERE comment_id = $2
+                RETURNING *
+            ) SELECT updated.*,
+                u.first_name, u.last_name
+            FROM updated
+            JOIN users u ON u.user_id = updated.author_id`,
+            [newText, commentId]
+        );
+        return result.rows[0];
+    } catch (error) {
+        console.error('Error updating comment:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     createComment,
     getCommentsByProgramAndStudent,
-    deleteCommentById
+    deleteCommentById,
+    updateComment
 };

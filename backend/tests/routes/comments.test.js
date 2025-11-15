@@ -197,3 +197,37 @@ describe('POST /comments', () => {
         expect(response.body.message).toBe('Forbidden: You do not have permission to comment on this degree plan');
     });
 });
+
+/**
+ * Tests for PUT /comments/:id route
+ */
+describe('PUT /comments/:id', () => {
+    // test for successful comment update
+    test('returns 200 and updates the comment for valid input', async () => {
+        const mockUser = { user_id: 2 }; // advisor who authored the comment
+        const app = makeAppWithUser(mockUser);
+
+        const updatedCommentText = 'This is an updated test comment.';
+
+        const response = await request(app)
+            .put('/comments/1') // assuming comment with ID 1 exists and was authored by user_id 2
+            .send({ newText: updatedCommentText });
+
+        expect(response.status).toBe(200);
+        expect(response.body.comment_id).toBe(1);
+        expect(response.body.comment_text).toBe(updatedCommentText);
+    });
+
+    // test for missing required fields
+    test('returns 400 for missing required fields', async () => {
+        const mockUser = { user_id: 2 }; // advisor who authored the comment
+        const app = makeAppWithUser(mockUser);
+
+        const response = await request(app)
+            .put('/comments/1') // assuming comment with ID 1 exists
+            .send({}); // missing newText
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Missing required parameters: commentId, newText');
+    });
+});
