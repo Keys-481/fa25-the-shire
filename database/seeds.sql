@@ -803,14 +803,16 @@ INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_tex
 (1, 2, 2, 'Consider taking more electives next semester.'),
 (1, 1, 4, 'I am thinking of taking OPWL 507 next semester, what do you think?'),
 (1, 1, 2, 'OPWL 507 is a great choice for your degree plan.'),
+(2, 1, 2, 'Don''t forget to complete your certificate requirements.'),
 (2, 2, 3, 'Remember to check prerequisites before enrolling.'),
 (2, 2, 5, 'Very long comment to test the text field in the degree_plan_comments table. This comment goes on and on to ensure that the database can handle longer text entries without any issues. We want to make sure that advisors can leave detailed notes for students regarding their degree plans, course selections, and any other relevant information that may assist them in their academic journey.');
 
 
 -- Insert into comment_notifications (based on comments added above)
-INSERT INTO comment_notifications (recipient_id, triggered_by, title, notif_message, comment_id, program_id, student_id)
-SELECT recipient_id, c.author_id, 'New Degree Plan Comment', c.comment_text, c.comment_id, c.program_id, c.student_id
+INSERT INTO comment_notifications (recipient_id, triggered_by, title, notif_message, comment_id, program_id, student_id, school_student_id)
+SELECT recipient_id, c.author_id, 'New Degree Plan Comment', c.comment_text, c.comment_id, c.program_id, c.student_id, s.school_student_id
 FROM degree_plan_comments c
+JOIN students s ON s.student_id = c.student_id
 JOIN (
     -- get relevant users to notify
     SELECT s.user_id AS recipient_id, s.student_id

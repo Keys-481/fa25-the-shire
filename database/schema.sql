@@ -356,6 +356,7 @@ CREATE TABLE comment_notifications (
     comment_id INT REFERENCES degree_plan_comments(comment_id) ON DELETE CASCADE,
     program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
+    school_student_id VARCHAR(9) references students(school_student_id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_read BOOLEAN DEFAULT FALSE
 );

@@ -15,12 +15,12 @@ export default function LogIn() {
 
     useEffect(() => {
         if (!isAuthed) return;
-        const role = user?.role;
+        const role = user?.default_view;
         const roleHome = ({
-            admin: "/admin/dashboard",
-            advisor: "/advisor/dashboard",
-            student: "/student/dashboard",
-            accounting: "/accounting/dashboard",
+            1: "/student/dashboard",
+            2: "/advisor/dashboard",
+            3: "/admin/dashboard",
+            4: "/accounting/dashboard",
         })[role] || "/student/dashboard";
         navigate(roleHome, { replace: true });
     }, [isAuthed, user, navigate]);
