@@ -3,11 +3,11 @@
  * Page component to display user notifications.
  */
 
+import { Mail, MailOpen, Trash } from 'lucide-react';
 import AccountingNavBar from '../components/NavBars/AccountingNavBar';
 import AdminNavBar from '../components/NavBars/AdminNavBar';
 import AdvisorNavBar from '../components/NavBars/AdvisorNavBar';
 import StudentNavBar from '../components/NavBars/StudentNavBar';
-import { Mail, MailOpen, Trash } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
@@ -107,6 +107,46 @@ export default function Notifications() {
         }
     };
 
+    // delete selected notifications
+    const handleDeleteSelected = async () => {
+        try {
+            if (selectedNotifications.length === 0) return;
+
+            // make sure user confirms deletion
+            if (!window.confirm('Are you sure you want to delete the selected notifications? This action cannot be undone.')) {
+                return;
+            }
+
+            await Promise.all(
+                selectedNotifications.map((notifID) =>
+                    api.del(`/api/notifications/${notifID}`)
+                )
+            );
+
+            // update local state
+            setNotifications((prev) =>
+                prev.filter(
+                    (notif) => !selectedNotifications.includes(notif.notification_id)
+                )
+            );
+
+            // update global unread count for notif button badge
+            const unreadDeleted = notifications.filter(
+                (notif) =>
+                    selectedNotifications.includes(notif.notification_id) && !notif.is_read
+            ).length;
+
+            if (unreadDeleted > 0 && window.updateUnreadCount) {
+                window.updateUnreadCount(-unreadDeleted);
+            }
+
+            // clear selection
+            setSelectedNotifications([]);
+        } catch (error) {
+            console.error('Error deleting notifications:', error);
+        }
+    }
+
     return (
         <div>
             {NavBarComponent && <NavBarComponent />}
@@ -153,6 +193,7 @@ export default function Notifications() {
                                                 </button>
                                                 <button
                                                     className="notif-delete-btn"
+                                                    onClick={handleDeleteSelected}
                                                     disabled={selectedNotifications.length === 0}
                                                 >
                                                     <Trash className="icon" />
