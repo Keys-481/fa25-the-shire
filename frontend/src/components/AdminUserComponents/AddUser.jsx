@@ -102,12 +102,41 @@ export default function AddUser({
     });
   };
 
+  /**
+   * Validates the user's email and phone number before saving.
+   * - Ensures the email ends with `@u.boisestate.edu` or `@boisestate.edu`.
+   * - Ensures the phone number is provided and contains at least 10 characters, 
+   *   to be acceptable for non US numbers.
+   *
+   * If validation fails, an alert message is displayed and the save process is aborted.
+   * If validation succeeds, `handleAddUser` function is invoked.
+   *
+   * @returns {void} This function does not return a value.
+   */
+  const validateAndAddUser = () => {
+    // Email validation
+    const emailValid = newUserEmail.endsWith('@u.boisestate.edu') || newUserEmail.endsWith('@boisestate.edu');
+
+    if (!emailValid) {
+      alert('Email is not valid, valid emails end in @u.boisestate.edu or @boisestate.edu');
+      return;
+    }
+
+    // Phone validation
+    if (!newUserPhone || newUserPhone.length < 10) {
+      alert('Phone number should follow the format ###-###-####, but is not constrained to this.');
+      return;
+    }
+
+    handleAddUser();
+  };
+
   return (
     <div className="section-results-side">
       <div className='h2-row'>
         <h2>Add New User</h2>
         <div className="button-row">
-          <button onClick={handleAddUser}>Add</button>
+          <button onClick={validateAndAddUser}>Add</button>
           <button onClick={() => setIsAddingUser(false)} style={{ marginLeft: '10px' }}>Cancel</button>
         </div>
       </div>
@@ -183,7 +212,7 @@ export default function AddUser({
             </label>
           </div>
         ))}
-        <p className = "subtext">*Please note that Advisor-Student relationships are assigned when editing current users.</p>
+        <p className="subtext">*Please note that Advisor-Student relationships are assigned when editing current users.</p>
       </div>
       <div className="toggle-container">
         <h3>Selected Permissions:</h3>

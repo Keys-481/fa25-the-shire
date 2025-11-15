@@ -392,7 +392,6 @@ export default function AdminUsers() {
           <div className='section-results'>
             {selectedUser ? (
               <EditUser
-                // selectedUser={selectedUser}
                 roles={roles}
                 roleToggles={roleToggles}
                 setRoleToggles={setRoleToggles}

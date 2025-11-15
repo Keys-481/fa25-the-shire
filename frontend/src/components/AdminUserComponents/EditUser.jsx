@@ -75,6 +75,37 @@ export default function EditUser({
   };
 
   /**
+   * Validates the user's email and phone number before saving.
+   * - Ensures the email ends with `@u.boisestate.edu` or `@boisestate.edu`.
+   * - Ensures the phone number is provided and contains at least 10 characters, 
+   *   to be acceptable for non US numbers.
+   *
+   * If validation fails, an alert message is displayed and the save process is aborted.
+   * If validation succeeds, `handleSave` function is invoked.
+   *
+   * @returns {void} This function does not return a value.
+   */
+  const validateAndSaveUser = () => {
+    // Email validation
+    const emailValid =
+      editEmail.endsWith('@u.boisestate.edu') ||
+      editEmail.endsWith('@boisestate.edu');
+
+    if (!emailValid) {
+      alert('Email is not valid. Valid emails must end in @u.boisestate.edu or @boisestate.edu');
+      return;
+    }
+
+    // Phone validation
+    if (!editPhone || editPhone.length < 10) {
+      alert('Phone number should follow the format ###-###-####, but is not constrained to this.');
+      return;
+    }
+
+    handleSave();
+  };
+
+  /**
    * Cancels editing and resets manual student assignments.
    *
    * @function handleCancel
@@ -105,7 +136,7 @@ export default function EditUser({
       <div className='h2-row'>
         <h2>Edit User</h2>
         <div className="button-row">
-          <button onClick={handleSave}>Save</button>
+          <button onClick={validateAndSaveUser}>Save</button>
           <button onClick={handleCancel} style={{ marginLeft: '10px' }}>Cancel</button>
           <button onClick={handleDelete} className='error-message'>Delete</button>
         </div>
