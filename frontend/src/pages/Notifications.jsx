@@ -32,14 +32,14 @@ export default function Notifications() {
     const [clickedNotif, setClickedNotif] = useState(null);
 
     let NavBarComponent = null;
-    if (user?.role === 'advisor') {
-        NavBarComponent = AdvisorNavBar;
-    } else if (user?.role === 'accounting') {
-        NavBarComponent = AccountingNavBar;
-    } else if (user?.role === 'student') {
-        NavBarComponent = StudentNavBar;
-    } else if (user?.role === 'admin') {
+    if (user?.default_view === 1) {
         NavBarComponent = AdminNavBar;
+    } else if (user?.default_view === 2) {
+        NavBarComponent = AdvisorNavBar;
+    } else if (user?.default_view === 3) {
+        NavBarComponent = StudentNavBar;
+    } else if (user?.default_view === 4) {
+        NavBarComponent = AccountingNavBar;
     }
 
     // get notifications for user on component mount
@@ -219,13 +219,13 @@ export default function Notifications() {
                                                 <button
                                                     className="view-comment-btn"
                                                         onClick={() => {
-                                                            if (user.role === 'student') {
+                                                            if (user.default_view === 1) {
                                                                 Navigate('/student/degree-tracking', {
                                                                     state: {
                                                                         programId: clickedNotif.program_id
                                                                     }
                                                                 })
-                                                            } else if (user.role === 'advisor') {
+                                                            } else if (user.default_view === 2) {
                                                                 Navigate('/advisor/advising', {
                                                                     state: {
                                                                         schoolStudentId: clickedNotif.school_student_id,

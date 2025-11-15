@@ -27,6 +27,7 @@ router.post("/login", async (req, res) => {
                     u.first_name,
                     u.last_name,
                     u.password_hash,
+                    u.default_view,
                     COALESCE(rl.role_name, 'student') AS role_name
             FROM users u
             LEFT JOIN LATERAL (
@@ -70,6 +71,7 @@ router.post("/login", async (req, res) => {
                 first_name: user.first_name,
                 last_name: user.last_name,
                 role: user.role_name || "student",
+                default_view: user.default_view
             },
         });
     } catch (err) {
