@@ -365,3 +365,16 @@ CREATE INDEX idx_notifications_triggered_by ON comment_notifications(triggered_b
 CREATE INDEX idx_notifications_comment ON comment_notifications(comment_id);
 CREATE INDEX idx_notifications_program_student ON comment_notifications(program_id, student_id);
 CREATE INDEX idx_notifications_user_unread ON comment_notifications(recipient_id, is_read, created_at DESC);
+
+-- Track students who have applied for graduation --
+CREATE TABLE graduation_applications (
+    application_id SERIAL PRIMARY KEY,
+    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
+    program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
+    application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) NOT NULL DEFAULT 'pending' -- e.g., pending, approved, denied --
+);
+
+CREATE INDEX idx_graduation_applications_student_id ON graduation_applications(student_id);
+CREATE INDEX idx_graduation_applications_program_id ON graduation_applications(program_id);
+CREATE INDEX idx_graduation_applications_status ON graduation_applications(status);
