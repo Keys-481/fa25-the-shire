@@ -6,26 +6,44 @@
 const pool = require('../db');
 
 /**
- * Create a new comment notification for relevant users when a new comment is posted (excluding the author).
- * @param {*} comment - The comment object containing details about the new comment.
+ * Create a new comment notification for relevant users when a comment is created or updated.
+ * @param {*} comment - The comment object containing details about the comment.
+ * @param {*} event - The event triggering the notification ("comment_created", "comment_updated").
  */
-async function createNewCommentNotif(comment) {
+async function createNewCommentNotif(comment, event) {
     try {
-        await pool.query(
-            `WITH recipients AS (
-                SELECT s.user_id AS recipient_id, s.student_id
-                FROM students s
-                UNION
-                SELECT a.user_id AS recipient_id, ar.student_id
-                FROM advisors a
-                JOIN advising_relations ar ON a.advisor_id = ar.advisor_id
+        const notificationTitle = event === "comment_created"
+            ? 'New Degree Plan Comment'
+            : event === 'comment_updated'
+            ? 'Updated Degree Plan Comment'
+            : 'Degree Plan Comment';
+
+        const recipientsResponse = await pool.query(
+            `SELECT s.user_id AS recipient_id, s.student_id
+            FROM students s
+            WHERE s.student_id = $1
+            UNION
+            SELECT a.user_id AS recipient_id, ar.student_id
+            FROM advisors a
+            JOIN advising_relations ar ON a.advisor_id = ar.advisor_id
+            WHERE ar.student_id = $1`,
+            [comment.student_id]
+        )
+
+        const recipients = recipientsResponse.rows.filter(r => r.recipient_id !== comment.author_id);
+
+        if (recipients.length === 0) return;
+
+        const insertNotifs = recipients.map(r =>
+            pool.query(
+                `INSERT INTO comment_notifications
+                (recipient_id, triggered_by, title, notif_message, comment_id, program_id, student_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [r.recipient_id, comment.author_id, notificationTitle, comment.notif_message, comment.comment_id, comment.program_id, r.student_id]
             )
-            INSERT INTO comment_notifications (recipient_id, triggered_by, title, notif_message, comment_id, program_id, student_id)
-            SELECT recipient_id, $1, 'New Degree Plan Comment', $2, $3, $4, student_id
-            FROM recipients
-            WHERE student_id = $5 AND $1 IS DISTINCT FROM recipient_id`,
-            [comment.author_id, comment.notif_message, comment.comment_id, comment.program_id, comment.student_id]
         );
+        await Promise.all(insertNotifs);
+
     } catch (error) {
         console.error('Error creating comment notification:', error);
         throw error;
@@ -67,6 +85,7 @@ async function getNotificationsForUser(userId) {
             ORDER BY created_at DESC`,
             [userId]
         );
+        console.log('DB result for notifications:', result.rows);
         return result.rows;
     } catch (error) {
         console.error('Error fetching notifications for user:', error);

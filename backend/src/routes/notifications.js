@@ -23,7 +23,8 @@ router.get('/', async (req, res) => {
         return res.status(200).json({ notifications });
     } catch (error) {
         console.error('Error fetching notifications:', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        console.error(error.stack);
+        return res.status(500).json({ message: 'Internal server error', stack: error.stack });
     }
 });
 

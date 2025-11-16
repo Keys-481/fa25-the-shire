@@ -7,7 +7,7 @@ const pool = require('../db');
 const NotificationsModel = require('./NotificationsModel');
 
 /**
- * Inserts a new comment into the degree_plan_comments table
+ * Inserts a new comment into the degree_plan_comments table and triggers notifications.
  * @param {*} programId - ID of the program the comment is associated with.
  * @param {*} studentId - ID of the student the comment is associated with.
  * @param {*} authorId - ID of the user creating the comment.
@@ -34,7 +34,7 @@ async function createComment(programId, studentId, authorId, commentText) {
         comment_id: newComment.comment_id,
         program_id: programId,
         student_id: studentId,
-    })
+    }, "comment_created");
 
     return newComment;
     } catch (error) {
@@ -86,13 +86,14 @@ async function deleteCommentById(commentId) {
 }
 
 /**
- * Update a comment by its ID.
+ * Update a comment by its ID and triggers notifications.
  * @param {*} commentId - ID of the comment to update.
  * @param {*} newText - New text content for the comment.
  * @returns The updated comment object.
  */
 async function updateComment(commentId, newText) {
     try {
+        const text = newText.trim();
         const result = await pool.query(
             `WITH updated AS (
                 UPDATE degree_plan_comments
@@ -102,10 +103,26 @@ async function updateComment(commentId, newText) {
             ) SELECT updated.*,
                 u.first_name, u.last_name
             FROM updated
-            JOIN users u ON u.user_id = updated.author_id`,
-            [newText, commentId]
+            LEFT JOIN users u ON u.user_id = updated.author_id`,
+            [text, commentId]
         );
-        return result.rows[0];
+
+        const updatedComment = result.rows[0];
+
+        if (!updatedComment) {
+            throw new Error('Comment not found');
+        }
+
+        // trigger notifications for relevant users
+        await NotificationsModel.createNewCommentNotif({
+            author_id: updatedComment.author_id,
+            notif_message: text,
+            comment_id: updatedComment.comment_id,
+            program_id: updatedComment.program_id,
+            student_id: updatedComment.student_id,
+        }, "comment_updated");
+
+        return updatedComment;
     } catch (error) {
         console.error('Error updating comment:', error);
         throw error;

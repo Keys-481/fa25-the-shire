@@ -37,7 +37,7 @@ describe('NotificationsModel', () => {
             comment_id: newComment.comment_id,
             program_id: newComment.program_id,
             student_id: newComment.student_id,
-        });
+        }, "comment_created");
 
         const result = await pool.query(
             `SELECT *
