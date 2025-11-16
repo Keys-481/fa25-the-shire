@@ -219,7 +219,7 @@ export default function Notifications() {
                                                 <button
                                                     className="view-comment-btn"
                                                         onClick={() => {
-                                                            if (user.default_view === 1) {
+                                                            if (user.default_view === 3) {
                                                                 Navigate('/student/degree-tracking', {
                                                                     state: {
                                                                         programId: clickedNotif.program_id
