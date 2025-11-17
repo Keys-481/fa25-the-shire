@@ -4,7 +4,7 @@ import AccountingNavBar from "../../components/NavBars/AccountingNavBar"
  * AccountingGraduationReport component displays the Graduation Report page for accounting.
  * 
  * @component
- * @returns {JSX.Element}   
+ * @returns {JSX.Element}      
  */
 export default function AccountingGraduationReport() {
    return (

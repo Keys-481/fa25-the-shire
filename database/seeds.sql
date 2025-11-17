@@ -824,16 +824,16 @@ WHERE c.author_id IS DISTINCT FROM r.recipient_id; -- avoid notifying the author
 
 -- Track students who have applied for graduation
 INSERT INTO graduation_applications (student_id, program_id, application_date, status) VALUES
-(1, 1, '2025-10-01', 'Not Applied'), -- Alice Johnson applied for graduation
-(2, 1, '2025-10-02', 'Not Applied'), -- Bob Williams applied for graduation
-(3, 1, '2025-10-02', 'Not Applied'), -- Nora Castillo applied for graduation
-(4, 1, '2025-10-03', 'Applied'), -- Gavin Diaz applied for graduation
-(5, 1, '2025-10-03', 'Not Applied'), -- Maya Ramos applied for graduation
-(6, 1, '2025-10-03', 'Not Applied'), -- Evan Roberts applied for graduation
-(7, 2, '2025-10-04', 'Not Applied'), -- Zoe King applied for graduation
-(8, 1, '2025-10-04', 'Not Applied'), -- Levi Powell applied for graduation
-(9, 1, '2025-10-05', 'Not Applied'), -- Harper Taylor applied for graduation
-(10, 1, '2025-10-05', 'Not Applied'); -- Charles Murphy applied for graduation
+(1, 1, '2025-10-01', 'Not Applied'), -- Alice Johnson has NOT applied
+(2, 1, '2025-10-02', 'Not Applied'), -- Bob Williams has NOT applied
+(3, 1, '2025-10-02', 'Not Applied'), -- Nora Castillo has NOT applied
+(4, 1, '2025-10-03', 'Applied'),      -- Gavin Diaz HAS applied
+(5, 1, '2025-10-03', 'Not Applied'), -- Maya Ramos has NOT applied
+(6, 1, '2025-10-03', 'Not Applied'), -- Evan Roberts has NOT applied
+(7, 2, '2025-10-04', 'Not Applied'), -- Zoe King has NOT applied
+(8, 1, '2025-10-04', 'Not Applied'), -- Levi Powell has NOT applied
+(9, 1, '2025-10-05', 'Not Applied'), -- Harper Taylor has NOT applied
+(10, 1, '2025-10-05', 'Not Applied');-- Charles Murphy has NOT applied
 
 
 

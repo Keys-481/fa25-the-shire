@@ -27,7 +27,8 @@ DROP TABLE IF EXISTS
     courses,
     certificates,
     program_requirements,
-    user_settings
+    user_settings,
+    graduation_applications
 CASCADE;
 
 
@@ -371,8 +372,8 @@ CREATE TABLE graduation_applications (
     application_id SERIAL PRIMARY KEY,
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
-    application_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) NOT NULL -- e.g., 'Not Applied', 'Pending', 'Approved', 'Denied' --
+    status_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) NOT NULL -- Not Applied, Pending, Approved, Denied
 );
 
 CREATE INDEX idx_graduation_applications_student_id ON graduation_applications(student_id);
