@@ -15,11 +15,17 @@ export default function NotifButton() {
 
     const fetchUnreadCount = async () => {
         try {
+            console.log('Fetching unread notifications count...');
             const data = await api.get('/api/notifications');
+            console.log('Fetched notifications:', data);
             const count = data.notifications.filter(n => !n.is_read).length;
             setUnreadCount(count);
         } catch (error) {
             console.error('Error fetching unread notifications count:', error);
+            if (error.response) {
+                console.error('Response message:', error.response.message);
+                console.error('Response stack:', error.response.stack);
+            }
         }
     };
 

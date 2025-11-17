@@ -4,7 +4,7 @@
  */
 
 import { Ellipsis } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthProvider.jsx';
 import { useApiClient } from '../../lib/apiClient';
 
@@ -20,9 +20,11 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
     const { user } = useAuth();
     
     const authorHandle = `@${comment.first_name}_${comment.last_name}`;
-    const canModify = !userIsStudent || userIsStudent && String(comment.author_id) === String(user?.id);
-    const canDelete = canModify;
-    const canEdit = canModify;
+    const canDelete = !userIsStudent || userIsStudent && String(comment.author_id) === String(user?.id);
+    const canEdit = String(comment.author_id) === String(user?.id);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editText, setEditText] = useState(comment.comment_text);
 
     // handle menu toggle
     const toggleMenu = () => {
@@ -60,8 +62,28 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
         setComments((prevComments) => prevComments.filter(comment => comment.comment_id !== deletedCommentId));
     };
 
+    // handle edit comment
     const handleEdit = () => {
-        alert('Not implemented yet');
+        setIsEditing(true);
+        setOpenMenuId(null);
+    }
+
+    // update comment with new text
+    const handleSaveEdit = async () => {
+        try {
+            const updatedComment = await api.put(`/api/comments/${comment.comment_id}`, { newText: editText });
+            setComments((prevComments) => prevComments.map(c => c.comment_id === comment.comment_id ? updatedComment : c));
+            setIsEditing(false);
+        } catch (error) {
+            console.error('Error saving comment edit:', error);
+            alert('Error saving comment edit: ' + (error?.message || 'Unknown error'));
+        }
+    }
+
+    // cancel edit mode
+    const handleCancelEdit = () => {
+        setEditText(comment.comment_text);
+        setIsEditing(false);
     }
 
     return (
@@ -73,7 +95,23 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
                 </button>
             </div>
 
-            <span className="comment-text">{comment.comment_text}</span>
+            {isEditing ? (
+                <div className="comment-edit">
+                    <textarea
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        rows={3}
+                        className="comment-edit-textarea"
+                    />
+                    <div className="edit-comment-actions">
+                        <button onClick={handleSaveEdit} disabled={editText.trim() === ''}>Save</button>
+                        <button onClick={handleCancelEdit}>Cancel</button>
+                    </div>
+                </div>
+            ) : (
+                <span className="comment-text">{comment.comment_text}</span>
+            )}
+
             <br />
             {comment.created_at && (
                 <span className="comment-timestamp">
