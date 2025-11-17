@@ -7,6 +7,7 @@ export default function EditUser({
   setRoleToggles,
   handleSave,
   handleDelete,
+  selectedUser,
   setSelectedUser,
   defaultView,
   setdefaultView,
@@ -90,7 +91,7 @@ export default function EditUser({
    *
    * @returns {void} This function does not return a value.
    */
-  const validateAndSaveUser = () => {
+  const validateAndSaveUser = async () => {
     // Email validation
     const emailValid =
       editEmail.endsWith('@u.boisestate.edu') ||
@@ -107,7 +108,23 @@ export default function EditUser({
       return;
     }
 
-    handleSave();
+    try {
+      if (roleToggles['Student'] || normalizedDefaultView === 'student') {
+        const programIds = studentPrograms.map(p => p.program_id);
+        await fetch(`/api/students/${selectedUser.public}/programs`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ programIds })
+        });
+      }
+
+      handleSave();
+    } catch (err) {
+      console.error('Failed to save student programs:', err);
+      alert('Failed to save student programs.');
+    }
   };
 
   /**
@@ -209,20 +226,34 @@ export default function EditUser({
         <div className="toggle-container">
           <h3>Programs:</h3>
           {/* Dropdown list of all programs to add */}
-          <select
-            className="programs-dropdown"
-            value={newProgramId}
-            onChange={e => setNewProgramId(e.target.value)}
-          >
-            <option value="">Select a program to add</option>
-            {programsList
-              .filter(p => !studentPrograms.some(sp => sp.program_id === p.program_id))
-              .map(program => (
-                <option key={program.program_id} value={program.program_id}>
-                  {program.program_name}
-                </option>
-              ))}
-          </select>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <select
+              className="programs-dropdown"
+              value={newProgramId}
+              onChange={e => setNewProgramId(e.target.value)}
+            >
+              <option value="">Select a program to add</option>
+              {programsList
+                .filter(p => !studentPrograms.some(sp => sp.program_id === p.program_id))
+                .map(program => (
+                  <option key={program.program_id} value={program.program_id}>
+                    {program.program_name}
+                  </option>
+                ))}
+            </select>
+            <button
+              onClick={() => {
+                if (!newProgramId) return;
+                const selectedProgram = programsList.find(p => p.program_id === newProgramId);
+                if (!selectedProgram) return;
+                if (studentPrograms.some(p => p.program_id === selectedProgram.program_id)) return;
+                setStudentPrograms(prev => [...prev, selectedProgram]);
+                setNewProgramId('');
+              }}
+            >
+              Add
+            </button>
+          </div>
           <ul>
             {/* Show all programs the student is enrolled in, and allow removing programs for the student */}
             {studentPrograms.map(program => (
@@ -235,6 +266,7 @@ export default function EditUser({
                 </button>
               </li>
             ))}
+            {studentPrograms.length === 0 && <li>Student is not enrolled in any programs.</li>}
           </ul>
 
           <h3>Assigned Advisors:</h3>

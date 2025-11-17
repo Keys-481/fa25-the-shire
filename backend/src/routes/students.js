@@ -312,6 +312,39 @@ router.get('/:schoolId/programs', async (req, res) => {
 });
 
 /**
+ * Route: PUT /students/:schoolId/programs
+ * Updates the programs associated with a student by their school ID.
+ */
+router.put('/:schoolId/programs', async (req, res) => {
+    const { schoolId } = req.params;
+    const { programIds } = req.body;
+
+    try {
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+        
+        // delete existing student programs
+        await pool.query('DELETE FROM student_programs WHERE student_id = $1', [student.student_id]);
+
+        // update with new program IDs
+        if (programIds && programIds.length > 0) {
+            const insertValues = programIds.map((id, idx) => `{${student.student_id}, $${idx + 1})`).join(',');
+            await pool.query(
+                `INSERT INTO student_programs (student_id, program_id) VALUES ${insertValues}`,
+                programIds
+            );
+        }
+        res.json({ message: 'Student programs updated successfully' });
+    } catch (error) {
+        console.error('Error updating student programs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+/**
  * Route: PATCH /students/:schoolId/degree-plan/course/:courseId
  * Updates the status of a course in a student's degree plan (e.g., mark as completed, in-progress).
  * If status set to 'Planned', semesterId must be provided.

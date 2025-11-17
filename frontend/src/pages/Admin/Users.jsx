@@ -432,6 +432,7 @@ export default function AdminUsers() {
                 handleToggle={handleToggle}
                 handleSave={handleSave}
                 handleDelete={handleDelete}
+                selectedUser={selectedUser}
                 setSelectedUser={setSelectedUser}
                 defaultView={defaultView}
                 setdefaultView={setdefaultView}
