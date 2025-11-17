@@ -9,6 +9,7 @@ import AdvisorNavBar from "../../components/NavBars/AdvisorNavBar";
 import SearchBar from "../../components/SearchBar";
 import ProgramSelector from "../../components/ProgramSelector";
 import { useApiClient } from "../../lib/apiClient";
+import { useLocation } from "react-router-dom";
 
 /**
  * Advising component displays the Advising page for the advisors.
@@ -20,6 +21,8 @@ export default function Advising() {
 
   // API client for backend requests
   const api = useApiClient();
+  const location = useLocation();
+  const { schoolStudentId, programId } = location.state || {};
 
   // State to hold search results
   const [assigned, setAssigned] = useState([]);
@@ -30,6 +33,30 @@ export default function Advising() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [programs, setPrograms] = useState([]);
   const [selectedProgram, setSelectedProgram] = useState(null);
+
+  useEffect(() => {
+    if (!schoolStudentId) return;
+
+    (async () => {
+      try {
+        const res = await api.get(`/api/students/${schoolStudentId}/programs`);
+        const student = res?.student;
+        const studentPrograms = res?.programs || [];
+        if (!student) return;
+
+        setSelectedStudent(student);
+        setPrograms(studentPrograms);
+
+        if (studentPrograms.length === 0) return;
+
+        const targetProgram = studentPrograms.find(p => p.program_id === programId) || studentPrograms[0];
+        setSelectedProgram(targetProgram);
+        
+      } catch (error) {
+        console.error('[advising] Error fetching student or programs:', error.message);
+      }
+    })();
+  }, [schoolStudentId, programId, api]);
 
   useEffect(() => {
     (async () => {
@@ -43,7 +70,15 @@ export default function Advising() {
   }, [api]);
 
   // Handle search results from SearchBar component
-  const handleSearchResults = (results) => {
+  const handleSearchResults = (results, query) => {
+    const isEmptySearch = !query || ((!query.q1 || query.q1.trim() === "") && (!query.q2 || query.q2.trim() === ""));
+
+    if (isEmptySearch) {
+      setHasSearched(false);
+      setResults([]);
+      return;
+    }
+
     setResults(results);
     setHasSearched(true);
   }
@@ -67,7 +102,7 @@ export default function Advising() {
   // render results message only after a search has been made
   const renderResults = () => {
     if (!hasSearched) {
-      return null;
+      return renderStudentList(assigned);
     }
 
     if (results.length === 0) {
@@ -75,17 +110,19 @@ export default function Advising() {
     }
 
     // render results list
-    return (
-      <ul className="results-list" data-testid="search-results">
-        {results.map((student, index) => (
+    return renderStudentList(results);
+  }
+
+  const renderStudentList = (list) => (
+    <ul className="results-list" data-testid="search-results">
+        {list.map((student, index) => (
           <li key={index} className={`result-item ${selectedStudent?.id === student.id ? 'selected' : ''}`} onClick={() => handleStudentSelect(student)}>
             <strong>{student.name}</strong> <br />
             {student.id}
           </li>
         ))}
       </ul>
-    );
-  }
+  );
 
   return (
     <div>
