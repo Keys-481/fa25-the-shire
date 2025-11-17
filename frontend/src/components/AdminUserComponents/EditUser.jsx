@@ -25,7 +25,11 @@ export default function EditUser({
   manualStudents,
   setManualStudents,
   assignedAdvisors,
-  setAssignedAdvisors
+  setAssignedAdvisors,
+  studentPrograms,
+  setStudentPrograms,
+  programsList,
+  setProgramsList
 }) {
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
@@ -171,6 +175,21 @@ export default function EditUser({
       {/* Student View */}
       {(roleToggles['Student'] || normalizedDefaultView === 'student') && (
         <div className="toggle-container">
+          <h3>Programs:</h3>
+          {/* Dropdown list of all programs to add */}
+          <select className="programs-dropdown">
+            <option value="">Select a program to add</option>
+            <option value="program1">Example Program 1</option>
+            <option value="program2">Example Program 2</option>
+          </select>
+          <ul>
+            {/* Show all programs the student is enrolled in, and allow removing programs for the student */}
+            <li>
+              Example Program 1
+              <button >Remove</button>
+            </li>
+          </ul>
+
           <h3>Assigned Advisors:</h3>
           <ul>
             {assignedAdvisors.map(advisor => (

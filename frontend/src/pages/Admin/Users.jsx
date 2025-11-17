@@ -38,6 +38,8 @@ export default function AdminUsers() {
   const [assignedStudents, setAssignedStudents] = useState([]);
   const [manualStudents, setManualStudents] = useState([]);
   const [assignedAdvisors, setAssignedAdvisors] = useState([]);
+  const [studentPrograms, setStudentPrograms] = useState([]);
+  const [programsList, setProgramsList] = useState([]);
 
 
   const searchEndpoint = '/api/users/search';
@@ -171,6 +173,40 @@ export default function AdminUsers() {
     };
     fetchAdvising();
   }, [selectedUser]);
+
+  /**
+   * Fetches all programs for one student
+   */
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      if (selectedUser) {
+        try {
+          const res = await fetch(`/api/students/${selectedUser.id}/programs`);
+          const data = await res.json();
+          setStudentPrograms(data);
+        } catch (err) {
+          console.error('Failed to fetch student programs:', err);
+        }
+      }
+    };
+    fetchPrograms();
+  }, [selectedUser]);
+
+  /**
+   * Fetches all available programs
+   */
+  useEffect(() => {
+    const fetchAllPrograms = async () => {
+      try {
+        const res = await fetch('/api/programs');
+        const data = await res.json();
+        setProgramsList(data);
+      } catch (err) {
+        console.error('Failed to fetch all programs:', err);
+      }
+    };
+    fetchAllPrograms();
+  }, []);
 
   /**
    * Refreshes user and role data from the backend.
@@ -418,6 +454,10 @@ export default function AdminUsers() {
                 setManualStudents={setManualStudents}
                 assignedAdvisors={assignedAdvisors}
                 setAssignedAdvisors={setAssignedAdvisors}
+                studentPrograms={studentPrograms}
+                setStudentPrograms={setStudentPrograms}
+                programsList={programsList}
+                setProgramsList={setProgramsList}
               />
             ) : isAddingUser ? (
               <AddUser
