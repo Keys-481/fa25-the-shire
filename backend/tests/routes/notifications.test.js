@@ -33,6 +33,27 @@ afterAll(async () => {
     await pool.end();
 });
 
+/**
+ * Global setup hook executed once before all tests in this suite.
+ *
+ * This hook mocks {@code console.error} using Jest to suppress error logs
+ * during test execution. The purpose is to prevent noisy console output while
+ * still allowing error handling to be tested.
+ */
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+});
+
+/**
+ * Global teardown hook executed once after all tests in this suite.
+ *
+ * This hook restores the original {@code console.error} implementation
+ * to ensure that subsequent code outside the test suite is not affected
+ * by the mocked console method.
+ */
+afterAll(() => {
+    console.error.mockRestore();
+});
 
 /**
  * Helper function to create an Express app with mocked authentication
@@ -186,4 +207,62 @@ describe('DELETE /notifications/:id', () => {
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('Notification not found or not authorized');
     });
+});
+
+/* Test: GET /notifications
+ * Scenario: The NotificationsModel.getNotificationsForUser method throws a database error.
+ * Expectation: API should return HTTP 500 with message "Internal server error".
+ */
+test('returns 500 when NotificationsModel.getNotificationsForUser throws error', async () => {
+    const mockUser = { user_id: 1 };
+    const app = makeAppWithUser(mockUser);
+
+    // Mock the model to throw
+    jest.spyOn(require('../../src/models/NotificationsModel'), 'getNotificationsForUser')
+        .mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app).get('/notifications');
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe('Internal server error');
+});
+
+/**
+ * Test: PUT /notifications/:id/read
+ * Scenario: Attempting to mark a notification as read when the notification does not exist.
+ * Expectation: API should return HTTP 404 with message "Notification not found or does not authorized".
+ */
+test('returns 404 when notification not found', async () => {
+    const mockUser = { user_id: 1 };
+    const app = makeAppWithUser(mockUser);
+
+    jest.spyOn(require('../../src/models/NotificationsModel'), 'markNotificationReadState')
+        .mockResolvedValueOnce(null); // Simulate not found
+
+    const response = await request(app)
+        .put('/notifications/999/read')
+        .send({ is_read: true });
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe('Notification not found or does not authorized');
+});
+
+/**
+ * Test: PUT /notifications/:id/read
+ * Scenario: The NotificationsModel.markNotificationReadState method throws a database error.
+ * Expectation: API should return HTTP 500 with message "Internal server error".
+ */
+test('returns 500 when NotificationsModel.markNotificationReadState throws error', async () => {
+    const mockUser = { user_id: 1 };
+    const app = makeAppWithUser(mockUser);
+
+    jest.spyOn(require('../../src/models/NotificationsModel'), 'markNotificationReadState')
+        .mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+        .put('/notifications/1/read')
+        .send({ is_read: true });
+
+    expect(response.status).toBe(500);
+    expect(response.body.message).toBe('Internal server error');
 });

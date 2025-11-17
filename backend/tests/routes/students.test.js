@@ -10,6 +10,8 @@ const express = require('express');
 const { runSchemaAndSeeds } = require('../../db_setup');
 const pool = require('../../src/db');
 const studentRoutes = require('../../src/routes/students');
+const StudentModel = require('../../src/models/StudentModel');
+const DegreePlanModel = require('../../src/models/DegreePlanModel');
 
 let client;
 
@@ -33,6 +35,35 @@ afterEach(async () => {
 // Close the database connection after all tests
 afterAll(async () => {
     await pool.end();
+});
+
+/**
+ * Setup hook executed before each test case.
+ *
+ * This hook replaces the default implementations of {@code console.log} and {@code console.error}
+ * with Jest spies that perform no operations. The purpose is to suppress console output during test
+ * execution and allow verification or mocking of logging behavior without polluting test results.
+ *
+ * By mocking these methods, tests can run cleanly without unwanted log/error messages appearing
+ * in the output.
+ */
+beforeEach(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+});
+
+/**
+ * Teardown hook executed after each test case.
+ *
+ * This hook restores the original implementations of {@code console.log} and {@code console.error}
+ * if they were mocked in {@code beforeEach}. The purpose is to ensure that subsequent tests or code
+ * outside the test suite are not affected by the mocked console methods.
+ *
+ * Using {@code mockRestore} guarantees that the console behaves normally after each test run.
+ */
+afterEach(() => {
+    console.log.mockRestore?.();
+    console.error.mockRestore?.();
 });
 
 /**
@@ -177,7 +208,7 @@ describe('GET /students/:schoolId', () => {
     });
 
     // Test for invalid user (no user info)
-    test('returns 401 for no user info', async () => {  
+    test('returns 401 for no user info', async () => {
         const app = makeAppWithUser(null);
         const res = await request(app).get('/students/112299690');
         expect(res.status).toBe(401);
@@ -250,14 +281,6 @@ describe('GET /students/:schoolId/degree-plan', () => {
         expect(res.body.degreePlan[0]).toHaveProperty('requirement_type');
         expect(res.body.degreePlan[0]).toHaveProperty('req_description');
     });
-
-    // Test for invalid user (no user info) (No login system yet, so changed route to work for frontend requests)
-    // need to implement login and authentication for this test to be valid
-    // test('returns 401 for no user info', async () => {
-    //     const app = makeAppWithUser(null);
-    //     const res = await request(app).get('/students/112299690/degree-plan');
-    //     expect(res.status).toBe(401);
-    // });
 });
 
 /**
@@ -364,7 +387,7 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
                 semesterId: 8, // Spring 2026 semester ID in seed data
                 programId: 1 // OPWL MS program ID in seed data
             });
-        
+
         expect(res.status).toBe(403);
     });
 
@@ -406,4 +429,124 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
 
         expect(check.rows[0].course_status).toBe('Unplanned');
     });
+});
+
+/**
+ * Test: GET /students/search
+ * Scenario: Database error occurs when fetching student by school ID.
+ * Expectation: API should return HTTP 500 with message "Internal server error".
+ */
+test('GET /students/search - returns 500 on DB error', async () => {
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => { });
+    const app = makeAppWithUser({ user_id: 1 }); // admin
+    jest.spyOn(StudentModel, 'getStudentBySchoolId').mockRejectedValueOnce(new Error('DB fail'));
+
+    const res = await request(app).get('/students/search').query({ q1: '112299690' });
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ message: 'Internal server error' });
+
+    jest.restoreAllMocks();
+    spy.mockRestore();
+});
+
+/**
+ * Test: GET /students/:schoolId/degree-plan
+ * Scenario: Request made without required programId query parameter.
+ * Expectation: API should return HTTP 400 with error message indicating missing programId.
+ */
+test('GET /students/:schoolId/degree-plan - returns 400 when programId missing', async () => {
+    const app = makeAppWithUser({ user_id: 1 }); // admin
+    const res = await request(app).get('/students/112299690/degree-plan');
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/Missing programId/);
+});
+
+/**
+ * Test: GET /students/assigned
+ * Scenario: Non-advisor user attempts to access assigned students.
+ * Expectation: API should return HTTP 403 (forbidden).
+ */
+test('GET /students/assigned - returns 403 for non-advisor', async () => {
+    const app = makeAppWithUser({ user_id: 2 }); // student role
+    const res = await request(app).get('/students/assigned');
+    expect(res.status).toBe(403);
+});
+
+/**
+ * Test: GET /students/:schoolId/programs
+ * Scenario: Student requests their own program list.
+ * Expectation: API should return HTTP 200 with student data matching their school_student_id.
+ */
+test('GET /students/:schoolId/programs - student can view own programs', async () => {
+    const app = makeAppWithUser({ user_id: 2 }); // student with school_student_id 113601927
+    const res = await request(app).get('/students/113601927/programs');
+    expect(res.status).toBe(200);
+    expect(res.body.student.school_student_id).toBe('113601927');
+});
+
+/**
+ * Test: GET /students/:schoolId/degree-plan
+ * Scenario: Student requests their own degree plan with valid programId and viewType.
+ * Expectation: API should return HTTP 200 with student data matching their school_student_id.
+ */
+test('student can view their own degree plan', async () => {
+    const app = makeAppWithUser({ user_id: 2 }); // student with school_student_id 113601927
+    const res = await request(app).get('/students/113601927/degree-plan?programId=2&viewType=semester');
+    expect(res.status).toBe(200);
+    expect(res.body.student.school_student_id).toBe('113601927');
+});
+
+/**
+ * Test: GET /students/:schoolId/degree-plan
+ * Scenario: Database error occurs when fetching degree plan by student ID.
+ * Expectation: API should return HTTP 500 with message "Internal server error".
+ */
+test('GET /students/:schoolId/degree-plan - returns 500 on DB error', async () => {
+    const app = makeAppWithUser({ user_id: 1 }); // admin
+    jest.spyOn(DegreePlanModel, 'getDegreePlanByStudentId').mockRejectedValueOnce(new Error('DB fail'));
+
+    const res = await request(app).get('/students/112299690/degree-plan?programId=1&viewType=semester');
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ message: 'Internal server error' });
+
+    jest.restoreAllMocks();
+});
+
+/**
+ * Test: GET /students/:schoolId/programs
+ * Scenario: Student requests their own programs again.
+ * Expectation: API should return HTTP 200 with student data matching their school_student_id.
+ */
+test('student can view their own programs', async () => {
+    const app = makeAppWithUser({ user_id: 2 }); // student with school_student_id 113601927
+    const res = await request(app).get('/students/113601927/programs');
+    expect(res.status).toBe(200);
+    expect(res.body.student.school_student_id).toBe('113601927');
+});
+
+/**
+ * Test: GET /students/:schoolId/programs
+ * Scenario: Request made without user authentication info.
+ * Expectation: API should return HTTP 401 (unauthorized).
+ */
+test('GET /students/:schoolId/programs - returns 401 when no user info', async () => {
+    const app = makeAppWithUser(null);
+    const res = await request(app).get('/students/112299690/programs');
+    expect(res.status).toBe(401);
+});
+
+/**
+ * Test: GET /students/:schoolId/programs
+ * Scenario: Database error occurs when fetching programs by student ID.
+ * Expectation: API should return HTTP 500 with message "Internal server error".
+ */
+test('GET /students/:schoolId/programs - returns 500 on DB error', async () => {
+    const app = makeAppWithUser({ user_id: 1 }); // admin
+    jest.spyOn(StudentModel, 'getProgramsByStudentId').mockRejectedValueOnce(new Error('DB fail'));
+
+    const res = await request(app).get('/students/112299690/programs');
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ message: 'Internal server error' });
+
+    jest.restoreAllMocks();
 });
