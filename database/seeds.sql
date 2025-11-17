@@ -822,6 +822,21 @@ JOIN (
 ) r ON r.student_id = c.student_id
 WHERE c.author_id IS DISTINCT FROM r.recipient_id; -- avoid notifying the author
 
+-- Track students who have applied for graduation
+INSERT INTO graduation_applications (student_id, program_id, application_date, status) VALUES
+(1, 1, '2025-10-01', 'Not Applied'), -- Alice Johnson applied for graduation
+(2, 1, '2025-10-02', 'Not Applied'), -- Bob Williams applied for graduation
+(3, 1, '2025-10-02', 'Not Applied'), -- Nora Castillo applied for graduation
+(4, 1, '2025-10-03', 'Applied'), -- Gavin Diaz applied for graduation
+(5, 1, '2025-10-03', 'Not Applied'), -- Maya Ramos applied for graduation
+(6, 1, '2025-10-03', 'Not Applied'), -- Evan Roberts applied for graduation
+(7, 2, '2025-10-04', 'Not Applied'), -- Zoe King applied for graduation
+(8, 1, '2025-10-04', 'Not Applied'), -- Levi Powell applied for graduation
+(9, 1, '2025-10-05', 'Not Applied'), -- Harper Taylor applied for graduation
+(10, 1, '2025-10-05', 'Not Applied'); -- Charles Murphy applied for graduation
+
+
+
 -- TODO: Delete later this is a temporary measure
 -- Sets the 'courses_course_id_seq' sequence to the current max course_id in 'courses' to prevent ID conflicts when inserting.
 SELECT setval('courses_course_id_seq', (SELECT MAX(course_id) FROM courses));
