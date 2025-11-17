@@ -3,19 +3,48 @@
  * */
 import { useEffect, useState } from "react";
 
-//
 export default function ReportLayout({ courseCode }) {
-  const [report, setReport] = useState(null);
+  const [report, setReport] = useState(null);   // single course OR all courses
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [semesterLabels, setSemesterLabels] = useState([]);
 
-  // Fetch report data when courseCode changes
+  // Generate semester labels once when component loads
   useEffect(() => {
-    if (!courseCode) return;
-    fetchReport(courseCode);
-  }, [courseCode]);
+    const terms = ["Spring", "Summer", "Fall"];
+    const now = new Date();
+    const month = now.getMonth();
+    let termIndex;
+    let year = now.getFullYear();
 
-  // Function to fetch enrollment report data
+    if (month >= 8) termIndex = 2;
+    else if (month >= 5) termIndex = 1;
+    else termIndex = 0;
+
+    const result = [];
+    for (let i = 0; i < 4; i++) {
+      const idx = (termIndex + i) % terms.length;
+      const addYear = Math.floor((termIndex + i) / terms.length);
+      result.push(`${terms[idx]} ${year + addYear}`);
+    }
+
+    setSemesterLabels(result);
+  }, []);
+
+  // When component loads OR the selected course changes
+  useEffect(() => {
+    if (!semesterLabels.length) return;
+
+    if (!courseCode) {
+      fetchAllCourses();
+    } else {
+      fetchReport(courseCode);
+    }
+  }, [courseCode, semesterLabels]);
+
+  /**
+   * Fetch single course report
+   */
   const fetchReport = async (q) => {
     if (!q || !q.trim()) return;
     setLoading(true);
@@ -23,71 +52,67 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      // return an array of the next 4 semesters 
-      const getNextFourSemesters = () => {
-        const terms = ['Spring', 'Summer', 'Fall'];
-        const now = new Date();
-        const month = now.getMonth();
-        let termIndex;
-        let year = now.getFullYear();
-
-        if (month >= 8) {
-          termIndex = 2;
-        } else if (month >= 5) {
-          termIndex = 1;
-        } else {
-          termIndex = 0;
-        }
-
-        const result = [];
-        for (let i = 0; i < 4; i++) {
-          const idx = (termIndex + i) % terms.length;
-          const addYear = Math.floor((termIndex + i) / terms.length);
-          result.push({ term: terms[idx], year: year + addYear });
-        }
-        return result;
-      };
-
-      const semesters = Array.isArray(getNextFourSemesters()) ? getNextFourSemesters() : [];
-
-      const res = await fetch(
-        `/api/courses/enrollments?courseCode=${encodeURIComponent(q)}`
-      );
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText || `HTTP ${res.status}`);
-      }
+      const res = await fetch(`/api/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();
-      const enrollments = Array.isArray(data.enrollments) ? data.enrollments : [];
+      const enrollments = data.enrollments || [];
 
       const pivoted = {};
-      semesters.forEach(({ term, year }) => {
-        const label = `${term} ${year}`;
-        const match = enrollments.find(e => e.semester === label);
+      semesterLabels.forEach((label) => {
+        const match = enrollments.find((e) => e.semester === label);
         pivoted[label] = match ? match.count : 0;
       });
 
-      // Update report state
-      setReport(pivoted);
+      setReport([{ course_code: q, ...pivoted }]);
     } catch (err) {
-      console.error("Error fetching report:", err);
       setError(err.message || "Error fetching report");
     } finally {
       setLoading(false);
     }
   };
 
+  /**
+   * Fetch ALL courses report
+   */
+  const fetchAllCourses = async () => {
+    setLoading(true);
+    setError(null);
+    setReport(null);
+
+    try {
+      const res = await fetch(`/api/courses/enrollments/all`);
+      if (!res.ok) throw new Error(await res.text());
+
+      const data = await res.json();
+      const list = data.enrollments || [];
+
+      const map = {};
+
+      list.forEach((row) => {
+        const c = row.course_code;
+        if (!map[c]) {
+          map[c] = { course_code: c };
+          semesterLabels.forEach((label) => (map[c][label] = 0));
+        }
+        if (semesterLabels.includes(row.semester)) {
+          map[c][row.semester] = row.count;
+        }
+      });
+
+      setReport(Object.values(map));
+    } catch (err) {
+      setError(err.message || "Error fetching all courses");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Render logic
-  if (!courseCode) return <p style={{ color: "#666" }}>Select a course to view its report.</p>;
-  if (loading) return <p>Loading report for {courseCode}...</p>;
+  if (loading) return <p>Loading report...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   if (!report) return null;
 
-  const semesterLabels = Object.keys(report);
-
-  // Render the report table
   return (
     <table className="requirements-table" style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>
@@ -99,12 +124,14 @@ export default function ReportLayout({ courseCode }) {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>{courseCode}</td>
-          {semesterLabels.map((label) => (
-            <td key={label}>{report[label]}</td>
-          ))}
-        </tr>
+        {report.map((row) => (
+          <tr key={row.course_code}>
+            <td>{row.course_code}</td>
+            {semesterLabels.map((label) => (
+              <td key={label}>{row[label]}</td>
+            ))}
+          </tr>
+        ))}
       </tbody>
     </table>
   );

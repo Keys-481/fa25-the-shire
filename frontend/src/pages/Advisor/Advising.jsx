@@ -141,7 +141,7 @@ export default function Advising() {
             <SearchBar
               onSearch={handleSearchResults}
               searchEndpoint={searchStudentEndpoint}
-              placeholder1="School ID"
+              placeholder1="School ID or Phone Number"
               placeholder2="Name"
             />
             <div className="horizontal-line-half"></div>

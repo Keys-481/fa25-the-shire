@@ -14,8 +14,15 @@ export default function ReportingFunctionality() {
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   const handleSearchResults = (results) => {
-    setResults(results);
-    setHasSearched(true);
+    if (!results || results.length === 0) {
+      // Search cleared or nothing found → reset
+      setResults([]);
+      setHasSearched(false);
+      setSelectedCourse(null);
+    } else {
+      setResults(results);
+      setHasSearched(true);
+    }
   };
 
   // Handle course selection from results
@@ -51,7 +58,7 @@ export default function ReportingFunctionality() {
       <AdvisorNavBar />
       <div className="window">
         <div className="title-bar">
-          <h1>Reporting Functionality</h1>
+          <h1>Enrollment Report</h1>
         </div>
 
         <div className="container">
