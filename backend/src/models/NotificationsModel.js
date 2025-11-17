@@ -60,8 +60,16 @@ async function markNotificationReadState(notificationId, isRead) {
 async function getNotificationsForUser(userId) {
     try {
         const result = await pool.query(
-            `SELECT *
-            FROM comment_notifications
+            `SELECT n.*,
+                u_full.first_name || ' ' || u_full.last_name AS triggered_by_name,
+                s_user.first_name || ' ' || s_user.last_name AS student_name,
+                p.program_name,
+                s_full.school_student_id
+            FROM comment_notifications n
+            LEFT JOIN users u_full ON n.triggered_by = u_full.user_id
+            LEFT JOIN students s_full ON n.student_id = s_full.student_id
+            LEFT JOIN users s_user ON s_full.user_id = s_user.user_id
+            LEFT JOIN programs p ON n.program_id = p.program_id
             WHERE recipient_id = $1
             ORDER BY created_at DESC`,
             [userId]
