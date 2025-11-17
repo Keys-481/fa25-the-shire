@@ -36,6 +36,12 @@ async function getDegreePlanByStudentId(studentId, programId) {
     }
 }
 
+/**
+ * Get a student's degree plan by their phone number.
+ * @param {*} studentPhoneNumber - internal student phone number
+ * @param {*} programId - internal program ID
+ * @returns All students with a matching phone number
+ */
 async function getDegreePlanByStudentPhoneNumber(studentPhoneNumber, programId) {
     try {
         const result = await pool.query(

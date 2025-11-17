@@ -133,6 +133,11 @@ async function getProgramsBySchoolStudentId(schoolStudentId) {
     }
 }
 
+/**
+ * Get all students matching a phone number (partial or full).
+ * @param {*} phoneNumber - Student's phone number (partial or full)
+ * @returns A promise that resolves to an array of student objects matching the phone number.
+ */
 async function getStudentByPhoneNumber(phoneNumber) {
     try {
         const phoneDigits = (phoneNumber || '').replace(/\D/g, '');
