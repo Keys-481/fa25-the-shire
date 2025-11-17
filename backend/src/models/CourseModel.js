@@ -334,6 +334,32 @@ async function getEnrollments(courseCode) {
   return rows.map(r => ({ semester: r.semester, count: r.count }));
 }
 
+/**
+ * Get enrollment counts for all courses across semesters.
+ * @returns {Promise<Array>} Array of { course_code: "CS101", semester: "Fall 2025", count: 12 }
+ **/
+async function getAllEnrollments() {
+  const sql = `
+    SELECT
+      c.course_code,
+      s.semester_name AS semester,
+      COUNT(e.enrollment_id)::int AS count
+    FROM courses c
+    CROSS JOIN semesters s
+    LEFT JOIN enrollments e
+      ON e.course_id = c.course_id
+      AND e.semester_id = s.semester_id
+    GROUP BY c.course_code, s.semester_name, s.sem_start_date
+    ORDER BY c.course_code, s.sem_start_date;
+  `;
+  const { rows } = await pool.query(sql);
+  return rows.map(r => ({
+    course_code: r.course_code,
+    semester: r.semester,
+    count: r.count
+  }));
+}
+ 
 
 
 module.exports = {
@@ -348,5 +374,6 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
-  getEnrollments
+  getEnrollments,
+  getAllEnrollments
 };

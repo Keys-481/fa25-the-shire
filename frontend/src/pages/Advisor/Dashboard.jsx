@@ -56,7 +56,7 @@ export default function AdvisorDashboard() {
                                 Advising
                             </button>
                             <button className='square-button' onClick={() => navigate('/advisor/reporting-functionality')}>
-                                Reporting Functionality
+                                Enrollment Report
                             </button>
                             <button className='square-button' onClick={() => navigate('/advisor/settings')}>
                                 Settings
