@@ -147,3 +147,43 @@ describe('PUT /notifications/:id/read', () => {
         expect(response.body.message).toBe('is_read boolean is required in request body');
     });
 });
+
+/**
+ * Tests for DELETE /notifications/:id route
+ */
+describe('DELETE /notifications/:id', () => {
+    // test for successful deletion of notification
+    test('returns 200 for successfully deleting notification', async () => {
+        const mockUser = { user_id: 1 }; // admin in seed data
+        const app = makeAppWithUser(mockUser);
+
+        const response = await request(app)
+            .delete('/notifications/1');
+
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Notification deleted successfully');
+    });
+
+    // test for missing user_id
+    test('returns 401 for missing user_id', async () => {
+        const app = makeAppWithUser(null);
+
+        const response = await request(app)
+            .delete('/notifications/1');
+
+        expect(response.status).toBe(401);
+        expect(response.body.message).toBe('Unauthorized: User ID is required');
+    });
+
+    // test for deleting non-existent notification
+    test('returns 404 for deleting non-existent notification', async () => {
+        const mockUser = { user_id: 1 }; // admin in seed data
+        const app = makeAppWithUser(mockUser);
+
+        const response = await request(app)
+            .delete('/notifications/9999'); // assuming 9999 does not exist
+
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('Notification not found or not authorized');
+    });
+});

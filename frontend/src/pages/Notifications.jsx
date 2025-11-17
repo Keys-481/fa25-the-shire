@@ -3,19 +3,23 @@
  * Page component to display user notifications.
  */
 
+import { Mail, MailOpen, Trash } from 'lucide-react';
 import AccountingNavBar from '../components/NavBars/AccountingNavBar';
 import AdminNavBar from '../components/NavBars/AdminNavBar';
 import AdvisorNavBar from '../components/NavBars/AdvisorNavBar';
 import StudentNavBar from '../components/NavBars/StudentNavBar';
 import { useNavigate } from 'react-router-dom';
-import { Mail, MailOpen, Trash } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useApiClient } from '../lib/apiClient';
 
 function formatNotification(notif) {
-    return `${notif.triggered_by_name} commented on ${notif.student_name}'s ${notif.program_name} degree plan`;
+    if (notif.title === 'New Degree Plan Comment') {
+        return `${notif.triggered_by_name} commented on ${notif.student_name}'s ${notif.program_name} degree plan`;
+    } else if (notif.title === 'Updated Degree Plan Comment') {
+        return `${notif.triggered_by_name} updated their comment on ${notif.student_name}'s ${notif.program_name} degree plan`;
+    }
 }
 
 /**
@@ -114,6 +118,46 @@ export default function Notifications() {
         }
     };
 
+    // delete selected notifications
+    const handleDeleteSelected = async () => {
+        try {
+            if (selectedNotifications.length === 0) return;
+
+            // make sure user confirms deletion
+            if (!window.confirm('Are you sure you want to delete the selected notifications?')) {
+                return;
+            }
+
+            await Promise.all(
+                selectedNotifications.map((notifID) =>
+                    api.del(`/api/notifications/${notifID}`)
+                )
+            );
+
+            // update local state
+            setNotifications((prev) =>
+                prev.filter(
+                    (notif) => !selectedNotifications.includes(notif.notification_id)
+                )
+            );
+
+            // update global unread count for notif button badge
+            const unreadDeleted = notifications.filter(
+                (notif) =>
+                    selectedNotifications.includes(notif.notification_id) && !notif.is_read
+            ).length;
+
+            if (unreadDeleted > 0 && window.updateUnreadCount) {
+                window.updateUnreadCount(-unreadDeleted);
+            }
+
+            // clear selection
+            setSelectedNotifications([]);
+        } catch (error) {
+            console.error('Error deleting notifications:', error);
+        }
+    }
+
     return (
         <div>
             {NavBarComponent && <NavBarComponent />}
@@ -160,6 +204,7 @@ export default function Notifications() {
                                                     </button>
                                                     <button
                                                         className="notif-delete-btn"
+                                                        onClick={handleDeleteSelected}
                                                         disabled={selectedNotifications.length === 0}
                                                     >
                                                         <Trash className="icon" />
@@ -170,11 +215,7 @@ export default function Notifications() {
                                     </thead>
                                     <tbody>
                                         {notifications.map((notif) => (
-                                            <tr
-                                                key={notif.notification_id}
-                                                className={`notif-row ${notif.is_read ? 'read' : 'unread'} clickable`}
-                                                onClick={() => setClickedNotif(notif)}
-                                            >
+                                            <tr key={notif.notification_id} className={`notif-row ${notif.is_read ? 'read' : 'unread'} clickable`} onClick={() => setClickedNotif(notif)}>
                                                 <td className="notif-checkbox">
                                                     <input
                                                         type="checkbox"
@@ -194,53 +235,50 @@ export default function Notifications() {
                                     </tbody>
                                 </table>
 
-
                                 {clickedNotif && (
-                                    <div className="notif-detail-panel">
-                                        <div className="notif-detail-header">
-                                            <h2>Notification Details</h2>
-                                            <button onClick={() => setClickedNotif(null)}>Close</button>
-                                        </div>
-
-                                        <div className="notif-summary">
-                                            {formatNotification(clickedNotif)}
-                                        </div>
-
-                                        
-
-                                        {clickedNotif.comment_id && (
-                                            <div>
-
-                                                <div className="notif-comment">
-                                                    <h3>Comment:</h3>
-                                                    <p>{clickedNotif.notif_message}</p>
-                                                </div>
-
-                                                <button
-                                                    className="view-comment-btn"
-                                                        onClick={() => {
-                                                            if (user.default_view === 3) {
-                                                                Navigate('/student/degree-tracking', {
-                                                                    state: {
-                                                                        programId: clickedNotif.program_id
-                                                                    }
-                                                                })
-                                                            } else if (user.default_view === 2) {
-                                                                Navigate('/advisor/advising', {
-                                                                    state: {
-                                                                        schoolStudentId: clickedNotif.school_student_id,
-                                                                        programId: clickedNotif.program_id
-                                                                    }
-                                                                })
-                                                            }
-                                                        }}
-                                                    >
-                                                        View Comment on Degree Plan
-                                                </button>
+                                        <div className="notif-detail-panel">
+                                            <div className="notif-detail-header">
+                                                <h2>Notification Details</h2>
+                                                <button onClick={() => setClickedNotif(null)}>Close</button>
                                             </div>
-                                        )}
-                                    </div>
-                                )}
+
+                                            <div className="notif-summary">
+                                                {formatNotification(clickedNotif)}
+                                            </div>
+
+                                            {clickedNotif.comment_id && (
+                                                <div>
+
+                                                    <div className="notif-comment">
+                                                        <h3>Comment:</h3>
+                                                        <p>{clickedNotif.notif_message}</p>
+                                                    </div>
+
+                                                    <button
+                                                        className="view-comment-btn"
+                                                            onClick={() => {
+                                                                if (user.default_view === 3) {
+                                                                    Navigate('/student/degree-tracking', {
+                                                                        state: {
+                                                                            programId: clickedNotif.program_id
+                                                                        }
+                                                                    })
+                                                                } else if (user.default_view === 2) {
+                                                                    Navigate('/advisor/advising', {
+                                                                        state: {
+                                                                            schoolStudentId: clickedNotif.school_student_id,
+                                                                            programId: clickedNotif.program_id
+                                                                        }
+                                                                    })
+                                                                }
+                                                            }}
+                                                        >
+                                                            View Comment on Degree Plan
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                             </>
                         )}
                     </div>
@@ -249,3 +287,4 @@ export default function Notifications() {
         </div>
     );
 }
+

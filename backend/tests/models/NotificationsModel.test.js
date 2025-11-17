@@ -37,7 +37,7 @@ describe('NotificationsModel', () => {
             comment_id: newComment.comment_id,
             program_id: newComment.program_id,
             student_id: newComment.student_id,
-        });
+        }, "comment_created");
 
         const result = await pool.query(
             `SELECT *
@@ -93,6 +93,27 @@ describe('NotificationsModel', () => {
             [notificationId]
         );
         expect(reverted.rows[0].is_read).toBe(false);
+    });
+
+    test('deleteNotification removes the notification', async () => {
+        // Create a notification to delete
+        const createResult = await pool.query(
+            `INSERT INTO comment_notifications (recipient_id, triggered_by, title, notif_message, comment_id, program_id, student_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING notification_id`,
+            [5, newComment.author_id, 'Test Delete', 'This notification will be deleted', newComment.comment_id, newComment.program_id, newComment.student_id]
+        );
+        const notificationId = createResult.rows[0].notification_id;
+
+        // Delete the notification
+        const deleteCount = await NotificationsModel.deleteNotification(notificationId);
+        expect(deleteCount).toBe(1);
+
+        // Verify deletion
+        const verify = await pool.query(
+            `SELECT * FROM comment_notifications WHERE notification_id = $1`,
+            [notificationId]
+        );
+        expect(verify.rows.length).toBe(0);
     });
 
 });

@@ -1103,6 +1103,21 @@ input:checked+.slider:before {
   list-style-type: none;
 }
 
+.comment-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.comment-edit-textarea {
+  padding: 6px 10px;
+  font-size: calc(14px + var(--font-size-change));
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  min-height: 60px;
+  color: var(--main);
+}
+
 /* Notifications Button Styles */
 .notifications-button {
   display: flex;
