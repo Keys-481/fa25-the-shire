@@ -12,7 +12,7 @@ const pool = require('../db');
 const getAllPrograms = async () => {
     try {
         const result = await pool.query(
-            `SELECT program_id, program_name, description
+            `SELECT *
             FROM programs`
         );
         return result.rows;

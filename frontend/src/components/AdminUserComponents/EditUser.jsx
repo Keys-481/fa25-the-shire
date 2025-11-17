@@ -33,6 +33,7 @@ export default function EditUser({
 }) {
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
+  const [newProgramId, setNewProgramId] = useState('');
 
   /**
    * Fetches a user's basic public information using their public ID.
@@ -208,17 +209,32 @@ export default function EditUser({
         <div className="toggle-container">
           <h3>Programs:</h3>
           {/* Dropdown list of all programs to add */}
-          <select className="programs-dropdown">
+          <select
+            className="programs-dropdown"
+            value={newProgramId}
+            onChange={e => setNewProgramId(e.target.value)}
+          >
             <option value="">Select a program to add</option>
-            <option value="program1">Example Program 1</option>
-            <option value="program2">Example Program 2</option>
+            {programsList
+              .filter(p => !studentPrograms.some(sp => sp.program_id === p.program_id))
+              .map(program => (
+                <option key={program.program_id} value={program.program_id}>
+                  {program.program_name}
+                </option>
+              ))}
           </select>
           <ul>
             {/* Show all programs the student is enrolled in, and allow removing programs for the student */}
-            <li>
-              Example Program 1
-              <button >Remove</button>
-            </li>
+            {studentPrograms.map(program => (
+              <li key={program.program_id}>
+                {program.program_name}
+                <button onClick={() =>
+                  setStudentPrograms(prev => prev.filter(p => p.program_id !== program.program_id))
+                }>
+                  Remove
+                </button>
+              </li>
+            ))}
           </ul>
 
           <h3>Assigned Advisors:</h3>

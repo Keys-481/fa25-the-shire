@@ -10,6 +10,7 @@
  * - Delete users
  */
 import { useEffect, useState } from 'react';
+import { useApiClient } from '../../lib/apiClient';
 import AddUser from '../../components/AdminUserComponents/AddUser';
 import EditUser from '../../components/AdminUserComponents/EditUser';
 import RoleList from '../../components/AdminUserComponents/RoleList';
@@ -41,7 +42,7 @@ export default function AdminUsers() {
   const [studentPrograms, setStudentPrograms] = useState([]);
   const [programsList, setProgramsList] = useState([]);
 
-
+  const apiClient = useApiClient();
   const searchEndpoint = '/api/users/search';
 
   /**
@@ -177,19 +178,16 @@ export default function AdminUsers() {
   /**
    * Fetches all programs for one student
    */
-  useEffect(() => {
-    const fetchPrograms = async () => {
+    useEffect(() => {
       if (selectedUser) {
-        try {
-          const res = await fetch(`/api/students/${selectedUser.id}/programs`);
-          const data = await res.json();
-          setStudentPrograms(data);
-        } catch (err) {
-          console.error('Failed to fetch student programs:', err);
-        }
+        apiClient.get(`/api/students/${selectedUser.public}/programs`)
+          .then((data) => {
+            setStudentPrograms(data.programs);
+          })
+          .catch((err) => {
+            console.error('Failed to fetch student programs:', err);
+          });
       }
-    };
-    fetchPrograms();
   }, [selectedUser]);
 
   /**
