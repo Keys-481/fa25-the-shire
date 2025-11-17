@@ -374,7 +374,7 @@ CREATE TABLE graduation_applications (
     student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
     program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
     status_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) NOT NULL -- Not Applied, Pending, Approved, Denied
+    status VARCHAR(50) NOT NULL -- Not Applied, Applied, Approved, Denied
 );
 
 CREATE INDEX idx_graduation_applications_student_id ON graduation_applications(student_id);

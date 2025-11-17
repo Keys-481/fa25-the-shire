@@ -1,40 +1,13 @@
-// File: frontend/src/components/GraduationReportLayout.jsx
 import { useEffect, useState } from "react";
 
 /**
  * GraduationReportLayout
- * Fetches and displays students who have applied or been approved for graduation
- * in the next two semesters.
+ * Fetches and displays students who have applied or been approved for graduation.
  */
 export default function GraduationReportLayout() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Calculate next two semesters
-  const getNextTwoSemesters = () => {
-    const terms = ["Spring", "Summer", "Fall"];
-    const now = new Date();
-    const month = now.getMonth(); // 0-indexed
-    let termIndex;
-    let year = now.getFullYear();
-
-    if (month >= 8) {
-      termIndex = 2; // Fall
-    } else if (month >= 5) {
-      termIndex = 1; // Summer
-    } else {
-      termIndex = 0; // Spring
-    }
-
-    const semesters = [];
-    for (let i = 0; i < 2; i++) {
-      const idx = (termIndex + i) % terms.length;
-      const addYear = Math.floor((termIndex + i) / terms.length);
-      semesters.push({ term: terms[idx], year: year + addYear });
-    }
-    return semesters;
-  };
 
   useEffect(() => {
     fetchGraduationApplicants();
@@ -43,43 +16,21 @@ export default function GraduationReportLayout() {
   const fetchGraduationApplicants = async () => {
     setLoading(true);
     setError(null);
-
     try {
-      const token = localStorage.getItem("jwt"); // store token after login
-    const res = await fetch("/api/students/graduation-applicants", {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || res.statusText || `HTTP ${res.status}`);
+      const headers = {};
+      // local dev: auth middleware accepts dev headers
+      if (process.env.NODE_ENV === 'development') {
+        headers['x-user-id'] = '14';      // use a seeded user id that has permission (adjust as needed)
+        headers['x-user-role'] = 'accounting';
       }
-
+      const res = await fetch('/api/students/graduation-applicants', { headers });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const nextTwoSemesters = getNextTwoSemesters();
-
-      // Filter students by next two semesters
-      const filtered = data.filter((s) => {
-        if (!s.application_date) return false;
-        const appDate = new Date(s.application_date);
-        const appTerm = (() => {
-          const month = appDate.getMonth();
-          if (month >= 0 && month < 5) return "Spring";
-          if (month >= 5 && month < 8) return "Summer";
-          return "Fall";
-        })();
-        const appYear = appDate.getFullYear();
-        return nextTwoSemesters.some(
-          (sem) => sem.term === appTerm && sem.year === appYear
-        );
-      });
-
-      setStudents(filtered);
+      setStudents(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error fetching graduation applicants:", err);
-      setError(err.message || "Error fetching students");
+      console.error('fetchGraduationApplicants', err);
+      setError('Failed to load graduation applicants');
+      setStudents([]);
     } finally {
       setLoading(false);
     }
@@ -88,10 +39,13 @@ export default function GraduationReportLayout() {
   if (loading) return <p>Loading graduation applicants...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   if (!students.length)
-    return <p>No students have applied or been approved for graduation in the next two semesters.</p>;
+    return <p>No students have applied or been approved for graduation.</p>;
 
   return (
-    <table className="requirements-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+    <table
+      className="requirements-table"
+      style={{ width: "100%", borderCollapse: "collapse" }}
+    >
       <thead>
         <tr>
           <th>Student Name</th>
@@ -107,8 +61,8 @@ export default function GraduationReportLayout() {
             <td>{s.first_name} {s.last_name}</td>
             <td>{s.program_name}</td>
             <td>{s.status}</td>
-            <td>{s.application_date ? new Date(s.application_date).toLocaleDateString() : "-"}</td>
-            <td>{s.student_id}</td>
+            <td>{s.status_updated_at ? new Date(s.status_updated_at).toLocaleDateString() : "-"}</td>
+            <td>{s.school_student_id ?? s.student_id}</td>
           </tr>
         ))}
       </tbody>

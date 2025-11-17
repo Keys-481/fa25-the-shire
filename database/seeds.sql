@@ -70,7 +70,7 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (11, crypt('supersecurehash11', gen_salt('bf', 12)), 'student8@u.boisestate.edu', '666-444-5555', 'Levi', 'Powell', '167800890', 3),
 (12, crypt('supersecurehash12', gen_salt('bf', 12)), 'student9@u.boisestate.edu', '666-555-6666', 'Harper', 'Taylor', '177808901', 3),
 (13, crypt('supersecurehash13', gen_salt('bf', 12)), 'student10@u.boisestate.edu', '666-222-7777', 'Charles', 'Murphy', '115409012', 3),
-(14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Account', 'User', '122368754', 4);
+(14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Accounting', 'User', '122368754', 4);
 
 -- Insert user settings
 INSERT INTO user_settings (user_id, theme, font_size_change, font_family) VALUES

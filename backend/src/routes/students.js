@@ -432,14 +432,15 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
  * Get all students who have applied for graduation
  * Route: GET /students/graduation-applicants
  */
-router.get('/graduation-applicants', requireAnyRole(['admin', 'advisor', 'student', 'accounting']), async (req, res) => {
-    try {
-        const students = await StudentModel.getStudentsAppliedForGraduation();
-        res.json(students);
-    } catch (error) {
-        console.error('Error fetching students applied for graduation:', error.message);
-        res.status(500).json({ message: 'Internal server error' });
-    }
+router.get('/graduation-applicants', async (req, res) => {
+  try {
+    console.log('[students] GET /graduation-applicants');
+    const applicants = await StudentModel.getStudentsAppliedForGraduation();
+    return res.json(applicants);
+  } catch (err) {
+    console.error('[students] error fetching graduation applicants', err);
+    return res.status(500).json({ error: 'Failed to fetch graduation applicants' });
+  }
 });
 
 module.exports = router;

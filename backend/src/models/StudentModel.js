@@ -139,28 +139,32 @@ async function getProgramsBySchoolStudentId(schoolStudentId) {
  */
 async function getStudentsAppliedForGraduation() {
     try {
-        const result = await pool.query(`
-            SELECT 
-                s.student_id,
+        const query = `
+            SELECT
+                g.application_id,
+                g.student_id,
                 s.school_student_id,
                 u.first_name,
                 u.last_name,
+                u.email,
                 p.program_name,
-                ga.status,
-                ga.status_updated_at
-            FROM graduation_applications ga
-            JOIN students s ON ga.student_id = s.student_id
-            JOIN users u ON s.user_id = u.user_id
-            JOIN programs p ON ga.program_id = p.program_id
-            WHERE ga.status IN ('Applied', 'Approved')
-            ORDER BY ga.status_updated_at DESC
-        `);
-        return result.rows;
+                g.status,
+                g.status_updated_at
+            FROM graduation_applications g
+            LEFT JOIN students s ON g.student_id = s.student_id
+            LEFT JOIN users u ON s.user_id = u.user_id
+            LEFT JOIN programs p ON g.program_id = p.program_id
+            WHERE COALESCE(LOWER(g.status), '') IN ('applied', 'approved')
+            ORDER BY g.status_updated_at DESC
+        `;
+        const { rows } = await pool.query(query);
+        return rows;
     } catch (error) {
         console.error('Error fetching students applied for graduation:', error);
         throw error;
     }
 }
+
 
 module.exports = {
     getStudentBySchoolId,
