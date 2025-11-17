@@ -133,12 +133,40 @@ async function getProgramsBySchoolStudentId(schoolStudentId) {
     }
 }
 
-
+/**
+ * Get Students who have applied for graduation.
+ * @returns A promise that resolves to an array of student objects.
+ */
+async function getStudentsAppliedForGraduation() {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                s.student_id,
+                s.school_student_id,
+                u.first_name,
+                u.last_name,
+                p.program_name,
+                ga.status,
+                ga.status_updated_at
+            FROM graduation_applications ga
+            JOIN students s ON ga.student_id = s.student_id
+            JOIN users u ON s.user_id = u.user_id
+            JOIN programs p ON ga.program_id = p.program_id
+            WHERE ga.status IN ('Applied', 'Approved')
+            ORDER BY ga.status_updated_at DESC
+        `);
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching students applied for graduation:', error);
+        throw error;
+    }
+}
 
 module.exports = {
     getStudentBySchoolId,
     getProgramsByStudentId,
     getStudentByName,
     getStudentBySchoolIdAndName,
-    getProgramsBySchoolStudentId
+    getProgramsBySchoolStudentId,
+    getStudentsAppliedForGraduation,
 };

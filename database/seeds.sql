@@ -825,7 +825,7 @@ JOIN (
 WHERE c.author_id IS DISTINCT FROM r.recipient_id; -- avoid notifying the author
 
 -- Track students who have applied for graduation
-INSERT INTO graduation_applications (student_id, program_id, application_date, status) VALUES
+INSERT INTO graduation_applications (student_id, program_id, status_updated_at, status) VALUES
 (1, 1, '2025-10-01', 'Not Applied'), -- Alice Johnson has NOT applied
 (2, 1, '2025-10-02', 'Not Applied'), -- Bob Williams has NOT applied
 (3, 1, '2025-10-02', 'Not Applied'), -- Nora Castillo has NOT applied
