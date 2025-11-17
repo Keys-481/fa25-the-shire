@@ -3,15 +3,24 @@
  * Page component to display user notifications.
  */
 
+import { Mail, MailOpen, Trash } from 'lucide-react';
 import AccountingNavBar from '../components/NavBars/AccountingNavBar';
 import AdminNavBar from '../components/NavBars/AdminNavBar';
 import AdvisorNavBar from '../components/NavBars/AdvisorNavBar';
 import StudentNavBar from '../components/NavBars/StudentNavBar';
-import { Mail, MailOpen, Trash } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useApiClient } from '../lib/apiClient';
+
+function formatNotification(notif) {
+    if (notif.title === 'New Degree Plan Comment') {
+        return `${notif.triggered_by_name} commented on ${notif.student_name}'s ${notif.program_name} degree plan`;
+    } else if (notif.title === 'Updated Degree Plan Comment') {
+        return `${notif.triggered_by_name} updated their comment on ${notif.student_name}'s ${notif.program_name} degree plan`;
+    }
+}
 
 /**
  * Notifications page component.
@@ -19,20 +28,22 @@ import { useApiClient } from '../lib/apiClient';
  */
 export default function Notifications() {
     const { user } = useAuth();
+    const Navigate = useNavigate();
     const api = useApiClient();
 
     const [notifications, setNotifications] = useState([]);
     const [selectedNotifications, setSelectedNotifications] = useState([]);
+    const [clickedNotif, setClickedNotif] = useState(null);
 
     let NavBarComponent = null;
-    if (user?.role === 'advisor') {
-        NavBarComponent = AdvisorNavBar;
-    } else if (user?.role === 'accounting') {
-        NavBarComponent = AccountingNavBar;
-    } else if (user?.role === 'student') {
-        NavBarComponent = StudentNavBar;
-    } else if (user?.role === 'admin') {
+    if (user?.default_view === 1) {
         NavBarComponent = AdminNavBar;
+    } else if (user?.default_view === 2) {
+        NavBarComponent = AdvisorNavBar;
+    } else if (user?.default_view === 3) {
+        NavBarComponent = StudentNavBar;
+    } else if (user?.default_view === 4) {
+        NavBarComponent = AccountingNavBar;
     }
 
     // get notifications for user on component mount
@@ -107,6 +118,46 @@ export default function Notifications() {
         }
     };
 
+    // delete selected notifications
+    const handleDeleteSelected = async () => {
+        try {
+            if (selectedNotifications.length === 0) return;
+
+            // make sure user confirms deletion
+            if (!window.confirm('Are you sure you want to delete the selected notifications?')) {
+                return;
+            }
+
+            await Promise.all(
+                selectedNotifications.map((notifID) =>
+                    api.del(`/api/notifications/${notifID}`)
+                )
+            );
+
+            // update local state
+            setNotifications((prev) =>
+                prev.filter(
+                    (notif) => !selectedNotifications.includes(notif.notification_id)
+                )
+            );
+
+            // update global unread count for notif button badge
+            const unreadDeleted = notifications.filter(
+                (notif) =>
+                    selectedNotifications.includes(notif.notification_id) && !notif.is_read
+            ).length;
+
+            if (unreadDeleted > 0 && window.updateUnreadCount) {
+                window.updateUnreadCount(-unreadDeleted);
+            }
+
+            // clear selection
+            setSelectedNotifications([]);
+        } catch (error) {
+            console.error('Error deleting notifications:', error);
+        }
+    }
+
     return (
         <div>
             {NavBarComponent && <NavBarComponent />}
@@ -121,71 +172,119 @@ export default function Notifications() {
                         {notifications.length === 0 ? (
                             <li className="no-notifs">You have no notifications.</li>
                         ) : (
-                            <table className="notif-table">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedNotifications.length === notifications.length && notifications.length > 0}
-                                                onChange={(e) => {
-                                                    if (e.target.checked) {
-                                                        setSelectedNotifications(notifications.map(n => n.notification_id));
-                                                    } else {
-                                                        setSelectedNotifications([]);
-                                                    }
-                                                }}
-                                            />
-                                        </th>
-                                        <th>Title</th>
-                                        <th>Message</th>
-                                        <th>Date</th>
-                                        <th>
-                                            <div className="notif-actions">
-                                                <button
-                                                    className="mark-read-btn"
-                                                    onClick={handleMarkSelectedRead}
-                                                    disabled={selectedNotifications.length === 0}
-                                                >
-                                                    {selectedNotifications.every(notifId =>
-                                                        notifications.find(n => n.notification_id === notifId)?.is_read
-                                                    ) ? <Mail className="icon" /> : <MailOpen className="icon" />}
-                                                </button>
-                                                <button
-                                                    className="notif-delete-btn"
-                                                    disabled={selectedNotifications.length === 0}
-                                                >
-                                                    <Trash className="icon" />
-                                                </button>
-                                            </div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {notifications.map((notif) => (
-                                        <tr key={notif.notification_id} className={`notif-row ${notif.is_read ? 'read' : 'unread'}`}>
-                                            <td className="notif-checkbox">
+                            <>
+                                <table className="notif-table">
+                                    <thead>
+                                        <tr>
+                                            <th>
                                                 <input
                                                     type="checkbox"
-                                                    checked={selectedNotifications.includes(notif.notification_id)}
-                                                    onChange={() => handleSelectNotif(notif.notification_id)}
+                                                    checked={selectedNotifications.length === notifications.length && notifications.length > 0}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedNotifications(notifications.map(n => n.notification_id));
+                                                        } else {
+                                                            setSelectedNotifications([]);
+                                                        }
+                                                    }}
                                                 />
-                                            </td>
-                                            <td className="notif-title">{notif.title}</td>
-                                            <td className="notif-message">{notif.notif_message}</td>
-                                            <td className="notif-date">
-                                                {notif.created_at
-                                                    ? new Date(notif.created_at).toLocaleString() : ''}
-                                            </td>
-                                            <td></td>
+                                            </th>
+                                            <th>Notification</th>
+                                            <th>Date</th>
+                                            <th>
+                                                <div className="notif-actions">
+                                                    <button
+                                                        className="mark-read-btn"
+                                                        onClick={handleMarkSelectedRead}
+                                                        disabled={selectedNotifications.length === 0}
+                                                    >
+                                                        {selectedNotifications.every(notifId =>
+                                                            notifications.find(n => n.notification_id === notifId)?.is_read
+                                                        ) ? <Mail className="icon" /> : <MailOpen className="icon" />}
+                                                    </button>
+                                                    <button
+                                                        className="notif-delete-btn"
+                                                        onClick={handleDeleteSelected}
+                                                        disabled={selectedNotifications.length === 0}
+                                                    >
+                                                        <Trash className="icon" />
+                                                    </button>
+                                                </div>
+                                            </th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {notifications.map((notif) => (
+                                            <tr key={notif.notification_id} className={`notif-row ${notif.is_read ? 'read' : 'unread'} clickable`} onClick={() => setClickedNotif(notif)}>
+                                                <td className="notif-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedNotifications.includes(notif.notification_id)}
+                                                        onChange={() => handleSelectNotif(notif.notification_id)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    />
+                                                </td>
+                                                <td className="notif-main">{formatNotification(notif)}</td>
+                                                <td className="notif-date">
+                                                    {notif.created_at
+                                                        ? new Date(notif.created_at).toLocaleString() : ''}
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+
+                                {clickedNotif && (
+                                        <div className="notif-detail-panel">
+                                            <div className="notif-detail-header">
+                                                <h2>Notification Details</h2>
+                                                <button onClick={() => setClickedNotif(null)}>Close</button>
+                                            </div>
+
+                                            <div className="notif-summary">
+                                                {formatNotification(clickedNotif)}
+                                            </div>
+
+                                            {clickedNotif.comment_id && (
+                                                <div>
+
+                                                    <div className="notif-comment">
+                                                        <h3>Comment:</h3>
+                                                        <p>{clickedNotif.notif_message}</p>
+                                                    </div>
+
+                                                    <button
+                                                        className="view-comment-btn"
+                                                            onClick={() => {
+                                                                if (user.default_view === 3) {
+                                                                    Navigate('/student/degree-tracking', {
+                                                                        state: {
+                                                                            programId: clickedNotif.program_id
+                                                                        }
+                                                                    })
+                                                                } else if (user.default_view === 2) {
+                                                                    Navigate('/advisor/advising', {
+                                                                        state: {
+                                                                            schoolStudentId: clickedNotif.school_student_id,
+                                                                            programId: clickedNotif.program_id
+                                                                        }
+                                                                    })
+                                                                }
+                                                            }}
+                                                        >
+                                                            View Comment on Degree Plan
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                            </>
                         )}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     );
 }
+

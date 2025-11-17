@@ -78,4 +78,22 @@ describe('CommentModel', () => {
         expect(comments).not.toContainEqual(expect.objectContaining({ comment_id: commentId }));
     });
 
+    // test for updating a comment by ID
+    test('updateComment updates a comment by its ID', async () => {
+        const programId = 1;
+        const studentId = 1;
+        const authorId = 2;
+        const commentText = 'Original comment text.';
+
+        const newComment = await CommentModel.createComment(programId, studentId, authorId, commentText);
+        const commentId = newComment.comment_id;
+
+        const updatedText = 'Updated comment text.';
+        const updatedComment = await CommentModel.updateComment(commentId, updatedText);
+
+        expect(updatedComment).toHaveProperty('comment_id', commentId);
+        expect(updatedComment.comment_text).toBe(updatedText);
+        expect(updatedComment).toHaveProperty('author_id', authorId);
+        expect(updatedComment).toHaveProperty('program_id', programId);
+    });
 });

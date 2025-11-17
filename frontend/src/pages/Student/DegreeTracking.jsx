@@ -5,6 +5,7 @@
 
 
 import { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import StudentNavBar from "../../components/NavBars/StudentNavBar";
 import ProgramSelector from "../../components/ProgramSelector";
 import { useAuth } from "../../auth/AuthProvider.jsx"; // use the auth provider to get current user
@@ -14,6 +15,9 @@ export default function StudentDegreeTracking() {
     const api = useApiClient();
     // get logged-in user
     const { user } = useAuth();
+
+    const location = useLocation();
+    const { programId: notifProgramId } = location.state || {};
 
     // keep a local student object (we'll set it once we know which id works)
     const [student, setStudent] = useState(null);
@@ -38,7 +42,17 @@ export default function StudentDegreeTracking() {
 
                 if (!cancelled) {
                     setPrograms(studentPrograms);
-                    setSelectedProgram(studentPrograms.length > 0 ? studentPrograms[0] : null);
+
+                    // select program from notifications if available
+                    let initialProgram = studentPrograms[0] ?? null;
+                    if (notifProgramId) {
+                        const notifProgram = studentPrograms.find(p => p.program_id === notifProgramId);
+                        if (notifProgram) {
+                            initialProgram = notifProgram;
+                        }
+                    }
+
+                    setSelectedProgram(initialProgram);
 
                     // build a minimal student object expected by ProgramSelector / DegreePlan
                     const name = user.name ?? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
