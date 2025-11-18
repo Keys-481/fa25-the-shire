@@ -33,7 +33,6 @@ afterAll(async () => {
     await pool.end();
 });
 
-
 /**
  * Helper function to create an Express app with mocked authentication
  * @param mockUser - The user object to set in req.user
@@ -229,5 +228,115 @@ describe('PUT /comments/:id', () => {
 
         expect(response.status).toBe(400);
         expect(response.body.message).toBe('Missing required parameters: commentId, newText');
+    });
+
+    /* Test: POST /comments
+     * Scenario: Attempting to create a comment with empty text (whitespace only).
+     * Expectation: API should return HTTP 400 with message "Comment text cannot be empty".
+     */
+    test('returns 400 when commentText is empty string', async () => {
+        const mockUser = { user_id: 1 };
+        const app = makeAppWithUser(mockUser);
+
+        const res = await request(app).post('/comments').send({
+            programId: 1,
+            studentSchoolId: '112299690',
+            commentText: '   ' // whitespace only
+        });
+
+        expect(res.status).toBe(400);
+        expect(res.body.message).toBe('Comment text cannot be empty');
+    });
+
+    /**
+     * Test: GET /comments
+     * Scenario: Attempting to fetch comments for a non-existent student.
+     * Expectation: API should return HTTP 404 with message "Student not found".
+     */
+    test('returns 404 when student not found', async () => {
+        const mockUser = { user_id: 1 };
+        const app = makeAppWithUser(mockUser);
+
+        const res = await request(app).get('/comments').query({
+            programId: 1,
+            studentSchoolId: '999999999'
+        });
+
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe('Student not found');
+    });
+
+    /**
+     * Test: POST /comments
+     * Scenario: Attempting to create a comment for a non-existent student.
+     * Expectation: API should return HTTP 404 with message "Student not found".
+     */
+    test('POST /comments returns 404 when student not found', async () => {
+        const mockUser = { user_id: 1 }; // admin
+        const app = makeAppWithUser(mockUser);
+
+        const res = await request(app).post('/comments').send({
+            programId: 1,
+            studentSchoolId: '999999999', // bogus ID
+            commentText: 'Hello'
+        });
+
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe('Student not found');
+    });
+
+    /**
+     * Test: DELETE /comments/:id
+     * Scenario: Attempting to delete a non-existent comment.
+     * Expectation: API should return HTTP 404 with message "Comment not found".
+     */
+    test('returns 404 when comment not found', async () => {
+        const mockUser = { user_id: 1 };
+        const app = makeAppWithUser(mockUser);
+
+        const res = await request(app).delete('/comments/999999');
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe('Comment not found');
+    });
+
+    /**
+     * Suite: DELETE /comments error handling
+     *
+     * Contains tests verifying error handling behavior when the CommentModel.deleteCommentById
+     * method throws an exception. Ensures that the API responds with HTTP 500 and a consistent
+     * error message.
+     */
+    describe('DELETE /comments error handling', () => {
+        let app, CommentModel;
+        beforeEach(() => {
+            jest.resetModules();
+            jest.mock('../../src/models/CommentModel', () => ({
+                deleteCommentById: jest.fn()
+            }));
+            CommentModel = require('../../src/models/CommentModel');
+            const express = require('express');
+            const commentRoutes = require('../../src/routes/comments');
+            app = express();
+            app.use(express.json());
+            app.use((req, res, next) => { req.user = { user_id: 1 }; next(); });
+            app.use('/comments', commentRoutes);
+        });
+
+        /**
+         * Test: DELETE /comments/:id
+         * Scenario: CommentModel.deleteCommentById throws a database error.
+         * Expectation: API should return HTTP 500 with message "Internal server error".
+         */
+        test('returns 500 when deleteCommentById throws', async () => {
+            const spy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
+            CommentModel.deleteCommentById.mockRejectedValue(new Error('DB error'));
+            const res = await request(app).delete('/comments/1');
+
+            expect(res.status).toBe(500);
+            expect(res.body.message).toBe('Internal server error');
+
+            spy.mockRestore();
+        });
     });
 });

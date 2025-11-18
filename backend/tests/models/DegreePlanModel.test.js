@@ -51,7 +51,7 @@ describe('DegreePlanModel', () => {
         expect(degreePlan[0]).toHaveProperty('sem_start_date');
         expect(degreePlan[0]).toHaveProperty('sem_end_date');
         expect(degreePlan[0]).toHaveProperty('course_status');
-        
+
         // check for specific course code in the degree plan (should match seed data)
         const courseCodes = degreePlan.map(plan => plan.course_code);
         expect(courseCodes).toContain('OPWL-536'); // should match seed data
@@ -114,7 +114,7 @@ describe('DegreePlanModel', () => {
         expect(updatedCourse.course_status).toBe(newStatus);
         expect(updatedCourse.semester_id).toBe(semesterId);
     });
-    
+
     // Test for getting course status in a student's degree plan
     test('getCourseStatus returns correct status for a course in a student\'s degree plan', async () => {
         const studentId = 1; // Alice Johnson
@@ -133,4 +133,90 @@ describe('DegreePlanModel', () => {
         expect(courseStatus).toBeNull();
     });
 
+});
+
+/**
+ * Ensures getDegreePlanByStudentId propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getDegreePlanByStudentId throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { }); // silence logs
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(DegreePlanModel.getDegreePlanByStudentId(1, 1))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures getDegreePlanByRequirements propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getDegreePlanByRequirements throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(DegreePlanModel.getDegreePlanByRequirements(1, 1))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures getTotalProgramRequiredCredits propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getTotalProgramRequiredCredits throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(DegreePlanModel.getTotalProgramRequiredCredits(1))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures updateCourseStatus propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('updateCourseStatus throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(DegreePlanModel.updateCourseStatus(1, 8, 'Planned', 8, 1))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures getCourseStatus propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getCourseStatus throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(DegreePlanModel.getCourseStatus(1, 8, 1))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Validates that getTotalProgramRequiredCredits returns 0
+ * when a program has no requirements in seed data.
+ * @returns {number} 0 if program requirements are absent
+ */
+test('getTotalProgramRequiredCredits returns 0 when program has no requirements', async () => {
+    const programId = 9999; // use a programId not present in seed data
+    const totalCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
+    expect(totalCredits).toBe(0);
 });

@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const CourseModel = require('../models/CourseModel')
 const { createCourse, updateCourse, deleteCourse, getCourseOfferings, getPrerequisitesForCourse, getEnrollments } = require('../models/CourseModel');
-const pool = require('../db');
 
 /**
  * @route GET /courses/search
