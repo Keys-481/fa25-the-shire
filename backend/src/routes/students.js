@@ -313,6 +313,7 @@ router.get('/:schoolId/programs', async (req, res) => {
 
 /**
  * Route: PUT /students/:schoolId/programs
+<<<<<<< Updated upstream
  * Updates the programs associated with a student by their school ID.
  */
 router.put('/:schoolId/programs', async (req, res) => {
@@ -340,6 +341,94 @@ router.put('/:schoolId/programs', async (req, res) => {
         res.json({ message: 'Student programs updated successfully' });
     } catch (error) {
         console.error('Error updating student programs:', error);
+=======
+ * Adds a student to a new program by their school ID.
+ */
+router.patch('/:schoolId/programs', async (req, res) => {
+    const { schoolId } = req.params;
+    const { programId } = req.body;
+    try {
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        // admin can update any student in edit user
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        }
+
+        if (hasAccess) {
+            const result = await StudentModel.addStudentToProgram(student.student_id, programId);
+            if (!result) {
+                return res.status(400).json({ message: 'Failed to enroll student in program' });
+            }
+            return res.json({ message: 'Student enrolled in program successfully', result });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to enroll this student in a program' });
+        }
+    } catch (error) {
+        console.error('Error enrolling student in program:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+/**
+ * Route: DELETE /students/:schoolId/programs
+ * Removes a student from a program by their school ID.
+ */
+router.delete('/:schoolId/programs', async (req, res) => {
+    const { schoolId } = req.params;
+    const { programId } = req.body;
+    try {
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        // admin can update any student in edit user
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        }
+
+        if (hasAccess) {
+            const result = await StudentModel.removeStudentFromProgram(student.student_id, programId);
+            if (!result) {
+                return res.status(404).json({ message: 'Student not enrolled in the specified program' });
+            }
+            return res.json({ message: 'Student removed from program successfully', result });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to remove this student from a program' });
+        }
+    } catch (error) {
+        console.error('Error removing student from program:', error);
+>>>>>>> Stashed changes
         res.status(500).json({ message: 'Internal server error' });
     }
 });

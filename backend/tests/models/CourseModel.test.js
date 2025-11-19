@@ -11,8 +11,13 @@ const { getPrerequisitesForCourse, getCourseOfferings, createCourse, updateCours
 
 // Reset and seed the database before each test
 beforeAll(async () => {
+<<<<<<< Updated upstream
     await runSchemaAndSeeds();
 });
+=======
+  await runSchemaAndSeeds();
+}, 15000);
+>>>>>>> Stashed changes
 
 // Close the database connection after all tests
 afterAll(async () => {

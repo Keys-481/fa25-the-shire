@@ -120,10 +120,10 @@ async function getProgramsBySchoolStudentId(schoolStudentId) {
     try {
         const result = await pool.query(
             `SELECT p.program_id, p.program_name, p.program_type
-             FROM student_programs sp
-             JOIN students s ON sp.student_id = s.student_id
-             JOIN programs p ON sp.program_id = p.program_id
-             WHERE s.school_student_id = $1`,
+            FROM student_programs sp
+            JOIN students s ON sp.student_id = s.student_id
+            JOIN programs p ON sp.program_id = p.program_id
+            WHERE s.school_student_id = $1`,
             [schoolStudentId]
         );
         return result.rows;
@@ -133,11 +133,90 @@ async function getProgramsBySchoolStudentId(schoolStudentId) {
     }
 }
 
+/**
+ * Add a student to a program (student programs table)
+ * Return a boolean indicating success/failure.
+ * @param {*} studentId - The internal ID of the student.
+ * @param {*} programId - The internal ID of the program.
+ */
+async function addStudentToProgram(studentId, programId) {
+    try {
+        const result = await pool.query(
+            `INSERT INTO student_programs (student_id, program_id)
+            VALUES ($1, $2)
+            ON CONFLICT (student_id, program_id) DO NOTHING`,
+            [studentId, programId]
+        );
 
+        // need to create default degree plan for this program and student (like in seeds)
+
+        return result.rowCount > 0;
+    } catch (error) {
+        console.error('Error adding student to program:', error);
+        throw error;
+    }
+}
+
+/**
+ * Remove a student from a program (student programs table)
+ * Return a boolean indicating success/failure.
+ * @param {*} studentId - The internal ID of the student.
+ * @param {*} programId - The internal ID of the program.
+ */
+async function removeStudentFromProgram(studentId, programId) {
+    try {
+        const result = await pool.query(
+            `DELETE FROM student_programs
+            WHERE student_id = $1 AND program_id = $2`,
+            [studentId, programId]
+        );
+        return result.rowCount > 0;
+    } catch (error) {
+        console.error('Error removing student from program:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get all students matching a phone number (partial or full).
+ * @param {*} phoneNumber - Student's phone number (partial or full)
+ * @returns A promise that resolves to an array of student objects matching the phone number.
+ */
+async function getStudentByPhoneNumber(phoneNumber) {
+    try {
+        const phoneDigits = (phoneNumber || '').replace(/\D/g, '');
+
+        if (!phoneDigits) {
+            return [];
+        }
+
+        const result = await pool.query(
+            `SELECT
+                s.student_id,
+                s.school_student_id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.phone_number
+            FROM students s
+            JOIN users u ON s.user_id = u.user_id
+            WHERE regexp_replace(u.phone_number, '\\D', '', 'g')
+            LIKE $1 || '%'`,
+            [phoneDigits]
+        );
+        
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching student by phone number: ', error);
+        throw error;
+    }
+}
 
 module.exports = {
     getStudentBySchoolId,
     getProgramsByStudentId,
+    addStudentToProgram,
+    removeStudentFromProgram,
     getStudentByName,
     getStudentBySchoolIdAndName,
     getProgramsBySchoolStudentId

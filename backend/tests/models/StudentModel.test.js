@@ -110,3 +110,176 @@ describe('StudentModel', () => {
     });
 
 });
+<<<<<<< Updated upstream
+=======
+
+/**
+ * Ensures getStudentBySchoolId propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getStudentBySchoolId throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getStudentBySchoolId('112299690'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Validates that getProgramsBySchoolStudentId returns program data
+ * for a valid school_student_id present in seed data.
+ * @returns {Array<Object>} program objects with id, name, and type
+ */
+test('getProgramsBySchoolStudentId returns programs for valid school_student_id', async () => {
+    const schoolId = '112299690'; // matches seed data
+    const programs = await StudentModel.getProgramsBySchoolStudentId(schoolId);
+
+    expect(programs).toBeDefined();
+    expect(programs.length).toBeGreaterThan(0);
+    expect(programs[0]).toHaveProperty('program_id');
+    expect(programs[0]).toHaveProperty('program_name');
+    expect(programs[0]).toHaveProperty('program_type');
+});
+
+/**
+ * Ensures getProgramsBySchoolStudentId returns an empty array
+ * when no matching school_student_id exists.
+ */
+test('getProgramsBySchoolStudentId returns empty array for non-existent school_student_id', async () => {
+    const programs = await StudentModel.getProgramsBySchoolStudentId('invalid_id');
+    expect(programs).toEqual([]);
+});
+
+/**
+ * Ensures getStudentByName propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getStudentByName throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getStudentByName('Alice'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Ensures getStudentBySchoolIdAndName propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getStudentBySchoolIdAndName throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getStudentBySchoolIdAndName('112299690', 'Alice'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Ensures getProgramsBySchoolStudentId propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getProgramsBySchoolStudentId throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getProgramsBySchoolStudentId('112299690'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Validates that getProgramsBySchoolStudentId returns program data
+ * as an array for a valid school_student_id.
+ */
+test('getProgramsBySchoolStudentId returns programs for valid school_student_id', async () => {
+    const schoolId = '112299690'; // matches seed data
+    const programs = await StudentModel.getProgramsBySchoolStudentId(schoolId);
+
+    expect(Array.isArray(programs)).toBe(true);
+    expect(programs.length).toBeGreaterThan(0);
+    expect(programs[0]).toHaveProperty('program_id');
+    expect(programs[0]).toHaveProperty('program_name');
+    expect(programs[0]).toHaveProperty('program_type');
+});
+
+/**
+ * Ensures getProgramsBySchoolStudentId returns an empty array
+ * when no matching school_student_id exists.
+ */
+test('getProgramsBySchoolStudentId returns empty array for non-existent school_student_id', async () => {
+    const programs = await StudentModel.getProgramsBySchoolStudentId('invalid_id');
+    expect(programs).toEqual([]);
+});
+
+/**
+ * Ensures addStudentToProgram successfully adds a student to a program
+ * and returns true.
+ */
+test('addStudentToProgram adds student to program and returns true', async () => {
+    const studentId = 2;
+    const programId = 1;
+
+    // First, ensure the student is not already in the program
+    const initialPrograms = await StudentModel.getProgramsByStudentId(studentId);
+    const initialProgramIds = initialPrograms.map(p => p.program_id);
+    expect(initialProgramIds).not.toContain(programId);
+
+    const result = await StudentModel.addStudentToProgram(studentId, programId);
+    expect(result).toBe(true);
+
+    // Verify that the student is now associated with the program
+    const programs = await StudentModel.getProgramsByStudentId(studentId);
+    const programIds = programs.map(p => p.program_id);
+    expect(programIds).toContain(programId);
+});
+
+
+/**
+ * Ensures addStudentToProgram returns false when trying to add
+ * a student to a program they are already enrolled in.
+ */
+test('addStudentToProgram returns false when student already in program', async () => {
+    const studentId = 1;
+    const programId = 1;
+
+    // Ensure the student is already in the program
+    const initialPrograms = await StudentModel.getProgramsByStudentId(studentId);
+    const initialProgramIds = initialPrograms.map(p => p.program_id);
+    expect(initialProgramIds).toContain(programId);
+
+    const result = await StudentModel.addStudentToProgram(studentId, programId);
+    expect(result).toBe(false);
+});
+
+/**
+ * Ensures removeStudentFromProgram successfully removes a student from a program
+ * and returns true.
+ */
+test('removeStudentFromProgram removes student from program and returns true', async () => {
+    const studentId = 2;
+    const programId = 2;
+
+    // Add student to program first to ensure they are enrolled
+    await StudentModel.addStudentToProgram(studentId, programId);
+
+    // Verify that the student is in the program
+    const initialPrograms = await StudentModel.getProgramsByStudentId(studentId);
+    const initialProgramIds = initialPrograms.map(p => p.program_id);
+    expect(initialProgramIds).toContain(programId);
+
+    const result = await StudentModel.removeStudentFromProgram(studentId, programId);
+    expect(result).toBe(true);
+
+    // Verify that the student is no longer associated with the program
+    const programs = await StudentModel.getProgramsByStudentId(studentId);
+    const programIds = programs.map(p => p.program_id);
+    expect(programIds).not.toContain(programId);
+});
+>>>>>>> Stashed changes
