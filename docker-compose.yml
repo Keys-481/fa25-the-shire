@@ -23,7 +23,7 @@ services:
         condition: service_healthy
 
     restart: on-failure
-    command: sh -c "cd backend && ./start.sh"
+    command: sh -c "/app/backend/start.sh"
 
   postgres:
     image: postgres:16

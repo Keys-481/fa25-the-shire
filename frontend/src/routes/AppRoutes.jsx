@@ -43,7 +43,7 @@ import AccountingReportingFunctionality from '../pages/Accounting/ReportingFunct
 
 
 export default function AppRoutes() {
-  const base = process.env.PUBLIC_URL || '/';
+  const base = import.meta.env.VITE_PUBLIC_URL || '/';
   return (
     <AuthProvider>
       <Router>

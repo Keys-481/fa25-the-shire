@@ -4,19 +4,10 @@
  */
 
 // Load environment variables from .env file
+require('./loadEnv');
 const path = require('path');
 const dotenv = require('dotenv');
 const apiBase = process.env.API_BASE_URL || '/api';
-
-if (process.env.NODE_ENV === 'dev') {
-    const envPath = path.resolve(__dirname, '../.env.dev');
-    dotenv.config({ path: envPath });
-}
-
-// const envPath = process.env.NODE_ENV === 'dev'
-//     ? path.resolve(__dirname, '../.env.dev')
-//     : path.resolve(__dirname, '../.env');
-// dotenv.config({ path: envPath });
 
 // Import necessary modules
 const express = require('express');

@@ -19,9 +19,9 @@ echo "Postgres server is up!"
 
 # Run DB setup (creates user, DB, applies schema)
 echo "Running database setup..."
-node db_setup.js
+node /app/backend/db_setup.js
 echo "Database setup complete!"
 
 # Start backend server
 echo "Starting backend..."
-exec node server.js
+exec node /app/backend/server.js
