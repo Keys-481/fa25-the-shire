@@ -26,7 +26,7 @@ export default function CommentForm({ studentSchoolId, programId, onCommentPoste
         setPosting(true);
         setError('');
         try {
-            const newComment = await api.post('/api/comments', {
+            const newComment = await api.post('/comments', {
                 programId,
                 studentSchoolId,
                 commentText: commentText.trim(),

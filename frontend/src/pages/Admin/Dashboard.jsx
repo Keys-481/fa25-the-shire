@@ -30,7 +30,7 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const me = await api.get("/api/users/me");
+        const me = await api.get("/users/me");
         const prefs = me.preferences;
         if (prefs) {
           document.body.classList.toggle("dark-theme", prefs.theme === "dark");

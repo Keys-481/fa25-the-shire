@@ -43,3 +43,6 @@ coverage/
 # Dependency directories
 jspm_packages/
 bower_components/
+
+# Database files from docker-compose
+data/postgres/

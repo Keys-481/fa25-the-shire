@@ -13,7 +13,7 @@ import { useApiClient } from "../../lib/apiClient";
  */
 export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId , userIsStudent=false }) {
     const api = useApiClient();
-    const base_url = '/api/students';
+    const base_url = '/students';
 
     const studentId = useMemo(() => student?.school_student_id ?? student?.id ?? propStudentId ?? null, [student, propStudentId]);
     const thisProgramId = useMemo(() => {

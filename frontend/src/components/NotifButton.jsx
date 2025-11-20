@@ -16,7 +16,7 @@ export default function NotifButton() {
     const fetchUnreadCount = async () => {
         try {
             console.log('Fetching unread notifications count...');
-            const data = await api.get('/api/notifications');
+            const data = await api.get('/notifications');
             console.log('Fetched notifications:', data);
             const count = data.notifications.filter(n => !n.is_read).length;
             setUnreadCount(count);

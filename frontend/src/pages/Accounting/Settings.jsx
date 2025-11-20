@@ -40,12 +40,12 @@ export default function AccountingSettings() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await api.get('/api/users/me');
+        const data = await api.get('/users/me');
         setUserInfo(data);
         setNewView(data.default_view);
 
         // Fetch preferences separately
-        const prefs = await api.get(`/api/users/${data.user_id}/preferences`);
+        const prefs = await api.get(`/users/${data.user_id}/preferences`);
         if (prefs) {
           setTheme(prefs.theme);
           setFontSize(prefs.font_size_change);
@@ -58,7 +58,7 @@ export default function AccountingSettings() {
 
 
         // Fetch advisor info
-        const advisingData = await api.get(`/api/users/${data.user_id}/advising`);
+        const advisingData = await api.get(`/users/${data.user_id}/advising`);
         if (advisingData?.advisors?.length > 0) {
           setAdvisors(advisingData.advisors);
         }
@@ -79,7 +79,7 @@ export default function AccountingSettings() {
  */
   useEffect(() => {
     (async () => {
-      const prefs = await api.get(`/api/users/${data.user_id}/preferences`);
+      const prefs = await api.get(`/users/${data.user_id}/preferences`);
       if (prefs) {
         setIsDark(prefs.theme === 'dark'); // set state
         document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
@@ -145,7 +145,7 @@ export default function AccountingSettings() {
                     <button
                       onClick={async () => {
                         try {
-                          await api.put(`/api/users/${userInfo.user_id}/password`, {
+                          await api.put(`/users/${userInfo.user_id}/password`, {
                             password: newPassword
                           });
                           setPasswordUpdateStatus('Password updated successfully.');
@@ -252,7 +252,7 @@ export default function AccountingSettings() {
                             setTheme(newTheme);
                             document.body.classList.toggle('dark-theme', newTheme === 'dark');
                             try {
-                              await api.put(`/api/users/${userInfo.user_id}/preferences`, {
+                              await api.put(`/users/${userInfo.user_id}/preferences`, {
                                 theme: newTheme,
                                 font_size_change: fontSize,
                                 font_family: fontFamily
@@ -277,7 +277,7 @@ export default function AccountingSettings() {
                           setFontSize(size);
                           document.documentElement.style.setProperty('--font-size-change', size);
                           try {
-                            await api.put(`/api/users/${userInfo.user_id}/preferences`, {
+                            await api.put(`/users/${userInfo.user_id}/preferences`, {
                               theme,
                               font_size_change: size,
                               font_family: fontFamily
@@ -304,7 +304,7 @@ export default function AccountingSettings() {
                           setFontFamily(family);
                           document.documentElement.style.setProperty('--font-family-change', family);
                           try {
-                            await api.put(`/api/users/${userInfo.user_id}/preferences`, {
+                            await api.put(`/users/${userInfo.user_id}/preferences`, {
                               theme,
                               font_size_change: fontSize,
                               font_family: family

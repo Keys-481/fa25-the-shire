@@ -52,7 +52,7 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      const res = await fetch(`/api/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
+      const res = await fetch(`/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
       if (!res.ok) throw new Error(await res.text());
 
       const data = await res.json();

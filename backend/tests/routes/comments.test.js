@@ -48,7 +48,7 @@ function makeAppWithUser(mockUser) {
         next();
     });
 
-    app.use('/comments', commentRoutes);
+    app.use('/api/comments', commentRoutes);
     return app;
 }
 
@@ -62,7 +62,7 @@ describe('GET /comments', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/comments')
+            .get('/api/comments')
             .query({ programId: 1, studentSchoolId: '112299690' }); // Alice Johnson's school ID from seed data
 
         expect(response.status).toBe(200);
@@ -75,7 +75,7 @@ describe('GET /comments', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/comments')
+            .get('/api/comments')
             .query({ programId: 1, studentSchoolId: '112299690' }); // Alice Johnson's school ID from seed data
 
         expect(response.status).toBe(200);
@@ -88,7 +88,7 @@ describe('GET /comments', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/comments')
+            .get('/api/comments')
             .query({ programId: 1, studentSchoolId: '112299690' }); // Alice Johnson's school ID from seed data
 
         expect(response.status).toBe(200);
@@ -101,7 +101,7 @@ describe('GET /comments', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/comments')
+            .get('/api/comments')
             .query({ programId: 1 }); // Missing studentSchoolId
 
         expect(response.status).toBe(400);
@@ -114,7 +114,7 @@ describe('GET /comments', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/comments')
+            .get('/api/comments')
             .query({ programId: 1, studentSchoolId: '112299690' }); // Alice Johnson's school ID from seed data
 
         expect(response.status).toBe(403);
@@ -127,7 +127,7 @@ describe('GET /comments', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/comments')
+            .get('/api/comments')
             .query({ programId: 1, studentSchoolId: '112299690' }); // Alice Johnson's school ID from seed data
 
         expect(response.status).toBe(403);
@@ -151,7 +151,7 @@ describe('POST /comments', () => {
         };
 
         const response = await request(app)
-            .post('/comments')
+            .post('/api/comments')
             .send(newCommentData);
 
         expect(response.status).toBe(201);
@@ -170,7 +170,7 @@ describe('POST /comments', () => {
         };
 
         const response = await request(app)
-            .post('/comments')
+            .post('/api/comments')
             .send(newCommentData);
 
         expect(response.status).toBe(400);
@@ -189,7 +189,7 @@ describe('POST /comments', () => {
         };
 
         const response = await request(app)
-            .post('/comments')
+            .post('/api/comments')
             .send(newCommentData);
 
         expect(response.status).toBe(403);
@@ -209,7 +209,7 @@ describe('PUT /comments/:id', () => {
         const updatedCommentText = 'This is an updated test comment.';
 
         const response = await request(app)
-            .put('/comments/1') // assuming comment with ID 1 exists and was authored by user_id 2
+            .put('/api/comments/1') // assuming comment with ID 1 exists and was authored by user_id 2
             .send({ newText: updatedCommentText });
 
         expect(response.status).toBe(200);
@@ -223,7 +223,7 @@ describe('PUT /comments/:id', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .put('/comments/1') // assuming comment with ID 1 exists
+            .put('/api/comments/1') // assuming comment with ID 1 exists
             .send({}); // missing newText
 
         expect(response.status).toBe(400);
@@ -238,7 +238,7 @@ describe('PUT /comments/:id', () => {
         const mockUser = { user_id: 1 };
         const app = makeAppWithUser(mockUser);
 
-        const res = await request(app).post('/comments').send({
+        const res = await request(app).post('/api/comments').send({
             programId: 1,
             studentSchoolId: '112299690',
             commentText: '   ' // whitespace only
@@ -257,7 +257,7 @@ describe('PUT /comments/:id', () => {
         const mockUser = { user_id: 1 };
         const app = makeAppWithUser(mockUser);
 
-        const res = await request(app).get('/comments').query({
+        const res = await request(app).get('/api/comments').query({
             programId: 1,
             studentSchoolId: '999999999'
         });
@@ -275,7 +275,7 @@ describe('PUT /comments/:id', () => {
         const mockUser = { user_id: 1 }; // admin
         const app = makeAppWithUser(mockUser);
 
-        const res = await request(app).post('/comments').send({
+        const res = await request(app).post('/api/comments').send({
             programId: 1,
             studentSchoolId: '999999999', // bogus ID
             commentText: 'Hello'
@@ -294,7 +294,7 @@ describe('PUT /comments/:id', () => {
         const mockUser = { user_id: 1 };
         const app = makeAppWithUser(mockUser);
 
-        const res = await request(app).delete('/comments/999999');
+        const res = await request(app).delete('/api/comments/999999');
         expect(res.status).toBe(404);
         expect(res.body.message).toBe('Comment not found');
     });
@@ -319,7 +319,7 @@ describe('PUT /comments/:id', () => {
             app = express();
             app.use(express.json());
             app.use((req, res, next) => { req.user = { user_id: 1 }; next(); });
-            app.use('/comments', commentRoutes);
+            app.use('/api/comments', commentRoutes);
         });
 
         /**
@@ -331,7 +331,7 @@ describe('PUT /comments/:id', () => {
             const spy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
             CommentModel.deleteCommentById.mockRejectedValue(new Error('DB error'));
-            const res = await request(app).delete('/comments/1');
+            const res = await request(app).delete('/api/comments/1');
 
             expect(res.status).toBe(500);
             expect(res.body.message).toBe('Internal server error');
