@@ -41,7 +41,7 @@ test.describe('Advising - DegreePlan component', () => {
         // Wait for the degree plan API call
         const apiResponse = await page.waitForResponse(
             r =>
-                r.url().includes('/api/students/112299690/degree-plan') && 
+                r.url().includes('/students/112299690/degree-plan') && 
                 r.status() === 200,
             { timeout: 10000 }
         );

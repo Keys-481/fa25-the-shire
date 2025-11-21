@@ -15,7 +15,7 @@ export default function AdminCourses() {
   });
   const searchRef = useRef();
 
-  const searchEndpoint = '/api/courses/search';
+  const searchEndpoint = '/courses/search';
 
   /**
    * Handles search results returned from the SearchBar component.
@@ -61,7 +61,7 @@ export default function AdminCourses() {
    */
   const handleAddCourse = async () => {
     try {
-      const response = await fetch('/api/courses', {
+      const response = await fetch('/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseForm)

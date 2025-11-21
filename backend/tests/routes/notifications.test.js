@@ -70,7 +70,7 @@ function makeAppWithUser(mockUser) {
         next();
     });
 
-    app.use('/notifications', notifications);
+    app.use('/api/notifications', notifications);
     return app;
 }
 
@@ -84,7 +84,7 @@ describe('GET /notifications', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/notifications');
+            .get('/api/notifications');
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body.notifications)).toBe(true);
@@ -96,7 +96,7 @@ describe('GET /notifications', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/notifications');
+            .get('/api/notifications');
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body.notifications)).toBe(true);
@@ -108,7 +108,7 @@ describe('GET /notifications', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .get('/notifications');
+            .get('/api/notifications');
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body.notifications)).toBe(true);
@@ -119,7 +119,7 @@ describe('GET /notifications', () => {
         const app = makeAppWithUser(null);
 
         const response = await request(app)
-            .get('/notifications');
+            .get('/api/notifications');
 
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Unauthorized: User ID is required');
@@ -136,7 +136,7 @@ describe('PUT /notifications/:id/read', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .put('/notifications/1/read')
+            .put('/api/notifications/1/read')
             .send({ is_read: true });
 
         expect(response.status).toBe(200);
@@ -148,7 +148,7 @@ describe('PUT /notifications/:id/read', () => {
         const app = makeAppWithUser(null);
 
         const response = await request(app)
-            .put('/notifications/1/read')
+            .put('/api/notifications/1/read')
             .send({ is_read: true });
 
         expect(response.status).toBe(401);
@@ -161,7 +161,7 @@ describe('PUT /notifications/:id/read', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .put('/notifications/1/read')
+            .put('/api/notifications/1/read')
             .send({});
 
         expect(response.status).toBe(400);
@@ -179,7 +179,7 @@ describe('DELETE /notifications/:id', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .delete('/notifications/1');
+            .delete('/api/notifications/1');
 
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Notification deleted successfully');
@@ -190,7 +190,7 @@ describe('DELETE /notifications/:id', () => {
         const app = makeAppWithUser(null);
 
         const response = await request(app)
-            .delete('/notifications/1');
+            .delete('/api/notifications/1');
 
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Unauthorized: User ID is required');
@@ -202,7 +202,7 @@ describe('DELETE /notifications/:id', () => {
         const app = makeAppWithUser(mockUser);
 
         const response = await request(app)
-            .delete('/notifications/9999'); // assuming 9999 does not exist
+            .delete('/api/notifications/9999'); // assuming 9999 does not exist
 
         expect(response.status).toBe(404);
         expect(response.body.message).toBe('Notification not found or not authorized');
@@ -221,7 +221,7 @@ test('returns 500 when NotificationsModel.getNotificationsForUser throws error',
     jest.spyOn(require('../../src/models/NotificationsModel'), 'getNotificationsForUser')
         .mockRejectedValueOnce(new Error('DB error'));
 
-    const response = await request(app).get('/notifications');
+    const response = await request(app).get('/api/notifications');
 
     expect(response.status).toBe(500);
     expect(response.body.message).toBe('Internal server error');
@@ -240,7 +240,7 @@ test('returns 404 when notification not found', async () => {
         .mockResolvedValueOnce(null); // Simulate not found
 
     const response = await request(app)
-        .put('/notifications/999/read')
+        .put('/api/notifications/999/read')
         .send({ is_read: true });
 
     expect(response.status).toBe(404);
@@ -260,7 +260,7 @@ test('returns 500 when NotificationsModel.markNotificationReadState throws error
         .mockRejectedValueOnce(new Error('DB error'));
 
     const response = await request(app)
-        .put('/notifications/1/read')
+        .put('/api/notifications/1/read')
         .send({ is_read: true });
 
     expect(response.status).toBe(500);
