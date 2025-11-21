@@ -6,23 +6,42 @@
  * Can be called directly or imported for Jest tests
  */
 
+require('./loadEnv');
 const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
-const envPath = process.env.NODE_ENV === 'dev'
-    ? path.resolve(__dirname, '../.env.dev')
-    : path.resolve(__dirname, '../.env');
-
-// Load environment variables from .env file (.env should not be committed to version control)
-require('dotenv').config({ path: envPath });
 
 const dbConfig = {
-    host: process.env.DB_HOST,
+    host: process.env.DB_HOST || 'postgres',
     user: process.env.DB_USER,
     database: process.env.DB_NAME,
     password: process.env.DB_PASS,
-    port: process.env.DB_PORT,
+    port: process.env.DB_PORT || 5432,
 };
+
+async function ensureDatabaseExists() {
+    const client = new Client({ ...dbConfig, database: 'postgres'});
+    await client.connect();
+
+    try {
+        const res = await client.query(
+            `SELECT 1 FROM pg_database WHERE datname = $1`,
+            [dbConfig.database]
+        );
+
+        if (res.rowCount === 0) {
+            console.log(`Database "${dbConfig.database}" does not exist. Creating...`);
+            await client.query(`CREATE DATABASE ${dbConfig.database}`);
+            console.log(`Database "${dbConfig.database}" created successfully.`);
+        } else {
+            console.log(`Database "${dbConfig.database}" already exists.`);
+        }
+    } catch (error) {
+        console.error('Error ensuring database exists:', error);
+    } finally {
+        await client.end();
+    }
+}
 
 /**
  * runSchemaAndSeeds: connects to the database, executes schema and seed SQL files.
@@ -58,7 +77,15 @@ async function runSchemaAndSeeds() {
 
 // If this script is run directly, execute the setup
 if (require.main === module) {
-    runSchemaAndSeeds().catch(() => process.exit(1));
+    (async () => {
+        try {
+            await ensureDatabaseExists();
+            await runSchemaAndSeeds();
+            process.exit(0);
+        } catch (err) {
+            process.exit(1);
+        }
+    })();
 }
 
 module.exports = { runSchemaAndSeeds };

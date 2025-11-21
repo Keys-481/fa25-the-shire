@@ -3,9 +3,6 @@
  * @description Utility functions for authorization.
  */
 
-const { get } = require("../routes/students");
-
-
 /**
  * Retrieves the user information from the request object.
  * @param {*} req - The request object.

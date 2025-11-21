@@ -18,6 +18,16 @@ afterAll(async () => {
     await pool.end();
 });
 
+// Silence console.error during tests
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+});
+
+// Restore console.error after tests
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 /**
  * Tests for StudentModel
  */
@@ -109,4 +119,109 @@ describe('StudentModel', () => {
         expect(matchingStudents.length).toBeGreaterThan(0);
     });
 
+});
+
+/**
+ * Ensures getStudentBySchoolId propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getStudentBySchoolId throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getStudentBySchoolId('112299690'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Validates that getProgramsBySchoolStudentId returns program data
+ * for a valid school_student_id present in seed data.
+ * @returns {Array<Object>} program objects with id, name, and type
+ */
+test('getProgramsBySchoolStudentId returns programs for valid school_student_id', async () => {
+    const schoolId = '112299690'; // matches seed data
+    const programs = await StudentModel.getProgramsBySchoolStudentId(schoolId);
+
+    expect(programs).toBeDefined();
+    expect(programs.length).toBeGreaterThan(0);
+    expect(programs[0]).toHaveProperty('program_id');
+    expect(programs[0]).toHaveProperty('program_name');
+    expect(programs[0]).toHaveProperty('program_type');
+});
+
+/**
+ * Ensures getProgramsBySchoolStudentId returns an empty array
+ * when no matching school_student_id exists.
+ */
+test('getProgramsBySchoolStudentId returns empty array for non-existent school_student_id', async () => {
+    const programs = await StudentModel.getProgramsBySchoolStudentId('invalid_id');
+    expect(programs).toEqual([]);
+});
+
+/**
+ * Ensures getStudentByName propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getStudentByName throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getStudentByName('Alice'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Ensures getStudentBySchoolIdAndName propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getStudentBySchoolIdAndName throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getStudentBySchoolIdAndName('112299690', 'Alice'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Ensures getProgramsBySchoolStudentId propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getProgramsBySchoolStudentId throws error when query fails', async () => {
+    const mockError = new Error('DB failure');
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
+
+    await expect(StudentModel.getProgramsBySchoolStudentId('112299690'))
+        .rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+});
+
+/**
+ * Validates that getProgramsBySchoolStudentId returns program data
+ * as an array for a valid school_student_id.
+ */
+test('getProgramsBySchoolStudentId returns programs for valid school_student_id', async () => {
+    const schoolId = '112299690'; // matches seed data
+    const programs = await StudentModel.getProgramsBySchoolStudentId(schoolId);
+
+    expect(Array.isArray(programs)).toBe(true);
+    expect(programs.length).toBeGreaterThan(0);
+    expect(programs[0]).toHaveProperty('program_id');
+    expect(programs[0]).toHaveProperty('program_name');
+    expect(programs[0]).toHaveProperty('program_type');
+});
+
+/**
+ * Ensures getProgramsBySchoolStudentId returns an empty array
+ * when no matching school_student_id exists.
+ */
+test('getProgramsBySchoolStudentId returns empty array for non-existent school_student_id', async () => {
+    const programs = await StudentModel.getProgramsBySchoolStudentId('invalid_id');
+    expect(programs).toEqual([]);
 });

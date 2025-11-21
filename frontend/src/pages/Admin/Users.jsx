@@ -40,7 +40,7 @@ export default function AdminUsers() {
   const [assignedAdvisors, setAssignedAdvisors] = useState([]);
 
 
-  const searchEndpoint = '/api/users/search';
+  const searchEndpoint = '/users/search';
 
   /**
    * Fetches all users and roles from the backend on component mount.
@@ -50,8 +50,8 @@ export default function AdminUsers() {
     const fetchData = async () => {
       try {
         const [usersRes, rolesRes] = await Promise.all([
-          fetch('/api/users/all'),
-          fetch('/api/users/roles')
+          fetch('/users/all'),
+          fetch('/users/roles')
         ]);
 
         const usersData = await usersRes.json();
@@ -125,7 +125,7 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const permsRes = await fetch('/api/users/permissions');
+        const permsRes = await fetch('/users/permissions');
         const perms = await permsRes.json();
         setAllPermissions(perms);
       } catch (err) {
@@ -179,8 +179,8 @@ export default function AdminUsers() {
   const refreshData = async () => {
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        fetch('/api/users/all'),
-        fetch('/api/users/roles')
+        fetch('/users/all'),
+        fetch('/users/roles')
       ]);
 
       const usersData = await usersRes.json();
@@ -207,7 +207,7 @@ export default function AdminUsers() {
     const allRoles = Array.from(selectedRoles);
 
     try {
-      const res = await fetch('/api/users', {
+      const res = await fetch('/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

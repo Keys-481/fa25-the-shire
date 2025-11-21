@@ -43,10 +43,11 @@ import AccountingReportingFunctionality from '../pages/Accounting/ReportingFunct
 
 
 export default function AppRoutes() {
+  const base = import.meta.env.VITE_PUBLIC_URL || '/';
   return (
     <AuthProvider>
       <Router>
-        <Routes>
+        <Routes basename={base}>
           {/* Send users to the login page if not logged in */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 

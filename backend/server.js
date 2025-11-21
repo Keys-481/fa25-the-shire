@@ -4,13 +4,10 @@
  */
 
 // Load environment variables from .env file
+require('./loadEnv');
 const path = require('path');
 const dotenv = require('dotenv');
-
-const envPath = process.env.NODE_ENV === 'dev'
-    ? path.resolve(__dirname, '../.env.dev')
-    : path.resolve(__dirname, '../.env');
-dotenv.config({ path: envPath });
+const apiBase = process.env.API_BASE_URL || '/api';
 
 // Import necessary modules
 const express = require('express');
@@ -68,12 +65,12 @@ app.get("/api/ready", (_req, res) => {
 });
 
 // API routes (if more are added, just follow the format below)
-app.use('/api/students', studentRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/comments', commentRoutes);
-app.use('/api/notifications', notificationsRoutes);
+app.use(`${apiBase}/students`, studentRoutes);
+app.use(`${apiBase}/courses`, courseRoutes);
+app.use(`${apiBase}/users`, userRoutes);
+app.use(`${apiBase}/auth`, authRoutes);
+app.use(`${apiBase}/comments`, commentRoutes);
+app.use(`${apiBase}/notifications`, notificationsRoutes);
 
 // Serve React app
 function resolveFrontendDist() {
@@ -99,7 +96,7 @@ if (distPath) {
     app.use(express.static(distPath));
 
     // Any non-API route should return the SPA index.html
-    app.get(/^(?!\/api\/).+/, (_req, res) => {
+    app.get(new RegExp(`^(?!${apiBase}/).+`), (_req, res) => {
         res.sendFile(path.join(distPath, "index.html"));
     });
 

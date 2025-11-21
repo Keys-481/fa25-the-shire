@@ -39,7 +39,7 @@ export default function Advising() {
 
     (async () => {
       try {
-        const res = await api.get(`/api/students/${schoolStudentId}/programs`);
+        const res = await api.get(`/students/${schoolStudentId}/programs`);
         const student = res?.student;
         const studentPrograms = res?.programs || [];
         if (!student) return;
@@ -61,7 +61,7 @@ export default function Advising() {
   useEffect(() => {
     (async () => {
       try {
-        const list = await api.get('/api/students/assigned');
+        const list = await api.get('/students/assigned');
         setAssigned(Array.isArray(list) ? list : []);
       } catch (error) {
         console.error('[advising] Error fetching assigned students:', error.message);
@@ -89,7 +89,7 @@ export default function Advising() {
     setSelectedProgram(null);
 
     try {
-      const data = await api.get(`/api/students/${student.id}/programs`);
+      const data = await api.get(`/students/${student.id}/programs`);
       setPrograms(data?.programs || []);
     } catch (error) {
       setPrograms([]);
@@ -97,7 +97,7 @@ export default function Advising() {
     }
   }
 
-  const searchStudentEndpoint = '/api/students/search';
+  const searchStudentEndpoint = '/students/search';
 
   // render results message only after a search has been made
   const renderResults = () => {

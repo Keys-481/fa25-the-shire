@@ -51,7 +51,7 @@ export default function AddUser({
   useEffect(() => {
     const fetchAllPermissions = async () => {
       try {
-        const res = await fetch('/api/users/permissions'); // You must expose this endpoint
+        const res = await fetch('/users/permissions'); // You must expose this endpoint
         const perms = await res.json();
         setAllPermissions(perms);
       } catch (err) {
@@ -64,7 +64,7 @@ export default function AddUser({
       const map = {};
       for (const role of roles) {
         try {
-          const res = await fetch(`/api/users/roles/${role.role_name}/permissions`);
+          const res = await fetch(`/users/roles/${role.role_name}/permissions`);
           const perms = await res.json();
           map[role.role_name] = perms;
         } catch (err) {

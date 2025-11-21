@@ -36,7 +36,7 @@ export default function StudentDegreeTracking() {
         (async () => {
             try {
                 const encoded = encodeURIComponent(user.public_id);
-                const data = await api.get(`/api/students/${encoded}/programs`);
+                const data = await api.get(`/students/${encoded}/programs`);
 
                 const studentPrograms = data.programs || (data.programs === undefined && data.programs === null ? [] : data.programs) || [];
 

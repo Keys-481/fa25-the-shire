@@ -50,7 +50,7 @@ export default function Notifications() {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const data = await api.get(`/api/notifications`,
+                const data = await api.get(`/notifications`,
                     {
                         headers: {
                             'Cache-Control': 'no-cache',
