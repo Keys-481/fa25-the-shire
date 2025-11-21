@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import { useApiClient } from '../../lib/apiClient';
-
+import { useAuth } from '../../auth/AuthProvider';
 
 /**
  * AdminSettings component displays the Settings page for admin users.
@@ -14,6 +14,7 @@ import { useApiClient } from '../../lib/apiClient';
  */
 export default function AdminSettings() {
   const navigate = useNavigate();
+  const { user, setRole } = useAuth();
   const [viewType, setViewType] = useState('settings'); // Default to 'settings'
   const [userInfo, setUserInfo] = useState(null);
   const [newPassword, setNewPassword] = useState('');
@@ -51,6 +52,7 @@ export default function AdminSettings() {
           setFontSize(prefs.font_size_change);
           setFontFamily(prefs.font_family);
 
+          setIsDark(prefs.theme === 'dark'); // set state
           document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
           document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
           document.documentElement.style.setProperty('--font-family-change', prefs.font_family);
@@ -67,28 +69,6 @@ export default function AdminSettings() {
       }
     })();
   }, []);
-
-
-/**
- * useEffect hook that runs once on component mount to initialize user interface preferences.
- * Fetches user preferences for theme, font size, and font family, then applies them to the document.
- * 
- * @async
- * @function useEffect
- * @returns {void} No return value; side effects update DOM and component state.
- */
-  useEffect(() => {
-    (async () => {
-      const prefs = await api.get(`/api/users/${data.user_id}/preferences`);
-      if (prefs) {
-        setIsDark(prefs.theme === 'dark'); // set state
-        document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
-        document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
-        document.documentElement.style.setProperty('--font-family-change', prefs.font_family);
-      }
-    })();
-  }, []);
-
 
   if (!userInfo) return <p>Loading user info...</p>;
 
@@ -203,7 +183,7 @@ export default function AdminSettings() {
                   {userInfo.roles?.length > 1 && (
                     <div>
                       <div className="textbox-row">
-                        <p><strong>Current View:</strong> Admin</p>
+                        <p><strong>Current View:</strong> {user?.role}</p>
                       </div>
                       <div className="textbox-row">
                         <p><strong>Change View:</strong></p>
@@ -220,7 +200,12 @@ export default function AdminSettings() {
                         </select>
                         <button
                           onClick={() => {
-                            const route = roleSettingsRoutes[newView.toLowerCase()];
+                            const targetRole = newView.toLowerCase();
+                            
+                            // Update current role in Auth
+                            setRole(targetRole);
+
+                            const route = roleSettingsRoutes[targetRole];
                             if (route) {
                               navigate(route);
                             } else {
