@@ -55,29 +55,36 @@ export default function AppRoutes() {
           <Route path="/login" element={<LogIn />} />
 
           {/* Protected Routes */}
+          {/* Notifications Route */}
           <Route element={<ProtectedRoute />}>
-
-            {/* Notifications Route */}
             <Route path="/notifications" element={<Notifications />} />
+          </Route>
 
-            {/* Admin Routes */}
+          {/* Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+          </Route>
 
-            {/* Advising Routes */}
+          {/* Advising Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['advisor']} />}>
             <Route path="/advisor/dashboard" element={<AdvisorDashboard />} />
             <Route path="/advisor/advising" element={<Advising />} />
             <Route path="/advisor/reporting-functionality" element={<AdvisorReportingFunctionality />} />
             <Route path="/advisor/settings" element={<AdvisorSettings />} />
-            
-            {/* Student Routes */}
+          </Route>
+
+          {/* Student Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['student']} />}>
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/degree-tracking" element={<StudentDegreeTracking />} />
             <Route path="/student/settings" element={<StudentSettings />} />
+          </Route>
 
-            {/* Accounting Routes */}
+          {/* Accounting Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['accounting']} />}>
             <Route path="/accounting/dashboard" element={<AccountingDashboard />} />
             <Route path="/accounting/graduation-report" element={<AccountingGraduationReport />} />
             <Route path="/accounting/settings" element={<AccountingSettings />} />
