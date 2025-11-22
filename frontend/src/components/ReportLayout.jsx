@@ -2,12 +2,14 @@
  *  Component to display enrollment report for a selected course across next 4 semesters.
  * */
 import { useEffect, useState } from "react";
+import { useApiClient } from "../lib/apiClient";
 
 export default function ReportLayout({ courseCode }) {
   const [report, setReport] = useState(null);   // single course OR all courses
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [semesterLabels, setSemesterLabels] = useState([]);
+  const apiClient = useApiClient();
 
   // Generate semester labels once when component loads
   useEffect(() => {
@@ -52,10 +54,10 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      const res = await fetch(`/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
+      const res = await apiClient.get(`/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
       if (!res.ok) throw new Error(await res.text());
 
-      const data = await res.json();
+      const data = res;
       const enrollments = data.enrollments || [];
 
       const pivoted = {};
@@ -81,10 +83,10 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      const res = await fetch(`/api/courses/enrollments/all`);
+      const res = await apiClient.get(`/courses/enrollments/all`);
       if (!res.ok) throw new Error(await res.text());
 
-      const data = await res.json();
+      const data = res;
       const list = data.enrollments || [];
 
       const map = {};
