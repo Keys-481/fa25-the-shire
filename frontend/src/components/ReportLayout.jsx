@@ -54,10 +54,7 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      const res = await apiClient.get(`/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
-      if (!res.ok) throw new Error(await res.text());
-
-      const data = res;
+      const data = await apiClient.get(`/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
       const enrollments = data.enrollments || [];
 
       const pivoted = {};
@@ -83,10 +80,7 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
-      const res = await apiClient.get(`/courses/enrollments/all`);
-      if (!res.ok) throw new Error(await res.text());
-
-      const data = res;
+      const data = await apiClient.get(`/courses/enrollments/all`);
       const list = data.enrollments || [];
 
       const map = {};

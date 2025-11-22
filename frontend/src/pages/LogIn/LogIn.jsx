@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import logo from '../../assets/images/boise_state_wbg.png'
 import { useAuth } from '../../auth/AuthProvider.jsx'
 import '../../styles/Styles.css'
-import { useApiClient } from '../../lib/apiClient.js';
 
 
 export default function LogIn() {
@@ -13,7 +12,6 @@ export default function LogIn() {
     const { isAuthed, login, user } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
-    const apiClient = useApiClient();
 
     useEffect(() => {
         if (!isAuthed) return;
@@ -32,9 +30,10 @@ export default function LogIn() {
         setError("");
 
         try {
-            const res = await apiClient.post("/auth/login", {
-                identifier,
-                password
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ identifier, password }),
             });
 
             if (!res.ok) {
@@ -42,7 +41,7 @@ export default function LogIn() {
                 return;
             }
 
-            const data = res;
+            const data = await res.json();
             login({ token: data.token, user: data.user });
 
             const role = data?.user?.role;
