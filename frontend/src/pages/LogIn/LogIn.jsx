@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../auth/AuthProvider.jsx'
 import logo from '../../assets/images/boise_state_wbg.png'
+import { useAuth } from '../../auth/AuthProvider.jsx'
 import '../../styles/Styles.css'
 
 
@@ -17,9 +17,9 @@ export default function LogIn() {
         if (!isAuthed) return;
         const role = user?.default_view;
         const roleHome = ({
-            1: "/student/dashboard",
+            1: "/admin/dashboard",
             2: "/advisor/dashboard",
-            3: "/admin/dashboard",
+            3: "/student/dashboard",
             4: "/accounting/dashboard",
         })[role] || "/student/dashboard";
         navigate(roleHome, { replace: true });

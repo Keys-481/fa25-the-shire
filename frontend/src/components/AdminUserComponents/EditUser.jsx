@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useApiClient } from '../../lib/apiClient';
 
 export default function EditUser({
   roles,
@@ -29,6 +30,7 @@ export default function EditUser({
 }) {
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
+  const apiClient = useApiClient();
 
   /**
    * Fetches a user's basic public information using their public ID.
@@ -40,10 +42,9 @@ export default function EditUser({
    */
   const fetchUserById = async (id) => {
     try {
-      const res = await fetch(`/api/users/public/${id}`);
+      const res = await apiClient.get(`/users/public/${id}`);
       if (!res.ok) return null;
-      const data = await res.json();
-      return { user_id: id, name: data.name };
+      return { user_id: id, name: res.name };
     } catch (err) {
       console.error('Failed to fetch user:', err);
       return null;
@@ -230,13 +231,13 @@ export default function EditUser({
                 if (!publicId) return;
 
                 try {
-                  const res = await fetch(`/api/users/public/${publicId}`);
+                  const res = await apiClient.get(`/users/public/${publicId}`);
                   if (!res.ok) {
                     alert(`Advisor with ID ${publicId} not found.`);
                     return;
                   }
 
-                  const data = await res.json();
+                  const data = res;
                   const alreadyAssigned = assignedAdvisors.some(a => a.user_id === data.user_id);
                   if (alreadyAssigned) return;
 

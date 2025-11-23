@@ -11,6 +11,7 @@ import { useAuth } from "../auth/AuthProvider";
  * @returns {Object} API client with get, post, put, delete methods.
  */
 export function useApiClient() {
+    const baseApiUrl = import.meta.env.VITE_API_URL || '/api';
     const { token, user } = useAuth();
 
     const request = useCallback(async (path, options = {}) => {
@@ -27,7 +28,7 @@ export function useApiClient() {
             headers.set('X-User-Role', String(user.role));
         }
 
-        const res = await fetch(path, { ...options, headers });
+        const res = await fetch(`${baseApiUrl}${path}`, { ...options, headers });
         if (!res.ok) {
             let body;
             try { body = await res.json(); } catch { body = { message: res.statusText }; }

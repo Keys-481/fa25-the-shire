@@ -37,6 +37,39 @@ async function getDegreePlanByStudentId(studentId, programId) {
 }
 
 /**
+ * Get a student's degree plan by their phone number.
+ * @param {*} studentPhoneNumber - internal student phone number
+ * @param {*} programId - internal program ID
+ * @returns All students with a matching phone number
+ */
+async function getDegreePlanByStudentPhoneNumber(studentPhoneNumber, programId) {
+    try {
+        const result = await pool.query(
+            `SELECT dp.plan_id, dp.student_id, dp.course_id, dp.course_status, dp.catalog_year,
+                c.course_id, c.course_code, c.course_name, c.credits,
+                s.semester_id, s.semester_name, s.semester_type,
+                s.sem_start_date, s.sem_end_date,
+                p.program_name, p.program_type
+            FROM degree_plans dp
+            JOIN students st ON dp.student_id = st.student_id
+            JOIN users u ON st.user_id = u.user_id
+            JOIN courses c ON dp.course_id = c.course_id
+            LEFT JOIN semesters s on dp.semester_id = s.semester_id
+            JOIN programs p ON dp.program_id = p.program_id
+            WHERE regexp_replace(u.phone_number, '\\D', '', 'g') = regexp_replace($1, '\\D', '', 'g')
+            AND dp.program_id = $2
+            ORDER BY s.sem_start_date ASC NULLS LAST, c.course_code ASC`,
+            [studentPhoneNumber, programId]
+        );
+
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching degree plan by phone number:', error);
+        throw error;
+    }
+}
+
+/**
  * Get a student's degree plan by program requirements,
  * this is to support viewing all program requirements and which courses satisfy them
  * @param {*} studentId - internal student ID
@@ -165,6 +198,7 @@ module.exports = {
     getDegreePlanByRequirements,
     getTotalProgramRequiredCredits,
     updateCourseStatus,
-    getCourseStatus
+    getCourseStatus,
+    getDegreePlanByStudentPhoneNumber
 }
 

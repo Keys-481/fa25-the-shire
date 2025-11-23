@@ -50,7 +50,7 @@ export default function Notifications() {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const data = await api.get(`/api/notifications`,
+                const data = await api.get(`/notifications`,
                     {
                         headers: {
                             'Cache-Control': 'no-cache',
@@ -90,7 +90,7 @@ export default function Notifications() {
 
             await Promise.all(
                 selectedNotifications.map((notifID) =>
-                    api.put(`/api/notifications/${notifID}/read`, {
+                    api.put(`/notifications/${notifID}/read`, {
                         is_read: newState,
                     })
                 )
@@ -130,7 +130,7 @@ export default function Notifications() {
 
             await Promise.all(
                 selectedNotifications.map((notifID) =>
-                    api.del(`/api/notifications/${notifID}`)
+                    api.del(`/notifications/${notifID}`)
                 )
             );
 

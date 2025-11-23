@@ -53,7 +53,7 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
 
         (async () => {
             try {
-                await api.del(`/api/comments/${deletedCommentId}`);
+                await api.del(`/comments/${deletedCommentId}`);
             } catch (error) {
                 console.error('Error deleting comment:', error);
                 alert('Error deleting comment: ' + (error?.message || 'Unknown error'));
@@ -71,7 +71,7 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
     // update comment with new text
     const handleSaveEdit = async () => {
         try {
-            const updatedComment = await api.put(`/api/comments/${comment.comment_id}`, { newText: editText });
+            const updatedComment = await api.put(`/comments/${comment.comment_id}`, { newText: editText });
             setComments((prevComments) => prevComments.map(c => c.comment_id === comment.comment_id ? updatedComment : c));
             setIsEditing(false);
         } catch (error) {

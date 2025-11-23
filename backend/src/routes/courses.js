@@ -2,7 +2,6 @@ const express = require('express')
 const router = express.Router()
 const CourseModel = require('../models/CourseModel')
 const { createCourse, updateCourse, deleteCourse, getCourseOfferings, getPrerequisitesForCourse, getEnrollments } = require('../models/CourseModel');
-const pool = require('../db');
 
 /**
  * @route GET /courses/search
@@ -194,6 +193,41 @@ router.get('/enrollments', async (req, res) => {
     res.json({ enrollments });
   } catch (err) {
     console.error('Error in GET /courses/enrollments:', err.stack || err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
+ * @route GET /courses/enrollments/all
+ * @description Retrieves enrollment counts for ALL courses over the next four semesters.
+ * @access Public
+ *
+ * @response 200 - Returns an array of enrollment objects for all courses:
+ *  {
+ *    enrollments: [
+ *      { course_code: string,  // e.g., "OPWL-536"
+ *        semester: string,     // e.g., "Fall 2024"
+ *        count: number        // enrollment count
+ *      },
+ *      ...
+ *    ]
+ *  }
+ * @response 500 - Internal server error if retrieval fails.
+ */
+router.get('/enrollments/all', async (req, res) => {
+  try {
+    const rows = await CourseModel.getAllEnrollments();
+
+    const enrollments = rows.map(r => ({
+      course_code: r.course_code,
+      semester: r.semester,
+      count: r.count ?? r.enrollment_count ?? 0
+    }));
+
+    res.json({ enrollments });
+
+  } catch (err) {
+    console.error('Error in GET /courses/enrollments/all:', err.stack || err);
     res.status(500).json({ message: 'Internal server error' });
   }
 });

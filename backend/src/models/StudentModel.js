@@ -134,6 +134,39 @@ async function getProgramsBySchoolStudentId(schoolStudentId) {
 }
 
 /**
+ * Get all students matching a phone number (partial or full).
+ * @param {*} phoneNumber - Student's phone number (partial or full)
+ * @returns A promise that resolves to an array of student objects matching the phone number.
+ */
+async function getStudentByPhoneNumber(phoneNumber) {
+    try {
+        const phoneDigits = (phoneNumber || '').replace(/\D/g, '');
+
+        if (!phoneDigits) {
+            return [];
+        }
+
+        const result = await pool.query(
+            `SELECT
+                s.student_id,
+                s.school_student_id,
+                u.first_name,
+                u.last_name,
+                u.email,
+                u.phone_number
+            FROM students s
+            JOIN users u ON s.user_id = u.user_id
+            WHERE regexp_replace(u.phone_number, '\\D', '', 'g')
+            LIKE $1 || '%'`,
+            [phoneDigits]
+        );
+
+        return result.rows;
+    } catch (error) {
+        console.error('Error fetching student by phone number: ', error);
+        throw error;
+    }
+}/**
  * Get Students who have applied for graduation.
  * @returns A promise that resolves to an array of student objects.
  */
@@ -172,5 +205,5 @@ module.exports = {
     getStudentByName,
     getStudentBySchoolIdAndName,
     getProgramsBySchoolStudentId,
-    getStudentsAppliedForGraduation,
+    getStudentByPhoneNumber
 };

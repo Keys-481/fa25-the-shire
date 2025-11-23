@@ -15,7 +15,7 @@ export default function AdminCourses() {
   });
   const searchRef = useRef();
 
-  const searchEndpoint = '/api/courses/search';
+  const searchEndpoint = '/courses/search';
 
   /**
    * Handles search results returned from the SearchBar component.
@@ -61,7 +61,7 @@ export default function AdminCourses() {
    */
   const handleAddCourse = async () => {
     try {
-      const response = await fetch('/api/courses', {
+      const response = await fetch('/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(courseForm)
@@ -83,11 +83,7 @@ export default function AdminCourses() {
    */
   const handleUpdateCourse = async () => {
     try {
-      const response = await fetch(`/api/courses/${courseForm.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(courseForm)
-      });
+      const response = await apiClient.put(`/courses/${courseForm.id}`, courseForm);
 
       if (!response.ok) throw new Error('Failed to update course');
 
@@ -103,9 +99,7 @@ export default function AdminCourses() {
 
   const handleDeleteCourse = async () => {
     try {
-      const response = await fetch(`/api/courses/${selectedCourse.id}`, {
-        method: 'DELETE'
-      });
+      const response = await apiClient.delete(`/courses/${selectedCourse.id}`);
 
       if (!response.ok) throw new Error('Failed to delete course');
 
