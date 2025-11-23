@@ -166,7 +166,8 @@ async function getStudentByPhoneNumber(phoneNumber) {
         console.error('Error fetching student by phone number: ', error);
         throw error;
     }
-}/**
+}
+/**
  * Get Students who have applied for graduation.
  * @returns A promise that resolves to an array of student objects.
  */
