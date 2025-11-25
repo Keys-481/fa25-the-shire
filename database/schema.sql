@@ -376,10 +376,16 @@ CREATE TABLE IF NOT EXISTS graduation_applications (
     application_id SERIAL PRIMARY KEY,
     student_id INT NOT NULL REFERENCES students(student_id) ON DELETE CASCADE,
     program_id INT REFERENCES programs(program_id) ON DELETE SET NULL,
-    status grad_status NOT NULL DEFAULT 'Applied',
+    status grad_status NOT NULL DEFAULT 'Not Applied',
     applied_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status_updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO graduation_applications (student_id, program_id, status)
+SELECT s.student_id, NULL, 'Not Applied'
+FROM students s
+LEFT JOIN graduation_applications g ON s.student_id = g.student_id
+WHERE g.student_id IS NULL;
 
 CREATE INDEX IF NOT EXISTS idx_grad_apps_student_id ON graduation_applications(student_id);
 CREATE INDEX IF NOT EXISTS idx_grad_apps_status ON graduation_applications(status);

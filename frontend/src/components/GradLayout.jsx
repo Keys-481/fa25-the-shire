@@ -15,12 +15,12 @@ export default function GraduationReportLayout() {
     fetchGraduationApplicants();
   }, []);
 
-  
+
 const fetchGraduationApplicants = async () => {
   setLoading(true);
   setError(null);
   try {
-    const data = await apiClient.get('/graduation');
+    const data = await apiClient.get('/graduation/graduation-report/');
     setStudents(Array.isArray(data.students) ? data.students : []);
   } catch (err) {
     console.error('fetchGraduationApplicants', err);

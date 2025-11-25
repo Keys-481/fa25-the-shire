@@ -6,21 +6,11 @@ const AccessModel = require('../models/AccessModel');
 const StudentModel = require('../models/StudentModel');
 const { requireUser } = require('../utils/authorize');
 
-/**
- * GET /api/graduation?status=applied|approved|...
- * - admin & accounting: see all
- * - advisor: see their students' applications only
- */
- /**
- * GET /api/graduation?status=applied,approved,rejected
- * Returns graduation applications filtered to requested statuses (comma separated).
- * Default: applied,approved,rejected
- * Admin and accounting see all; advisors see only their students.
- */
+
 router.get('/', requireUser, async (req, res) => {
     try {
         const q = req.query.status;
-        const defaultStatuses = ['Applied', 'Approved', 'Rejected'];
+        const defaultStatuses = ['Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected'];
         const allowed = new Set(['Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected']);
 
         const statuses = q
@@ -40,13 +30,59 @@ router.get('/', requireUser, async (req, res) => {
         const isAdmin = roles.includes('admin');
         const isAccounting = roles.includes('accounting');
         const isAdvisor = roles.includes('advisor');
+        const studentIds = apps.map(a => a.student_id);
 
         if (isAdvisor && !isAdmin && !isAccounting) {
+            // Advisor: see only their students
             const checks = await Promise.all(
                 apps.map(a => AccessModel.isAdvisorOfStudent(req.user.user_id, a.student_id))
             );
             apps = apps.filter((_, i) => checks[i]);
-        } else if (!isAdmin && !isAccounting && !isAdvisor) {
+        } else if (!isAdmin && !isAccounting) {
+            // Student: see only their own application
+            const studentRow = await pool.query(
+                `SELECT student_id FROM students WHERE user_id = $1`,
+                [req.user.user_id]
+            );
+            const studentId = studentRow.rows[0]?.student_id;
+            apps = apps.filter(a => a.student_id === studentId);
+        }
+
+        return res.json({ students: apps });
+    } catch (err) {
+        console.error('[graduation] GET error', err);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+router.get('/graduation-report', requireUser, async (req, res) => {
+    try {
+        const q = req.query.status;
+        const defaultStatuses = ['Applied', 'Under Review', 'Approved', 'Rejected'];
+        const allowed = new Set(['Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected']);
+
+        const statuses = q
+            ? q.split(',').map(s => s.trim()).filter(Boolean)
+            : defaultStatuses;
+
+        if (!statuses.every(s => allowed.has(s))) {
+            return res.status(400).json({ message: 'Invalid status filter' });
+        }
+
+        let apps = await GraduationModel.getApplications(null);
+        apps = apps.filter(a => statuses.includes(a.status));
+
+        const roles = await AccessModel.getUserRoles(req.user.user_id);
+        const isAdmin = roles.includes('admin');
+        const isAccounting = roles.includes('accounting');
+
+        if (!isAdmin && !isAccounting) {
+            const checks = await Promise.all(
+                apps.map(a => AccessModel.isAdvisorOfStudent(req.user.user_id, a.student_id))
+            );
+            apps = apps.filter((_, i) => checks[i]);
+        } else if (!isAdmin && !isAccounting) {
             return res.status(403).json({ message: 'Forbidden' });
         }
 
@@ -97,11 +133,14 @@ router.put('/:id/status', requireUser, async (req, res) => {
         const { status } = req.body;
         if (!status) return res.status(400).json({ message: 'Missing status' });
 
+        // Get roles of logged-in user
         const roles = await AccessModel.getUserRoles(req.user.user_id);
         const isAdmin = roles.includes('admin');
         const isAccounting = roles.includes('accounting');
         const isAdvisor = roles.includes('advisor');
+        const isStudent = roles.includes('student'); // explicitly check student
 
+        // Only allow admin, accounting, or advisor
         if (!isAdmin && !isAccounting && !isAdvisor) {
             return res.status(403).json({ message: 'Forbidden' });
         }
@@ -109,9 +148,15 @@ router.put('/:id/status', requireUser, async (req, res) => {
         const app = await GraduationModel.getApplicationById(applicationId);
         if (!app) return res.status(404).json({ message: 'Application not found' });
 
+        // Advisors can only edit their own students
         if (isAdvisor && !isAdmin && !isAccounting) {
             const allowed = await AccessModel.isAdvisorOfStudent(req.user.user_id, app.student_id);
             if (!allowed) return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        // Students can never edit
+        if (isStudent) {
+            return res.status(403).json({ message: 'Students cannot update graduation status' });
         }
 
         const updated = await GraduationModel.updateApplicationStatus(applicationId, status);

@@ -47,7 +47,7 @@ async function getApplicationById(applicationId) {
 async function createApplication(studentId, programId) {
     const res = await pool.query(
         `INSERT INTO graduation_applications (student_id, program_id, status, applied_at, status_updated_at)
-         VALUES ($1, $2, 'applied', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+         VALUES ($1, $2, 'Not Applied', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
          RETURNING *`,
         [studentId, programId]
     );
