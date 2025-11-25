@@ -11,20 +11,39 @@ const { requireUser } = require('../utils/authorize');
  * - admin & accounting: see all
  * - advisor: see their students' applications only
  */
+ /**
+ * GET /api/graduation?status=applied,approved,rejected
+ * Returns graduation applications filtered to requested statuses (comma separated).
+ * Default: applied,approved,rejected
+ * Admin and accounting see all; advisors see only their students.
+ */
 router.get('/', requireUser, async (req, res) => {
     try {
-        const status = req.query.status;
+        const q = req.query.status;
+        const defaultStatuses = ['Applied', 'Approved', 'Rejected'];
+        const allowed = new Set(['Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected']);
+
+        const statuses = q
+            ? q.split(',').map(s => s.trim()).filter(Boolean)
+            : defaultStatuses;
+
+        if (!statuses.every(s => allowed.has(s))) {
+            return res.status(400).json({ message: 'Invalid status filter' });
+        }
+
+        // fetch all apps then filter (simple; small dataset in dev)
+        let apps = await GraduationModel.getApplications(null);
+        apps = apps.filter(a => statuses.includes(a.status));
+
+        // enforce role-based visibility
         const roles = await AccessModel.getUserRoles(req.user.user_id);
         const isAdmin = roles.includes('admin');
         const isAccounting = roles.includes('accounting');
         const isAdvisor = roles.includes('advisor');
 
-        let apps = await GraduationModel.getApplications(status);
-
         if (isAdvisor && !isAdmin && !isAccounting) {
-            // filter to only advisor's students
             const checks = await Promise.all(
-                apps.map((a) => AccessModel.isAdvisorOfStudent(req.user.user_id, a.student_id))
+                apps.map(a => AccessModel.isAdvisorOfStudent(req.user.user_id, a.student_id))
             );
             apps = apps.filter((_, i) => checks[i]);
         } else if (!isAdmin && !isAccounting && !isAdvisor) {
@@ -34,9 +53,10 @@ router.get('/', requireUser, async (req, res) => {
         return res.json({ students: apps });
     } catch (err) {
         console.error('[graduation] GET error', err);
-        res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 
 /**
  * POST /api/graduation

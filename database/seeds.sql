@@ -826,16 +826,17 @@ WHERE c.author_id IS DISTINCT FROM r.recipient_id; -- avoid notifying the author
 
 -- Track students who have applied for graduation (adjusted to match new schema and enum values)
 INSERT INTO graduation_applications (student_id, program_id, status, applied_at, status_updated_at) VALUES
-  (1, 1, 'not_applied', '2025-10-01'::timestamptz, '2025-10-01'::timestamptz),
-  (2, 1, 'not_applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz),
-  (3, 1, 'not_applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz),
-  (4, 1, 'applied',     '2025-10-03'::timestamptz, '2025-10-03'::timestamptz),
-  (5, 1, 'not_applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz),
-  (6, 1, 'not_applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz),
-  (7, 2, 'not_applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz),
-  (8, 1, 'not_applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz),
-  (9, 1, 'not_applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz),
-  (10,1, 'not_applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz);
+  (1, 1, 'Not Applied', '2025-10-01'::timestamptz, '2025-10-01'::timestamptz), -- Alice Johnson
+  (2, 1, 'Not Applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz), -- Bob Williams
+  (3, 1, 'Not Applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz), -- Nora Castillo
+  (4, 1, 'Approved',     '2025-10-03'::timestamptz, '2025-10-03'::timestamptz), -- Gavin Diaz
+  (5, 1, 'Not Applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz), -- Maya Ramos
+  (6, 1, 'Not Applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz), -- Evan Roberts
+  (7, 2, 'Not Applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz), -- Zoe King
+  (8, 1, 'Not Applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz), -- Levi Powell
+  (9, 1, 'Applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz), -- Harper Taylor
+  (10,1, 'Not Applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz); -- Charles Murphy
+
 
 -- TODO: Delete later this is a temporary measure
 -- Sets the 'courses_course_id_seq' sequence to the current max course_id in 'courses' to prevent ID conflicts when inserting.

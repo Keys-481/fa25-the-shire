@@ -370,13 +370,13 @@ CREATE INDEX idx_notifications_program_student ON comment_notifications(program_
 CREATE INDEX idx_notifications_user_unread ON comment_notifications(recipient_id, is_read, created_at DESC);
 
 -- graduation application statuses
-CREATE TYPE grad_status AS ENUM('not_applied', 'applied', 'under_review', 'approved', 'rejected');
+CREATE TYPE grad_status AS ENUM('Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected');
 
 CREATE TABLE IF NOT EXISTS graduation_applications (
     application_id SERIAL PRIMARY KEY,
     student_id INT NOT NULL REFERENCES students(student_id) ON DELETE CASCADE,
     program_id INT REFERENCES programs(program_id) ON DELETE SET NULL,
-    status grad_status NOT NULL DEFAULT 'applied',
+    status grad_status NOT NULL DEFAULT 'Applied',
     applied_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status_updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
