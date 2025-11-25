@@ -824,20 +824,18 @@ JOIN (
 ) r ON r.student_id = c.student_id
 WHERE c.author_id IS DISTINCT FROM r.recipient_id; -- avoid notifying the author
 
--- Track students who have applied for graduation
-INSERT INTO graduation_applications (student_id, program_id, status_updated_at, status) VALUES
-(1, 1, '2025-10-01', 'Not Applied'), -- Alice Johnson has NOT applied
-(2, 1, '2025-10-02', 'Not Applied'), -- Bob Williams has NOT applied
-(3, 1, '2025-10-02', 'Not Applied'), -- Nora Castillo has NOT applied
-(4, 1, '2025-10-03', 'Applied'),      -- Gavin Diaz HAS applied
-(5, 1, '2025-10-03', 'Not Applied'), -- Maya Ramos has NOT applied
-(6, 1, '2025-10-03', 'Not Applied'), -- Evan Roberts has NOT applied
-(7, 2, '2025-10-04', 'Not Applied'), -- Zoe King has NOT applied
-(8, 1, '2025-10-04', 'Not Applied'), -- Levi Powell has NOT applied
-(9, 1, '2025-10-05', 'Not Applied'), -- Harper Taylor has NOT applied
-(10, 1, '2025-10-05', 'Not Applied');-- Charles Murphy has NOT applied
-
-
+-- Track students who have applied for graduation (adjusted to match new schema and enum values)
+INSERT INTO graduation_applications (student_id, program_id, status, applied_at, status_updated_at) VALUES
+  (1, 1, 'not_applied', '2025-10-01'::timestamptz, '2025-10-01'::timestamptz),
+  (2, 1, 'not_applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz),
+  (3, 1, 'not_applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz),
+  (4, 1, 'applied',     '2025-10-03'::timestamptz, '2025-10-03'::timestamptz),
+  (5, 1, 'not_applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz),
+  (6, 1, 'not_applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz),
+  (7, 2, 'not_applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz),
+  (8, 1, 'not_applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz),
+  (9, 1, 'not_applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz),
+  (10,1, 'not_applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz);
 
 -- TODO: Delete later this is a temporary measure
 -- Sets the 'courses_course_id_seq' sequence to the current max course_id in 'courses' to prevent ID conflicts when inserting.

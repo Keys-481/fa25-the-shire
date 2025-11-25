@@ -42,7 +42,8 @@ DROP TYPE IF EXISTS
     role_name,
     semester_type,
     course_status,
-    permission_name
+    permission_name,
+    grad_status
 CASCADE;
 
 -- Define Custom Types --
@@ -368,15 +369,18 @@ CREATE INDEX idx_notifications_comment ON comment_notifications(comment_id);
 CREATE INDEX idx_notifications_program_student ON comment_notifications(program_id, student_id);
 CREATE INDEX idx_notifications_user_unread ON comment_notifications(recipient_id, is_read, created_at DESC);
 
--- track students who have applied for graduation --
-CREATE TABLE graduation_applications (
+-- graduation application statuses
+CREATE TYPE grad_status AS ENUM('not_applied', 'applied', 'under_review', 'approved', 'rejected');
+
+CREATE TABLE IF NOT EXISTS graduation_applications (
     application_id SERIAL PRIMARY KEY,
-    student_id INT REFERENCES students(student_id) ON DELETE CASCADE,
-    program_id INT REFERENCES programs(program_id) ON DELETE CASCADE,
-    status_updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(50) NOT NULL -- Not Applied, Applied, Approved, Denied
+    student_id INT NOT NULL REFERENCES students(student_id) ON DELETE CASCADE,
+    program_id INT REFERENCES programs(program_id) ON DELETE SET NULL,
+    status grad_status NOT NULL DEFAULT 'applied',
+    applied_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status_updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_graduation_applications_student_id ON graduation_applications(student_id);
-CREATE INDEX idx_graduation_applications_program_id ON graduation_applications(program_id);
-CREATE INDEX idx_graduation_applications_status ON graduation_applications(status);
+CREATE INDEX IF NOT EXISTS idx_grad_apps_student_id ON graduation_applications(student_id);
+CREATE INDEX IF NOT EXISTS idx_grad_apps_status ON graduation_applications(status);
+CREATE INDEX IF NOT EXISTS idx_grad_apps_status_updated_at ON graduation_applications(status_updated_at DESC);

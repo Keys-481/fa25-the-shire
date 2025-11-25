@@ -23,10 +23,10 @@ export default function GraduationReportLayout() {
         headers['x-user-id'] = '14';      // use a seeded user id that has permission (adjust as needed)
         headers['x-user-role'] = 'accounting';
       }
-      const res = await fetch('/api/students/graduation-applicants', { headers });
+      const res = await fetch('/api/graduation', { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      setStudents(Array.isArray(data) ? data : []);
+      setStudents(Array.isArray(data.students) ? data.students : []);
     } catch (err) {
       console.error('fetchGraduationApplicants', err);
       setError('Failed to load graduation applicants');
