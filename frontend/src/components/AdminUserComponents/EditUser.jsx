@@ -43,7 +43,6 @@ export default function EditUser({
   const fetchUserById = async (id) => {
     try {
       const res = await apiClient.get(`/users/public/${id}`);
-      if (!res.ok) return null;
       return { user_id: id, name: res.name };
     } catch (err) {
       console.error('Failed to fetch user:', err);
@@ -231,13 +230,7 @@ export default function EditUser({
                 if (!publicId) return;
 
                 try {
-                  const res = await apiClient.get(`/users/public/${publicId}`);
-                  if (!res.ok) {
-                    alert(`Advisor with ID ${publicId} not found.`);
-                    return;
-                  }
-
-                  const data = res;
+                  const data = await apiClient.get(`/users/public/${publicId}`);
                   const alreadyAssigned = assignedAdvisors.some(a => a.user_id === data.user_id);
                   if (alreadyAssigned) return;
 

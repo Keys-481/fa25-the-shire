@@ -93,7 +93,6 @@ async function getNotificationsForUser(userId) {
             ORDER BY created_at DESC`,
             [userId]
         );
-        console.log('DB result for notifications:', result.rows);
         return result.rows;
     } catch (error) {
         console.error('Error fetching notifications for user:', error);

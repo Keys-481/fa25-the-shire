@@ -206,29 +206,22 @@ export default function AdminUsers() {
     const allRoles = Array.from(selectedRoles);
 
     try {
-      const res = await apiClient.post('/users', {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const newUser = await apiClient.post('/users', {
           name: newUserName,
           email: newUserEmail,
           phone: newUserPhone,
           password: newUserPassword,
           default_view: defaultView,
           roles: allRoles
-        })
       });
 
-      if (res.ok) {
         alert('User added successfully');
         setIsAddingUser(false);
         setNewUserName('');
         setdefaultView('');
-        const newUser = res;
         setAllUsers(prev => [...prev, { id: newUser.userId, name: newUser.name, roles: allRoles }]);
         await refreshData();
-      } else {
-        alert('Failed to add user');
-      }
+
     } catch (err) {
       console.error('Add user error:', err);
       alert('Error adding user');
@@ -249,52 +242,31 @@ export default function AdminUsers() {
     try {
       // 1. Update user details
       const userRes = await apiClient.put(`/users/${selectedUser.id}`, {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
           name: editName,
           email: editEmail,
           phone: editPhone,
           password: editPassword,
           default_view: defaultView
-        })
       });
-
-      if (!userRes.ok) {
-        alert('Failed to update user details');
-        return;
-      }
 
       // 2. Update roles
       const rolesRes = await apiClient.put(`/users/${selectedUser.id}/roles`, {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roles: updatedRoles })
+        roles: updatedRoles
       });
-
-      if (!rolesRes.ok) {
-        alert('Failed to update roles');
-        return;
-      }
 
       // 3. Update advising relationships
       const allStudentAssignments = [...assignedStudents, ...manualStudents];
-      const advisingRes = await apiClient.post(`/users/${selectedUser.id}/advising`, {
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+
+      await apiClient.post(`/users/${selectedUser.id}/advising`, {
           advisorIds: assignedAdvisors.map(a => a.user_id),
           studentIds: allStudentAssignments.map(s => s.user_id)
-        })
       });
-
-
-      if (!advisingRes.ok) {
-        alert('Failed to update advising relationships');
-        return;
-      }
 
       alert('User updated successfully');
       setSearchResults([]);
       setSelectedUser(null);
       await refreshData();
+
     } catch (err) {
       console.error('Save error:', err);
       alert('Error saving user');
@@ -314,15 +286,12 @@ export default function AdminUsers() {
     try {
       const res = await apiClient.del(`/users/${selectedUser.id}`);
 
-      if (res.ok) {
-        alert('User deleted');
-        setSelectedUser(null);
-        setSearchResults(prev => prev.filter(u => u.id !== selectedUser.id));
-        setAllUsers(prev => prev.filter(u => u.id !== selectedUser.id));
-        await refreshData();
-      } else {
-        alert('Failed to delete user');
-      }
+      alert('User deleted');
+      setSelectedUser(null);
+      setSearchResults(prev => prev.filter(u => u.id !== selectedUser.id));
+      setAllUsers(prev => prev.filter(u => u.id !== selectedUser.id));
+      await refreshData();
+      
     } catch (err) {
       console.error('Delete error:', err);
       alert('Error deleting user');

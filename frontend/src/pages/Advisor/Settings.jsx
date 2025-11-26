@@ -50,6 +50,7 @@ export default function AdvisorSettings() {
           setTheme(prefs.theme);
           setFontSize(prefs.font_size_change);
           setFontFamily(prefs.font_family);
+          setIsDark(prefs.theme === 'dark');
 
           document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
           document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
@@ -64,27 +65,6 @@ export default function AdvisorSettings() {
         }
       } catch (error) {
         console.error('Failed to fetch user info or advising data:', error);
-      }
-    })();
-  }, []);
-
-
-/**
- * useEffect hook that runs once on component mount to initialize user interface preferences.
- * Fetches user preferences for theme, font size, and font family, then applies them to the document.
- * 
- * @async
- * @function useEffect
- * @returns {void} No return value; side effects update DOM and component state.
- */
-  useEffect(() => {
-    (async () => {
-      const prefs = await api.get(`/users/${data.user_id}/preferences`);
-      if (prefs) {
-        setIsDark(prefs.theme === 'dark'); // set state
-        document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
-        document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
-        document.documentElement.style.setProperty('--font-family-change', prefs.font_family);
       }
     })();
   }, []);
