@@ -63,12 +63,12 @@ export default function AccountingGraduationReport() {
 
         <div className="container">
           <div className="side-panel">
-            <p>Search by Program or Student</p>
+            <p>Search by Program</p>
             <SearchBar
               onSearch={handleSearchResults}
               searchEndpoint="/programs/search"
               placeholder1="Program Name"
-              placeholder2="Student Name or ID"
+              placeholder2=""
             />
             <div className="horizontal-line-half"></div>
             <div className="side-panel-results">{renderResults()}</div>
