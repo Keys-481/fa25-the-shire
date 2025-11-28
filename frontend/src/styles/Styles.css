@@ -4,10 +4,14 @@
   --main: #000000;
   --accent: #09347a;
   --secondary: #808080;
-  --completed: #cecece; /* Light gray */
-  --in-progress: #afebaf; /* Light green */
-  --planned: #fff1b2; /* Light yellow */
-  --light-blue: #ecf2fc; /* Light blue for certificate alert and comment items */
+  --completed: #cecece;
+  /* Light gray */
+  --in-progress: #afebaf;
+  /* Light green */
+  --planned: #fff1b2;
+  /* Light yellow */
+  --light-blue: #ecf2fc;
+  /* Light blue for certificate alert and comment items */
   --error-red: red;
 
   --font-size-change: 0px;
@@ -20,14 +24,19 @@ body.dark-theme {
   --main: #f0f0f0;
   --accent: #f1632a;
   --secondary: #6d6d6d;
-  --completed: #3a3a3a; /* Dark gray */
-  --in-progress: #2e4d2e; /* Dark green */
-  --planned: #4d4d23; /* Dark yellow */
-  --light-blue: #2a3a4d; /* Dark blue for certificate alert and comment items */
+  --completed: #3a3a3a;
+  /* Dark gray */
+  --in-progress: #2e4d2e;
+  /* Dark green */
+  --planned: #4d4d23;
+  /* Dark yellow */
+  --light-blue: #2a3a4d;
+  /* Dark blue for certificate alert and comment items */
   --error-red: #9b0505;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -632,7 +641,8 @@ td {
   color: var(--accent);
   font-size: calc(0.95rem + var(--font-size-change));
   font-family: var(--font-family-change);
-  line-height: 1.5; /* Adds breathing room */
+  line-height: 1.5;
+  /* Adds breathing room */
 }
 
 .certificate-alert-header {
@@ -733,6 +743,7 @@ td {
 .semester-table tbody tr:last-child td {
   border-bottom: none;
 }
+
 /** Toggle Bar Styles **/
 
 .view-toggle {
@@ -1050,7 +1061,7 @@ input:checked+.slider:before {
   padding: 0;
   list-style: none;
   display: block;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .comment-menu button {
@@ -1078,7 +1089,7 @@ input:checked+.slider:before {
 }
 
 .comment-menu button:hover:not(:disabled) {
-  background-color: rgba(0,0,0,0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .comment-author {
@@ -1189,7 +1200,7 @@ input:checked+.slider:before {
   color: var(--accent);
   border: none;
   border-radius: 50%;
-  padding:10px;
+  padding: 10px;
   transition: background-color 0.2s ease;
   cursor: pointer;
   display: inline-flex;
@@ -1399,4 +1410,41 @@ input:checked+.slider:before {
   justify-content: flex-end;
   margin-top: 12px;
   gap: 8px;
+}
+
+
+/**
+* Graduation Modal Styling 
+*/
+.gs-modal-overlay {
+  position: fixed;
+  inset: 0;
+  /* shorthand for top/right/bottom/left: 0 */
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.gs-modal {
+  background: #fff;
+  padding: 20px;
+  border-radius: 6px;
+  width: 420px;
+  max-width: 95%;
+}
+
+.gs-inline {
+  display: inline-block;
+}
+
+.gs-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.gs-status-select {
+  margin: 12px 0;
 }

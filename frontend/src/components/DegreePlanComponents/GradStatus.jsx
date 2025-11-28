@@ -1,6 +1,7 @@
 // File: frontend/src/components/DegreePlanComponents/GraduationStatus.jsx
 import React, { useEffect, useState } from "react";
 import { useApiClient } from "../../lib/apiClient";
+import "../../styles/Styles.css";
 
 /**
  * GraduationStatus
@@ -79,13 +80,13 @@ export default function GraduationStatus({ studentId, student, onUpdate, userRol
       : "";
 
   return (
-    <div style={{ display: "inline-block" }}>
+    <div className="gs-inline">
       <strong>Graduation Status:</strong>{" "}
       {loading ? (
         <em>Loading...</em>
       ) : (
         <>
-          <span style={{ marginRight: 8 }}>{gradApp?.status ?? "Not Applied"}</span>
+          <span className="gs-status-text">{gradApp?.status ?? "Not Applied"}</span>
           <button
             type="button"
             onClick={() => {
@@ -103,32 +104,17 @@ export default function GraduationStatus({ studentId, student, onUpdate, userRol
         <div
           role="dialog"
           aria-modal="true"
-          style={{
-            position: "fixed",
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.4)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 2000,
-          }}
+          className="gs-modal-overlay"
         >
-          <div
-            style={{
-              background: "#fff",
-              padding: 20,
-              borderRadius: 6,
-              width: 420,
-              maxWidth: "95%",
-            }}
-          >
+          <div className="gs-modal">
             <h4>Change Graduation Status</h4>
-            {displayName && <p><strong>Student:</strong> {displayName}</p>}
+            {displayName && (
+              <p>
+                <strong>Student:</strong> {displayName}
+              </p>
+            )}
 
-            <div style={{ margin: "12px 0" }}>
+            <div className="gs-status-select">
               <label>
                 Status:{" "}
                 <select
@@ -144,7 +130,7 @@ export default function GraduationStatus({ studentId, student, onUpdate, userRol
               </label>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+            <div className="gs-modal-actions">
               <button onClick={() => setShowModal(false)} disabled={saving}>
                 Cancel
               </button>
