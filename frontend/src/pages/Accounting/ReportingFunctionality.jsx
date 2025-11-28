@@ -14,8 +14,15 @@ export default function AccountingReportingFunctionality() {
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   const handleSearchResults = (results) => {
-    setResults(results);
-    setHasSearched(true);
+    if (!results || results.length === 0) {
+      // Search cleared or nothing found → reset
+      setResults([]);
+      setHasSearched(false);
+      setSelectedCourse(null);
+    } else {
+      setResults(results);
+      setHasSearched(true);
+    }
   };
 
   // Handle course selection from results
@@ -59,7 +66,7 @@ export default function AccountingReportingFunctionality() {
             <p>Search for a Course</p>
             <SearchBar
               onSearch={handleSearchResults}
-              searchEndpoint="/api/courses/search"
+              searchEndpoint="/courses/search"
               placeholder1="Course Name"
               placeholder2="Course Code"
             />

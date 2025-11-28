@@ -219,5 +219,6 @@ module.exports = {
     removeStudentFromProgram,
     getStudentByName,
     getStudentBySchoolIdAndName,
-    getProgramsBySchoolStudentId
+    getProgramsBySchoolStudentId,
+    getStudentByPhoneNumber,
 };

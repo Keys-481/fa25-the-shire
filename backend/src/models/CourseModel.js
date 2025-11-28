@@ -6,43 +6,6 @@
 const pool = require('../db');
 
 /**
- * Find courses by partial name match using case-insensitive search.
- * @param {string} name - The partial or full name of the course to search for.
- * @returns {Promise<Array>} A promise that resolves to an array of course objects matching the name.
- */
-async function findByName(name) {
-  return pool.query(
-    'SELECT course_id, course_name FROM courses WHERE course_name ILIKE $1',
-    [`%${name}%`]
-  ).then(res => res.rows)
-}
-
-/**
- * Find courses by partial ID match using case-insensitive search.
- * @param {string} id - The partial or full course ID to search for.
- * @returns {Promise<Array>} A promise that resolves to an array of course objects matching the ID.
- */
-async function findById(id) {
-  return pool.query(
-    'SELECT course_id, course_name FROM courses WHERE course_id ILIKE $1',
-    [`%${id}%`]
-  ).then(res => res.rows)
-}
-
-/**
- * Find courses by both partial name and ID match using case-insensitive search.
- * @param {string} name - The partial or full name of the course.
- * @param {string} id - The partial or full course ID.
- * @returns {Promise<Array>} A promise that resolves to an array of course objects matching both criteria.
- */
-async function findByNameAndId(name, id) {
-  return pool.query(
-    'SELECT course_id, course_name FROM courses WHERE course_name ILIKE $1 AND course_id ILIKE $2',
-    [`%${name}%`, `%${id}%`]
-  ).then(res => res.rows)
-}
-
-/**
  * Get prerequisites for a given course by its internal ID.
  * @param courseId - the internal ID of the course
  * @returns A promise that resolves to an array of prerequisite course objects for the given course ID.
@@ -50,11 +13,11 @@ async function findByNameAndId(name, id) {
 async function getPrerequisitesForCourse(courseId) {
   try {
     const result = await pool.query(
-        `SELECT prereq.course_id, prereq.course_code, prereq.course_name, prereq.credits
+      `SELECT prereq.course_id, prereq.course_code, prereq.course_name, prereq.credits
         FROM course_prerequisites cp
         JOIN courses prereq ON cp.prerequisite_course_id = prereq.course_id
         WHERE cp.course_id = $1`,
-        [courseId]
+      [courseId]
     );
     return result.rows;
   } catch (error) {
@@ -71,10 +34,10 @@ async function getPrerequisitesForCourse(courseId) {
 async function getCourseOfferings(courseId) {
   try {
     const result = await pool.query(
-        `SELECT semester_type
+      `SELECT semester_type
         FROM course_offerings
         WHERE course_id = $1`,
-        [courseId]
+      [courseId]
     );
     const offerings = result.rows.map(row => row.semester_type).join(', ');
     return offerings;
@@ -117,10 +80,10 @@ async function getSemesterOptionsForCourse(courseId) {
     const semesterTypes = courseOfferings.split(',').map(s => s.trim());
 
     const result = await pool.query(
-        `SELECT semester_id, semester_name, semester_type, sem_start_date, sem_end_date
+      `SELECT semester_id, semester_name, semester_type, sem_start_date, sem_end_date
         FROM semesters
         WHERE semester_type = ANY($1)`,
-        [semesterTypes]
+      [semesterTypes]
     );
     return result.rows;
   } catch (error) {
@@ -128,7 +91,6 @@ async function getSemesterOptionsForCourse(courseId) {
     throw error;
   }
 }
-
 
 /**
  * Search for courses by name, code, or both.
@@ -138,26 +100,26 @@ async function getSemesterOptionsForCourse(courseId) {
  * @returns {Promise<Array>} - Array of matching course objects.
  */
 async function searchCourses({ name, code }) {
-    try {
-        let query = `SELECT course_id, course_code, course_name, credits FROM courses WHERE 1=1`;
-        const values = [];
+  try {
+    let query = `SELECT course_id, course_code, course_name, credits FROM courses WHERE 1=1`;
+    const values = [];
 
-        if (name) {
-            query += ` AND LOWER(course_name) LIKE LOWER($${values.length + 1})`;
-            values.push(`%${name}%`);
-        }
-
-        if (code) {
-            query += ` AND LOWER(course_code) LIKE LOWER($${values.length + 1})`;
-            values.push(`%${code}%`);
-        }
-
-        const result = await pool.query(query, values);
-        return result.rows;
-    } catch (error) {
-        console.error('Error searching courses:', error);
-        throw error;
+    if (name) {
+      query += ` AND LOWER(course_name) LIKE LOWER($${values.length + 1})`;
+      values.push(`%${name}%`);
     }
+
+    if (code) {
+      query += ` AND LOWER(course_code) LIKE LOWER($${values.length + 1})`;
+      values.push(`%${code}%`);
+    }
+
+    const result = await pool.query(query, values);
+    return result.rows;
+  } catch (error) {
+    console.error('Error searching courses:', error);
+    throw error;
+  }
 }
 
 /**
@@ -334,12 +296,33 @@ async function getEnrollments(courseCode) {
   return rows.map(r => ({ semester: r.semester, count: r.count }));
 }
 
-
-
+/**
+ * Get enrollment counts for all courses across semesters.
+ * @returns {Promise<Array>} Array of { course_code: "CS101", semester: "Fall 2025", count: 12 }
+ **/
+async function getAllEnrollments() {
+  const sql = `
+    SELECT
+      c.course_code,
+      s.semester_name AS semester,
+      COUNT(e.enrollment_id)::int AS count
+    FROM courses c
+    CROSS JOIN semesters s
+    LEFT JOIN enrollments e
+      ON e.course_id = c.course_id
+      AND e.semester_id = s.semester_id
+    GROUP BY c.course_code, s.semester_name, s.sem_start_date
+    ORDER BY c.course_code, s.sem_start_date;
+  `;
+  const { rows } = await pool.query(sql);
+  return rows.map(r => ({
+    course_code: r.course_code,
+    semester: r.semester,
+    count: r.count
+  }));
+}
+ 
 module.exports = {
-  findByName,
-  findById,
-  findByNameAndId,
   getPrerequisitesForCourse,
   getCourseOfferings,
   getCertificateOverlaps,
@@ -348,5 +331,6 @@ module.exports = {
   createCourse,
   updateCourse,
   deleteCourse,
-  getEnrollments
+  getEnrollments,
+  getAllEnrollments
 };

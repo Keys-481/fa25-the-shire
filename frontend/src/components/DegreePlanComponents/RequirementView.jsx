@@ -89,7 +89,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         }
 
         try {
-            const updated = await api.patch(`/api/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
+            const updated = await api.patch(`/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
                 courseId: course.course_id,
                 status: newStatus,
                 semesterId: chosenSemesterId,

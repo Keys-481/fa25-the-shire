@@ -19,7 +19,7 @@ const { log, error } = require('console');
 /**
  * Route: GET /students/search
  * Supports searching for a student by their school ID, and partial or full name (q1, q2).
- * Will implement search by phone later.
+ * Also supports searching by phone number
  * 
  * @response 400 - Missing search parameters
  * @response 401 - Unauthorized: No user info
@@ -50,6 +50,24 @@ router.get('/search', requireUser, async (req, res) => {
         } else {
             students = await StudentModel.getStudentByName(name);
         }
+
+        // Search by phone number if no results found
+        if (!Array.isArray(students) || students.length === 0) {
+            let phoneMatches = [];
+
+            // Find phone number in ID field
+            if (id) {
+                phoneMatches = await StudentModel.getStudentByPhoneNumber(id);
+            }
+
+            // Try phone number in name field
+            if ((!phoneMatches || phoneMatches.length === 0) && name) {
+                phoneMatches = await StudentModel.getStudentByPhoneNumber(name);
+            }
+
+            students = phoneMatches;
+        }
+
         if (!Array.isArray(students) || students.length === 0) {
             return res.status(404).json({ message: 'Student not found' });
         }

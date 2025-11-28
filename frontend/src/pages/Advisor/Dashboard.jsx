@@ -27,7 +27,7 @@ export default function AdvisorDashboard() {
     useEffect(() => {
         (async () => {
             try {
-                const me = await api.get("/api/users/me");
+                const me = await api.get("/users/me");
                 const prefs = me.preferences;
                 if (prefs) {
                     document.body.classList.toggle("dark-theme", prefs.theme === "dark");
@@ -56,7 +56,7 @@ export default function AdvisorDashboard() {
                                 Advising
                             </button>
                             <button className='square-button' onClick={() => navigate('/advisor/reporting-functionality')}>
-                                Reporting Functionality
+                                Enrollment Report
                             </button>
                             <button className='square-button' onClick={() => navigate('/advisor/settings')}>
                                 Settings

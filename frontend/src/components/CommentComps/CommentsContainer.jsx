@@ -29,7 +29,7 @@ export default function CommentsContainer({ studentSchoolId, programId, userIsSt
             setLoading(true);
             setError('');
             try {
-                const data = await api.get(`/api/comments?programId=${encodeURIComponent(programId)}&studentSchoolId=${encodeURIComponent(studentSchoolId)}`);
+                const data = await api.get(`/comments?programId=${encodeURIComponent(programId)}&studentSchoolId=${encodeURIComponent(studentSchoolId)}`);
                 setComments(data);
                 console.log('Fetched comments:', data);
             } catch (error) {

@@ -10,15 +10,21 @@ const pool = require('../../src/db');
 // Reset and seed the database before each test
 beforeAll(async () => {
     await runSchemaAndSeeds();
-<<<<<<< Updated upstream
-});
-=======
 }, 15000);
->>>>>>> Stashed changes
 
 // Close the database connection after all tests
 afterAll(async () => {
     await pool.end();
+});
+
+// Silence console.error during tests
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+});
+
+// Restore console.error after tests
+afterAll(() => {
+    console.error.mockRestore();
 });
 
 /**
@@ -51,5 +57,36 @@ describe('AccessModel', () => {
     test('isAdvisorOfStudent returns false if advisor does not have access', async () => {
         const hasAccess = await AccessModel.isAdvisorOfStudent(3, 1);
         expect(hasAccess).toBe(false);
+    });
+});
+
+/**
+ * Test suite for AccessModel error handling.
+ * Verifies that methods correctly propagate database errors
+ * when underlying queries fail.
+ */
+describe('AccessModel error handling', () => {
+    /**
+     * Ensures getUserRoles propagates database errors.
+     * @throws {Error} when pool.query rejects
+     */
+    test('getUserRoles throws error when query fails', async () => {
+        jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB error'));
+
+        await expect(AccessModel.getUserRoles(99)).rejects.toThrow('DB error');
+
+        pool.query.mockRestore();
+    });
+
+    /**
+     * Ensures isAdvisorOfStudent propagates database errors.
+     * @throws {Error} when pool.query rejects
+     */
+    test('isAdvisorOfStudent throws error when query fails', async () => {
+        jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB error'));
+
+        await expect(AccessModel.isAdvisorOfStudent(99, 99)).rejects.toThrow('DB error');
+
+        pool.query.mockRestore();
     });
 });

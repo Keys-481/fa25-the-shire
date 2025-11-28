@@ -22,7 +22,7 @@ afterAll(async () => {
  * Tests for NotificationsModel
  */
 describe('NotificationsModel', () => {
-    
+
     let newComment;
 
     beforeAll(async () => {
@@ -116,4 +116,155 @@ describe('NotificationsModel', () => {
         expect(verify.rows.length).toBe(0);
     });
 
+});
+
+/**
+ * Ensures createNewCommentNotif propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('createNewCommentNotif throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { }); // silence logs
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(
+        NotificationsModel.createNewCommentNotif({
+            author_id: 1,
+            notif_message: 'msg',
+            comment_id: 1,
+            program_id: 1,
+            student_id: 1,
+        }, "comment_created")
+    ).rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures markNotificationReadState propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('markNotificationReadState throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(
+        NotificationsModel.markNotificationReadState(1, true)
+    ).rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures getNotificationsForUser propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('getNotificationsForUser throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(
+        NotificationsModel.getNotificationsForUser(1)
+    ).rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+/**
+ * Ensures deleteNotification propagates database errors.
+ * @throws {Error} when pool.query rejects
+ */
+test('deleteNotification throws error when query fails', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
+
+    await expect(
+        NotificationsModel.deleteNotification(1)
+    ).rejects.toThrow('DB failure');
+
+    pool.query.mockRestore();
+    console.error.mockRestore();
+});
+
+describe('NotificationsModel', () => {
+    let newComment;
+
+    beforeAll(async () => {
+        newComment = await CommentModel.createComment(1, 1, 2, 'Test comment for notifications');
+    });
+
+    /**
+     * Validates that createNewCommentNotif inserts notifications
+     * with the "comment_updated" title when event type is "comment_updated".
+     */
+    test('createNewCommentNotif inserts notifications with "comment_updated" title', async () => {
+        const comment = {
+            author_id: newComment.author_id,
+            notif_message: newComment.comment_text,
+            comment_id: newComment.comment_id,
+            program_id: newComment.program_id,
+            student_id: newComment.student_id,
+        };
+
+        await NotificationsModel.createNewCommentNotif(comment, "comment_updated");
+
+        const result = await pool.query(
+            `SELECT * FROM comment_notifications WHERE comment_id = $1 AND title = 'Updated Degree Plan Comment'`,
+            [comment.comment_id]
+        );
+
+        expect(result.rows.length).toBeGreaterThan(0);
+    });
+
+    /**
+     * Validates that createNewCommentNotif inserts notifications
+     * with the default title when event type is unknown.
+     */
+    test('createNewCommentNotif inserts notifications with default title when event is unknown', async () => {
+        const comment = {
+            author_id: newComment.author_id,
+            notif_message: newComment.comment_text,
+            comment_id: newComment.comment_id,
+            program_id: newComment.program_id,
+            student_id: newComment.student_id,
+        };
+
+        await NotificationsModel.createNewCommentNotif(comment, "random_event");
+
+        const result = await pool.query(
+            `SELECT * FROM comment_notifications WHERE comment_id = $1 AND title = 'Degree Plan Comment'`,
+            [comment.comment_id]
+        );
+
+        expect(result.rows.length).toBeGreaterThan(0);
+    });
+
+    /**
+     * Ensures createNewCommentNotif returns early (no insert)
+     * when the only recipient is the author themselves.
+     */
+    test('createNewCommentNotif returns early when only recipient is the author', async () => {
+        // Create a comment where the only "recipient" is the author themselves
+        const comment = {
+            author_id: 1, // same as student user_id
+            notif_message: 'Self comment',
+            comment_id: 999,
+            program_id: 1,
+            student_id: 1,
+        };
+
+        // Mock pool.query to return only the author as recipient
+        jest.spyOn(pool, 'query').mockResolvedValueOnce({
+            rows: [{ recipient_id: 1, student_id: 1 }]
+        });
+
+        await NotificationsModel.createNewCommentNotif(comment, "comment_created");
+
+        // Verify no insert was attempted
+        expect(pool.query).toHaveBeenCalledTimes(1);
+
+        pool.query.mockRestore();
+    });
 });

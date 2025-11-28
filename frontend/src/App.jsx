@@ -33,7 +33,7 @@ export default function App() {
     (async () => {
       try {
         // Fetch current user info
-        const data = await api.get('/api/users/me');
+        const data = await api.get('/users/me');
         setUserInfo(data);
 
         // Apply preferences directly from /me response

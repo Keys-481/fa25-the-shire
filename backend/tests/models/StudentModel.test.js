@@ -18,6 +18,16 @@ afterAll(async () => {
     await pool.end();
 });
 
+// Silence console.error during tests
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+});
+
+// Restore console.error after tests
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 /**
  * Tests for StudentModel
  */
@@ -110,8 +120,6 @@ describe('StudentModel', () => {
     });
 
 });
-<<<<<<< Updated upstream
-=======
 
 /**
  * Ensures getStudentBySchoolId propagates database errors.
@@ -282,4 +290,3 @@ test('removeStudentFromProgram removes student from program and returns true', a
     const programIds = programs.map(p => p.program_id);
     expect(programIds).not.toContain(programId);
 });
->>>>>>> Stashed changes
