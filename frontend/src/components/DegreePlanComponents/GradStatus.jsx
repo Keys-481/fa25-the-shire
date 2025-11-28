@@ -53,10 +53,10 @@ export default function GraduationStatus({ studentId, student, onUpdate, userRol
 
   // Save updated status
   async function saveStatus() {
-    if (!gradApp) {
-      alert("No graduation application exists for this student."); // alert if no application 
-      return;
-    }
+    // if (!gradApp) {
+    //   alert("No graduation application exists for this student."); // alert if no application 
+    //   return;
+    // }
     setSaving(true);
     try {
       const res = await api.put(`/graduation/${gradApp.application_id}/status`, { // update status
@@ -80,19 +80,19 @@ export default function GraduationStatus({ studentId, student, onUpdate, userRol
 
   return (
     <div style={{ display: "inline-block" }}>
-      <strong>Graduation Status:</strong>{" "} // label for graduation status
+      <strong>Graduation Status:</strong>{" "}
       {loading ? (
         <em>Loading...</em>
       ) : (
         <>
-          <span style={{ marginRight: 8 }}>{gradApp?.status ?? "Not Applied"}</span> // display current status
+          <span style={{ marginRight: 8 }}>{gradApp?.status ?? "Not Applied"}</span>
           <button
             type="button"
             onClick={() => {
               setSelectedStatus(gradApp?.status ?? "Not Applied");
               setShowModal(true);
             }}
-            disabled={!gradApp && userRole === "student"}
+            disabled={!gradApp}
           >
             Edit
           </button>
