@@ -14,7 +14,7 @@ const pool = require('../db');
 async function getDegreePlanByStudentId(studentId, programId) {
     try {
         const result = await pool.query(
-            `SELECT dp.plan_id, dp.student_id, dp.course_id, dp.course_status, dp.catalog_year,
+            `SELECT dp.plan_id, dp.student_id, dp.course_id, dp.course_status, dp.catalog_year, dp.program_id,
                 c.course_id, c.course_code, c.course_name, c.credits,
                 s.semester_id, s.semester_name, s.semester_type,
                 s.sem_start_date, s.sem_end_date,
@@ -199,7 +199,7 @@ async function getCourseStatus(studentId, courseId, programId) {
  * @param {*} programId - internal program ID
  * @param {*} defaultStatus - default status for the courses
  * @param {*} catalogYear - catalog year for the courses
- * @returns 
+ * @returns The newly created degree plan entries
  */
 async function createDefaultPlan(studentId, programId, defaultStatus = 'Unplanned', catalogYear = '2025-2026') {
     try {

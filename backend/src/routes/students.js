@@ -358,10 +358,12 @@ router.patch('/:schoolId/programs', async (req, res) => {
         }
 
         if (hasAccess) {
-            const result = await StudentModel.addStudentToProgram(student.student_id, programId);
-            if (!result) {
-                return res.status(400).json({ message: 'Failed to enroll student in program' });
+            const existingPrograms = await StudentModel.getProgramsByStudentId(student.student_id);
+            if (existingPrograms.some(p => p.program_id === programId)) {
+                return res.status(400).json({ message: 'Student is already enrolled in the specified program' });
             }
+
+            const result = await StudentModel.addStudentToProgram(student.student_id, programId);
             return res.json({ message: 'Student enrolled in program successfully', result });
         } else {
             return res.status(403).json({ message: 'Forbidden: You do not have access to enroll this student in a program' });
@@ -406,7 +408,7 @@ router.delete('/:schoolId/programs', async (req, res) => {
         if (hasAccess) {
             const result = await StudentModel.removeStudentFromProgram(student.student_id, programId);
             if (!result) {
-                return res.status(404).json({ message: 'Student not enrolled in the specified program' });
+                return res.status(400).json({ message: 'Student not enrolled in the specified program' });
             }
             return res.json({ message: 'Student removed from program successfully', result });
         } else {

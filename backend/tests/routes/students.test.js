@@ -339,7 +339,7 @@ describe('PATCH /students/:schoolId/programs', () => {
     test('admin can update student programs', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app)
-            .patch('/students/113601927/programs')
+            .patch('/api/students/113601927/programs')
             .send({
                 programId: 1,
             });
@@ -349,7 +349,7 @@ describe('PATCH /students/:schoolId/programs', () => {
     test('returns 403 for non-admin user', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor
         const res = await request(app)
-            .patch('/students/112299690/programs')
+            .patch('/api/students/112299690/programs')
             .send({
                 programId: 1,
             });
@@ -359,7 +359,7 @@ describe('PATCH /students/:schoolId/programs', () => {
     test('returns 404 for non-existent student', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app)
-            .patch('/students/invalid_id/programs')
+            .patch('/api/students/invalid_id/programs')
             .send({
                 programId: 1,
             });
@@ -369,7 +369,7 @@ describe('PATCH /students/:schoolId/programs', () => {
     test('returns 400 if student is already enrolled in program', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app)
-            .patch('/students/112299690/programs')
+            .patch('/api/students/112299690/programs')
             .send({
                 programId: 1,
             });
@@ -383,16 +383,10 @@ describe('PATCH /students/:schoolId/programs', () => {
 describe('DELETE /students/:schoolId/programs', () => {
     test('admin can remove student from program', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
-        const res = await request(app)
-            .patch('/students/113601927/programs')
-            .send({
-                programId: 2,
-            });
-        expect(res.status).toBe(200);
 
         // Now delete the student from the program
         const deleteRes = await request(app)
-            .delete('/students/113601927/programs')
+            .delete('/api/students/113601927/programs')
             .send({
                 programId: 2,
             });
@@ -402,7 +396,7 @@ describe('DELETE /students/:schoolId/programs', () => {
     test('returns 403 for non-admin user', async () => {
         const app = makeAppWithUser({ user_id: 3 });
         const res = await request(app)
-            .delete('/students/112299690/programs')
+            .delete('/api/students/112299690/programs')
             .send({
                 programId: 1,
             });
@@ -412,7 +406,7 @@ describe('DELETE /students/:schoolId/programs', () => {
     test('returns 404 for non-existent student', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app)
-            .delete('/students/invalid_id/programs')
+            .delete('/api/students/invalid_id/programs')
             .send({
                 programId: 1,
             });
@@ -421,8 +415,16 @@ describe('DELETE /students/:schoolId/programs', () => {
 
     test('returns 400 if student is not enrolled in program', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
+        // Ensure student 113601927 is not enrolled in program 1
+        await request(app)
+            .delete('/api/students/113601927/programs')
+            .send({
+                programId: 1,
+            });
+
+        // Now try to delete again, should get 400
         const res = await request(app)
-            .delete('/students/113601927/programs')
+            .delete('/api/students/113601927/programs')
             .send({
                 programId: 1,
             });
