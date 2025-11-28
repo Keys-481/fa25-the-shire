@@ -16,7 +16,6 @@ import EditUser from '../../components/AdminUserComponents/EditUser';
 import RoleList from '../../components/AdminUserComponents/RoleList';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
-import { useApiClient } from '../../lib/apiClient';
 
 export default function AdminUsers() {
   const [allUsers, setAllUsers] = useState([]);
@@ -179,7 +178,7 @@ export default function AdminUsers() {
    */
     useEffect(() => {
       if (selectedUser) {
-        apiClient.get(`/api/students/${selectedUser.public}/programs`)
+        apiClient.get(`/students/${selectedUser.public}/programs`)
           .then((data) => {
             setStudentPrograms(data.programs);
           })
@@ -195,8 +194,7 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchAllPrograms = async () => {
       try {
-        const res = await fetch('/api/programs');
-        const data = await res.json();
+        const data = await apiClient.get('/programs');
         setProgramsList(data);
       } catch (err) {
         console.error('Failed to fetch all programs:', err);

@@ -72,6 +72,7 @@ app.use(`${apiBase}/users`, userRoutes);
 app.use(`${apiBase}/auth`, authRoutes);
 app.use(`${apiBase}/comments`, commentRoutes);
 app.use(`${apiBase}/notifications`, notificationsRoutes);
+app.use(`${apiBase}/programs`, programRoutes);
 
 // Serve React app
 function resolveFrontendDist() {

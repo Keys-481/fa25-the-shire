@@ -13,9 +13,6 @@ const pool = require('../db');
 const { requireUser, requireAnyRole } = require('../utils/authorize');
 
 
-const { log, error } = require('console');
-
-
 /**
  * Route: GET /students/search
  * Supports searching for a student by their school ID, and partial or full name (q1, q2).
@@ -330,36 +327,7 @@ router.get('/:schoolId/programs', async (req, res) => {
 });
 
 /**
- * Route: PUT /students/:schoolId/programs
-<<<<<<< Updated upstream
- * Updates the programs associated with a student by their school ID.
- */
-router.put('/:schoolId/programs', async (req, res) => {
-    const { schoolId } = req.params;
-    const { programIds } = req.body;
-
-    try {
-        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
-        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
-        if (!student) {
-            return res.status(404).json({ message: 'Student not found' });
-        }
-        
-        // delete existing student programs
-        await pool.query('DELETE FROM student_programs WHERE student_id = $1', [student.student_id]);
-
-        // update with new program IDs
-        if (programIds && programIds.length > 0) {
-            const insertValues = programIds.map((id, idx) => `{${student.student_id}, $${idx + 1})`).join(',');
-            await pool.query(
-                `INSERT INTO student_programs (student_id, program_id) VALUES ${insertValues}`,
-                programIds
-            );
-        }
-        res.json({ message: 'Student programs updated successfully' });
-    } catch (error) {
-        console.error('Error updating student programs:', error);
-=======
+ * Route: PATCH /students/:schoolId/programs
  * Adds a student to a new program by their school ID.
  */
 router.patch('/:schoolId/programs', async (req, res) => {
@@ -446,7 +414,6 @@ router.delete('/:schoolId/programs', async (req, res) => {
         }
     } catch (error) {
         console.error('Error removing student from program:', error);
->>>>>>> Stashed changes
         res.status(500).json({ message: 'Internal server error' });
     }
 });

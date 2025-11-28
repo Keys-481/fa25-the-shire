@@ -81,6 +81,55 @@ export default function EditUser({
   };
 
   /**
+   * Removes a program from the student's list of enrolled programs.
+   * @param {*} programId - The ID of the program to remove.
+   */
+  const handleRemoveProgram = async (programId) => {
+    alert(`Are you sure you want to remove this program from the student?`);
+    try {
+      await apiClient.del(`/students/${selectedUser.public}/programs`, { programId });
+      setStudentPrograms(prev => prev.filter(p => p.program_id !== programId));
+    } catch (err) {
+      console.error('Failed to remove program:', err);
+      alert('Failed to remove program.');
+    }
+  }
+
+  /**
+   * Updates the student's enrolled programs by adding a new program.
+   * @param {*} newProgramId - The ID of the program to add.
+   */
+  const handleAddProgram = async (newProgramId) => {
+    console.log('Adding program with ID:', newProgramId);
+    if (!newProgramId) {
+      alert('Invalid program ID.');
+      return;
+    }
+
+    const selectedProgram = programsList.find(p => p.program_id === Number(newProgramId));
+    if (!selectedProgram) {
+      alert('Program not found.');
+      return;
+    }
+
+    if (studentPrograms.some(p => p.program_id === selectedProgram.program_id)) {
+      alert('Student is already enrolled in this program.');
+      return;
+    }
+    
+    try {
+      console.log('Sending request to add program...');
+      await apiClient.patch(`/students/${selectedUser.public}/programs`, { programId: newProgramId });
+      setStudentPrograms(prev => [...prev, selectedProgram]);
+      setNewProgramId('');
+
+    } catch (err) {
+      console.error('Failed to add program:', err);
+      alert('Failed to add program.');
+    }
+  }
+
+  /**
    * Validates the user's email and phone number before saving.
    * - Ensures the email ends with `@u.boisestate.edu` or `@boisestate.edu`.
    * - Ensures the phone number is provided and contains at least 10 characters, 
@@ -91,7 +140,7 @@ export default function EditUser({
    *
    * @returns {void} This function does not return a value.
    */
-  const validateAndSaveUser = async () => {
+  const validateAndSaveUser = () => {
     // Email validation
     const emailValid =
       editEmail.endsWith('@u.boisestate.edu') ||
@@ -107,24 +156,8 @@ export default function EditUser({
       alert('Phone number should follow the format ###-###-####, but is not constrained to this.');
       return;
     }
-
-    try {
-      if (roleToggles['Student'] || normalizedDefaultView === 'student') {
-        const programIds = studentPrograms.map(p => p.program_id);
-        await fetch(`/api/students/${selectedUser.public}/programs`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ programIds })
-        });
-      }
-
-      handleSave();
-    } catch (err) {
-      console.error('Failed to save student programs:', err);
-      alert('Failed to save student programs.');
-    }
+    
+    handleSave();
   };
 
   /**
@@ -233,23 +266,14 @@ export default function EditUser({
               onChange={e => setNewProgramId(e.target.value)}
             >
               <option value="">Select a program to add</option>
-              {programsList
-                .filter(p => !studentPrograms.some(sp => sp.program_id === p.program_id))
-                .map(program => (
+              {programsList.map(program => (
                   <option key={program.program_id} value={program.program_id}>
                     {program.program_name}
                   </option>
                 ))}
             </select>
             <button
-              onClick={() => {
-                if (!newProgramId) return;
-                const selectedProgram = programsList.find(p => p.program_id === newProgramId);
-                if (!selectedProgram) return;
-                if (studentPrograms.some(p => p.program_id === selectedProgram.program_id)) return;
-                setStudentPrograms(prev => [...prev, selectedProgram]);
-                setNewProgramId('');
-              }}
+              onClick={() => handleAddProgram(newProgramId)}
             >
               Add
             </button>
@@ -259,9 +283,7 @@ export default function EditUser({
             {studentPrograms.map(program => (
               <li key={program.program_id}>
                 {program.program_name}
-                <button onClick={() =>
-                  setStudentPrograms(prev => prev.filter(p => p.program_id !== program.program_id))
-                }>
+                <button onClick={() => handleRemoveProgram(program.program_id)}>
                   Remove
                 </button>
               </li>

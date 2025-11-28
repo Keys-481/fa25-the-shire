@@ -6,6 +6,7 @@
  */
 
 const pool = require('../db');
+const DegreePlanModel = require('./DegreePlanModel');
 
 /**
  * Get a student by their ID.
@@ -148,7 +149,8 @@ async function addStudentToProgram(studentId, programId) {
             [studentId, programId]
         );
 
-        // need to create default degree plan for this program and student (like in seeds)
+        // Insert default degree plan entries for this program
+        await DegreePlanModel.createDefaultPlan(studentId, programId);
 
         return result.rowCount > 0;
     } catch (error) {
