@@ -70,7 +70,7 @@ INSERT INTO users (user_id, password_hash, email, phone_number, first_name, last
 (11, crypt('supersecurehash11', gen_salt('bf', 12)), 'student8@u.boisestate.edu', '666-444-5555', 'Levi', 'Powell', '167800890', 3),
 (12, crypt('supersecurehash12', gen_salt('bf', 12)), 'student9@u.boisestate.edu', '666-555-6666', 'Harper', 'Taylor', '177808901', 3),
 (13, crypt('supersecurehash13', gen_salt('bf', 12)), 'student10@u.boisestate.edu', '666-222-7777', 'Charles', 'Murphy', '115409012', 3),
-(14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Account', 'User', '122368754', 4);
+(14, crypt('supersecurehash14', gen_salt('bf', 12)), 'account1@boisestate.edu', '666-777-8888', 'Accounting', 'User', '122368754', 4);
 
 -- Insert user settings
 INSERT INTO user_settings (user_id, theme, font_size_change, font_family) VALUES
@@ -823,6 +823,20 @@ JOIN (
     JOIN advising_relations ar ON a.advisor_id = ar.advisor_id
 ) r ON r.student_id = c.student_id
 WHERE c.author_id IS DISTINCT FROM r.recipient_id; -- avoid notifying the author
+
+-- Track students who have applied for graduation (adjusted to match new schema and enum values)
+INSERT INTO graduation_applications (student_id, program_id, status, applied_at, status_updated_at) VALUES
+  (1, 1, 'Not Applied', '2025-10-01'::timestamptz, '2025-10-01'::timestamptz), -- Alice Johnson
+  (2, 1, 'Not Applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz), -- Bob Williams
+  (3, 1, 'Not Applied', '2025-10-02'::timestamptz, '2025-10-02'::timestamptz), -- Nora Castillo
+  (4, 1, 'Approved',     '2025-10-03'::timestamptz, '2025-10-03'::timestamptz), -- Gavin Diaz
+  (5, 1, 'Not Applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz), -- Maya Ramos
+  (6, 1, 'Not Applied', '2025-10-03'::timestamptz, '2025-10-03'::timestamptz), -- Evan Roberts
+  (7, 2, 'Not Applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz), -- Zoe King
+  (8, 1, 'Not Applied', '2025-10-04'::timestamptz, '2025-10-04'::timestamptz), -- Levi Powell
+  (9, 1, 'Applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz), -- Harper Taylor
+  (10,1, 'Not Applied', '2025-10-05'::timestamptz, '2025-10-05'::timestamptz); -- Charles Murphy
+
 
 -- TODO: Delete later this is a temporary measure
 -- Sets the 'courses_course_id_seq' sequence to the current max course_id in 'courses' to prevent ID conflicts when inserting.
