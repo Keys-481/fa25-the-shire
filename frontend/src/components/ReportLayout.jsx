@@ -104,31 +104,64 @@ export default function ReportLayout({ courseCode }) {
     }
   };
 
+  // CSV Export Function
+  const exportCSV = () => {
+    if (!report || !semesterLabels.length) return;
+
+    // Header row
+    const headers = ["Course Code", ...semesterLabels];
+    const rows = report.map((row) => [
+      row.course_code,
+      ...semesterLabels.map((label) => row[label]),
+    ]);
+
+    const csvContent =
+      [headers, ...rows]
+        .map((r) => r.join(","))
+        .join("\n");
+
+    // Create downloadable blob
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "enrollment_report.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Render logic
   if (loading) return <p>Loading report...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   if (!report) return null;
 
   return (
-    <table className="requirements-table" style={{ width: "100%", borderCollapse: "collapse" }}>
-      <thead>
-        <tr>
-          <th>Course Code</th>
-          {semesterLabels.map((label) => (
-            <th key={label}>{label}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {report.map((row) => (
-          <tr key={row.course_code}>
-            <td>{row.course_code}</td>
+    <div>
+      <button onClick={exportCSV} style={{ marginBottom: "10px" }}>
+        Download CSV
+      </button>
+      <table className="requirements-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            <th>Course Code</th>
             {semesterLabels.map((label) => (
-              <td key={label}>{row[label]}</td>
+              <th key={label}>{label}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {report.map((row) => (
+            <tr key={row.course_code}>
+              <td>{row.course_code}</td>
+              {semesterLabels.map((label) => (
+                <td key={label}>{row[label]}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
