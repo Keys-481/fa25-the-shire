@@ -800,7 +800,7 @@ INSERT INTO certificate_courses (certificate_id, course_id) VALUES
 -- Insert into degree_plan_comments
 INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_text) VALUES
 (1, 1, 2, 'Make sure you register for courses soon!'), -- Need better comment examples
-(1, 2, 2, 'Consider taking more electives next semester.'),
+(2, 2, 2, 'Consider taking more electives next semester.'),
 (1, 1, 4, 'I am thinking of taking OPWL 507 next semester, what do you think?'),
 (1, 1, 2, 'OPWL 507 is a great choice for your degree plan.'),
 (2, 1, 2, 'Don''t forget to complete your certificate requirements.'),

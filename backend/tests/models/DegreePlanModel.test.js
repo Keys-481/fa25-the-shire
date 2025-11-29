@@ -220,3 +220,33 @@ test('getTotalProgramRequiredCredits returns 0 when program has no requirements'
     const totalCredits = await DegreePlanModel.getTotalProgramRequiredCredits(programId);
     expect(totalCredits).toBe(0);
 });
+
+/**
+ * Validates that createDefaultPlan creates degree plan entries for a student in a program.
+ */
+test('createDefaultPlan creates default degree plan entries for a student in a program', async () => {
+    const studentId = 2; // Bob Williams
+    const programId = 1; // OPWL MS (overlapping courses with OD Cert, should create entries for both existing and new courses)
+
+    // Check that Bob is not already enrolled in the program
+    let degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId, programId);
+    expect(degreePlan.length).toBe(0);
+
+    // Create default degree plan
+    await DegreePlanModel.createDefaultPlan(studentId, programId);
+
+    // Fetch the degree plan again - should have entries now
+    degreePlan = await DegreePlanModel.getDegreePlanByStudentId(studentId, programId);
+    expect(degreePlan.length).toBeGreaterThan(0);
+
+    // Check that the entries correspond to the program requirements
+    degreePlan.forEach(plan => {
+        expect(plan).toHaveProperty('student_id', studentId);
+        expect(plan).toHaveProperty('program_id', programId);
+    });
+
+    // Check for specific course code in the degree plan (OPWL-536 should be part of OPWL MS, and Bob status should be completed)
+    const course = degreePlan.find(plan => plan.course_code === 'OPWL-536');
+    expect(course).toBeDefined();
+    expect(course.course_status).toBe('Completed');
+});

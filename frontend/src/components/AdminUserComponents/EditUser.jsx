@@ -8,6 +8,7 @@ export default function EditUser({
   setRoleToggles,
   handleSave,
   handleDelete,
+  selectedUser,
   setSelectedUser,
   defaultView,
   setdefaultView,
@@ -26,11 +27,22 @@ export default function EditUser({
   manualStudents,
   setManualStudents,
   assignedAdvisors,
-  setAssignedAdvisors
+  setAssignedAdvisors,
+  studentPrograms,
+  programsList,
 }) {
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
+  const [newProgramId, setNewProgramId] = useState('');
+  const [currentPrograms, setCurrentPrograms] = useState(studentPrograms || []);
   const apiClient = useApiClient();
+
+  /**
+   * Updates the current programs state when studentPrograms prop changes.
+   */
+  useEffect(() => {
+    setCurrentPrograms(studentPrograms || []);
+  }, [studentPrograms]);
 
   /**
    * Fetches a user's basic public information using their public ID.
@@ -74,6 +86,32 @@ export default function EditUser({
     }
   };
 
+
+  /**
+   * Updates the student's enrolled programs by adding a new program.
+   * @param {*} newProgramId - The ID of the program to add.
+   */
+  const handleAddProgram  = (programId) => {
+    const program = programsList.find(p => p.program_id === Number(programId));
+    if (program) {
+      const alreadyAdded = currentPrograms.some(p => p.program_id === program.program_id);
+      if (alreadyAdded) {
+        alert('Student is already enrolled in this program.');
+        return;
+      }
+
+      setCurrentPrograms(prev => [...prev, program]);
+    }
+  }
+
+  /**
+   * Removes a program from the student's list of enrolled programs.
+   * @param {*} programId - The ID of the program to remove.
+   */
+  const handleRemoveProgram = (programId) => {
+    setCurrentPrograms(prev => prev.filter(p => p.program_id !== programId));
+  };
+
   /**
    * Validates the user's email and phone number before saving.
    * - Ensures the email ends with `@u.boisestate.edu` or `@boisestate.edu`.
@@ -102,7 +140,18 @@ export default function EditUser({
       return;
     }
 
-    handleSave();
+    const originalPrograms = studentPrograms;
+    const updatedPrograms = currentPrograms;
+
+    const programsToAdd = updatedPrograms.filter(
+      p => !originalPrograms.some(op => op.program_id === p.program_id)
+    );
+
+    const programsToRemove = originalPrograms.filter(
+      p => !updatedPrograms.some(up => up.program_id === p.program_id)
+    );
+
+    handleSave({ programsToAdd, programsToRemove });
   };
 
   /**
@@ -114,6 +163,7 @@ export default function EditUser({
   const handleCancel = () => {
     setSelectedUser(null);
     setManualStudents([]);
+    setCurrentPrograms(studentPrograms || []);
   };
 
   /**
@@ -202,6 +252,43 @@ export default function EditUser({
       {/* Student View */}
       {(roleToggles['Student'] || normalizedDefaultView === 'student') && (
         <div className="toggle-container">
+          <h3>Programs:</h3>
+          {/* Dropdown list of all programs to add */}
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <select
+              className="programs-dropdown"
+              value={newProgramId}
+              onChange={e => setNewProgramId(e.target.value)}
+            >
+              <option value="">Select a program to add</option>
+              {programsList.map(program => (
+                  <option key={program.program_id} value={program.program_id}>
+                    {program.program_name}
+                  </option>
+                ))}
+            </select>
+            <button
+              onClick={() => handleAddProgram(newProgramId)}
+            >
+              Add
+            </button>
+          </div>
+          <ul>
+            {/* Show all programs the student is enrolled in, and allow removing programs for the student */}
+            {currentPrograms.length > 0 ? (
+              currentPrograms.map(program => (
+                <li key={program.program_id}>
+                  {program.program_name}
+                  <button onClick={() => handleRemoveProgram(program.program_id)}>
+                    Remove
+                  </button>
+                </li>
+              ))
+            ) : (
+              <li>Student is not enrolled in any programs.</li>
+            )}
+          </ul>
+
           <h3>Assigned Advisors:</h3>
           <ul>
             {assignedAdvisors.map(advisor => (

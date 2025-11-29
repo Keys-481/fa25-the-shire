@@ -333,6 +333,106 @@ describe('GET /students/:schoolId/programs', () => {
 });
 
 /**
+ * Tests for PATCH /student/:schoolId/programs route
+ */
+describe('PATCH /students/:schoolId/programs', () => {
+    test('admin can update student programs', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app)
+            .patch('/api/students/113601927/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(200);
+    });
+
+    test('returns 403 for non-admin user', async () => {
+        const app = makeAppWithUser({ user_id: 3 }); // advisor
+        const res = await request(app)
+            .patch('/api/students/112299690/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(403);
+    });
+
+    test('returns 404 for non-existent student', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app)
+            .patch('/api/students/invalid_id/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(404);
+    });
+
+    test('returns 400 if student is already enrolled in program', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app)
+            .patch('/api/students/112299690/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(400);
+    });
+});
+
+/**
+ * Tests for DELETE /students/:schoolId/programs route
+ */
+describe('DELETE /students/:schoolId/programs', () => {
+    test('admin can remove student from program', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+
+        // Now delete the student from the program
+        const deleteRes = await request(app)
+            .delete('/api/students/113601927/programs')
+            .send({
+                programId: 2,
+            });
+        expect(deleteRes.status).toBe(200);
+    });
+
+    test('returns 403 for non-admin user', async () => {
+        const app = makeAppWithUser({ user_id: 3 });
+        const res = await request(app)
+            .delete('/api/students/112299690/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(403);
+    });
+
+    test('returns 404 for non-existent student', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        const res = await request(app)
+            .delete('/api/students/invalid_id/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(404);
+    });
+
+    test('returns 400 if student is not enrolled in program', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+        // Ensure student 113601927 is not enrolled in program 1
+        await request(app)
+            .delete('/api/students/113601927/programs')
+            .send({
+                programId: 1,
+            });
+
+        // Now try to delete again, should get 400
+        const res = await request(app)
+            .delete('/api/students/113601927/programs')
+            .send({
+                programId: 1,
+            });
+        expect(res.status).toBe(400);
+    });
+});
+
+/**
  * Tests for PATCH /students/:schoolId/degree-plan/course route
  */
 describe('PATCH /students/:schoolId/degree-plan/course', () => {
