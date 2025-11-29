@@ -83,7 +83,7 @@ export default function GraduationReportLayout() {
 
   return (
     <div>
-      <button onClick={exportCSV} style={{ marginBottom: "10px" }}>
+      <button onClick={exportCSV} style={{ marginBottom: "10px", marginTop: "10px" }}>
         Download CSV
       </button>
       <table
