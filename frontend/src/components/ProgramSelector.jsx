@@ -9,6 +9,7 @@ import DegreePlan from "./DegreePlanComponents/DegreePlan";
 
 export default function ProgramSelector({ student, programs, selectedStudentProgram, setSelectedProgram, userIsStudent=false }) {
     const [currentProgram, setCurrentProgram] = useState(selectedStudentProgram);
+    const [degreePlanViewType, setDegreePlanViewType] = useState('requirements');
 
     useEffect(() => {
         setCurrentProgram(selectedStudentProgram);
@@ -43,23 +44,28 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
                 )}
             </div>
 
-            {selectedStudentProgram ? (
-                <div className="degree-plan-comments-wrapper">
-                    <DegreePlan
-                        student={student}
-                        program={currentProgram}
-                        userIsStudent={userIsStudent}
-                    />
-                    <CommentsContainer
-                        student={student}
-                        studentSchoolId={student.id || student.school_student_id}
-                        programId={currentProgram?.program_id}
-                        userIsStudent={userIsStudent}
-                    />
+            <div className={"degree-plan-comments-wrapper"}>
+                <div className="degree-plan-wrapper">
+                    {currentProgram ? (
+                        <DegreePlan
+                            student={student}
+                            program={currentProgram}
+                            userIsStudent={userIsStudent}
+                            setViewType={(viewType) => setDegreePlanViewType(viewType)}
+                        />
+                    ) : (
+                        <p>Select a program to view the degree plan</p>
+                    )}
                 </div>
-            ) : (
-                <p>Select a program to view the degree plan</p>
-            )}
+
+                <CommentsContainer
+                    student={student}
+                    studentSchoolId={student.id || student.school_student_id}
+                    programId={currentProgram?.program_id}
+                    userIsStudent={userIsStudent}
+                    className={userIsStudent ? 'student-layout' : 'advisor-layout'}
+                />
+            </div>
         </div>
     )
 }

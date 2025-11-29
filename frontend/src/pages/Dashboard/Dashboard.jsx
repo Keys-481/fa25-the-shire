@@ -1,6 +1,6 @@
 /**
- * @file frontend/src/pages/student/dashboard
- * @description Dashboard for student users
+ * @file frontend/src/pages/Dashboard/Dashboard.jsx
+ * @description Dashboard Component to direct users to different sections based on their role
  */
 
 import { useEffect } from 'react'
@@ -8,15 +8,11 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthProvider'
 import StudentNavBar from '../../components/NavBars/StudentNavBar'
 import { useApiClient } from '../../lib/apiClient'
+import sdpLogo from '../../assets/images/sdp-logo-3.png'
 import '../../styles/Styles.css'
 
-/**
- * StudentDashboard component displays the main dashboard for students with navigation options.
- *
- * @component
- * @returns {JSX.Element} The main dashboard view for students
- */
-export default function StudentDashboard() {
+
+export default function Dashboard({ NavBar, pageTitle, buttons }) {
     const navigate = useNavigate()
     const { logout } = useAuth();
     const api = useApiClient();
@@ -43,25 +39,31 @@ export default function StudentDashboard() {
     return (
         <div>
             {/* Navigation bar */}
-            <StudentNavBar />
+            <NavBar />
+
+            <div className="sdp-logo">
+                <img src={sdpLogo} alt="SDP Logo" />
+            </div>
 
             <div className='window'>
                 {/* Page Title */}
                 <div className='title-bar'>
-                    <h1>Student Homepage</h1>
+                    <h1>{pageTitle}</h1>
                 </div>
+
                 {/*  Main Content Area with Navigation Buttons */}
                 <div className='container'>
                     <div className='dashboard-container'>
                         <div className='button-row'>
-                            {/* Navigation Button */}
-                            <button className='square-button' onClick={() => navigate('/student/degree-tracking')}>
-                                Degree Tracking
-                            </button>
-                            {/* Settings Button */}
-                            <button className='square-button' onClick={() => navigate('/student/settings')}>
-                                Settings
-                            </button>
+                            {buttons.map((button) => (
+                                <button
+                                    key={button.path}
+                                    className='square-button'
+                                    onClick={() => navigate(button.path)}
+                                >
+                                    {button.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>

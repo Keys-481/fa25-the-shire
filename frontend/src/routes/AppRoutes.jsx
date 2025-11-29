@@ -6,7 +6,7 @@
  * @returns {JSX.Element} A router configuration with defined routes for Admin, Student, Advisor, and Accounting roles
  */
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 
 //authentication import
 import { AuthProvider } from '../auth/AuthProvider.jsx'
@@ -20,26 +20,26 @@ import Notifications from '../pages/Notifications.jsx'
 
 //admin imports
 import AdminCourses from '../pages/Admin/Courses'
-import AdminDashboard from '../pages/Admin/Dashboard'
+import AdminDashboard from '../pages/Admin/AdminDashboard.jsx'
 import AdminSettings from '../pages/Admin/Settings'
 import AdminUsers from '../pages/Admin/Users'
 
 //student imports
-import StudentDashboard from '../pages/Student/Dashboard'
-import StudentSettings from '../pages/Student/Settings'
+import StudentDashboard from '../pages/Student/StudentDashboard.jsx'
 import StudentDegreeTracking from '../pages/Student/DegreeTracking'
+import StudentSettings from '../pages/Student/Settings'
 
 //advisor imports
-import AdvisorDashboard from '../pages/Advisor/Dashboard'
 import Advising from '../pages/Advisor/Advising'
+import AdvisorDashboard from '../pages/Advisor/AdvisorDashboard.jsx'
 import AdvisorReportingFunctionality from '../pages/Advisor/ReportingFunctionality'
-import AdvisorSettings from '../pages/Advisor/Settings' 
+import AdvisorSettings from '../pages/Advisor/Settings'
 
 //accounting imports
-import AccountingDashboard from '../pages/Accounting/Dashboard'
+import AccountingDashboard from '../pages/Accounting/AccountingDashboard.jsx'
 import AccountingGraduationReport from '../pages/Accounting/GraduationReport'
-import AccountingSettings from '../pages/Accounting/Settings'
 import AccountingReportingFunctionality from '../pages/Accounting/ReportingFunctionality'
+import AccountingSettings from '../pages/Accounting/Settings'
 
 
 export default function AppRoutes() {
