@@ -426,9 +426,7 @@ export default function AdminUsers() {
                 assignedAdvisors={assignedAdvisors}
                 setAssignedAdvisors={setAssignedAdvisors}
                 studentPrograms={studentPrograms}
-                setStudentPrograms={setStudentPrograms}
                 programsList={programsList}
-                setProgramsList={setProgramsList}
               />
             ) : isAddingUser ? (
               <AddUser

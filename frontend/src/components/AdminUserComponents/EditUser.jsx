@@ -29,15 +29,20 @@ export default function EditUser({
   assignedAdvisors,
   setAssignedAdvisors,
   studentPrograms,
-  setStudentPrograms,
   programsList,
-  setProgramsList
 }) {
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
   const [newProgramId, setNewProgramId] = useState('');
   const [currentPrograms, setCurrentPrograms] = useState(studentPrograms || []);
   const apiClient = useApiClient();
+
+  /**
+   * Updates the current programs state when studentPrograms prop changes.
+   */
+  useEffect(() => {
+    setCurrentPrograms(studentPrograms || []);
+  }, [studentPrograms]);
 
   /**
    * Fetches a user's basic public information using their public ID.
@@ -270,15 +275,18 @@ export default function EditUser({
           </div>
           <ul>
             {/* Show all programs the student is enrolled in, and allow removing programs for the student */}
-            {currentPrograms.map(program => (
-              <li key={program.program_id}>
-                {program.program_name}
-                <button onClick={() => handleRemoveProgram(program.program_id)}>
-                  Remove
-                </button>
-              </li>
-            ))}
-            {studentPrograms.length === 0 && <li>Student is not enrolled in any programs.</li>}
+            {currentPrograms.length > 0 ? (
+              currentPrograms.map(program => (
+                <li key={program.program_id}>
+                  {program.program_name}
+                  <button onClick={() => handleRemoveProgram(program.program_id)}>
+                    Remove
+                  </button>
+                </li>
+              ))
+            ) : (
+              <li>Student is not enrolled in any programs.</li>
+            )}
           </ul>
 
           <h3>Assigned Advisors:</h3>
