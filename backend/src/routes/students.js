@@ -537,4 +537,5 @@ router.patch('/:schoolId/degree-plan/course', async (req, res) => {
     }
 });
 
+
 module.exports = router;
