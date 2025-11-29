@@ -358,6 +358,21 @@ body {
   max-width: 100%;
 }
 
+.sdp-logo {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 120px;
+  z-index: 20;
+}
+
+.sdp-logo img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 5px;
+}
+
 /************************/
 /*    Element Styles    */
 /************************/
@@ -683,6 +698,7 @@ td {
   border-radius: 8px;
   overflow: hidden;
   background-color: var(--background);
+  width: 100%;
 }
 
 .semester-header {
@@ -896,6 +912,7 @@ input:checked+.slider:before {
 
 .program-selector-wrapper.student-layout {
   flex-direction: row;
+  padding-right: 10%;
 }
 
 .program-selector-wrapper.student-layout .program-selector {
@@ -905,33 +922,43 @@ input:checked+.slider:before {
 
 .program-selector-wrapper.advisor-layout {
   flex-direction: column;
+  padding-right: 10%;
 }
-
-.program-selector-wrapper.advisor-layout .degree-plan-comments-wrapper {
-  margin-right: 25%;
+.program-selector-wrapper.advisor-layout .program-selector {
+  width: 75%;
+  border-bottom: 1px solid var(--secondary);
 }
 
 .degree-plan-comments-wrapper {
   display: flex;
   align-items: flex-start;
   min-height: calc(100vh - 60px);
-  margin-right: 22%;
   overflow-x: hidden;
+  flex: 1;
+}
+
+.degree-plan-wrapper {
+  flex: 1;
+  display: flex;
+  padding: 0 20px;
+  box-sizing: border-box;
+  margin-right: 25%;
 }
 
 .degree-plan-container {
-  flex: 1;
+  flex: 0 1 auto;
+  margin: 0;
+  max-width: 100%;
 }
 
 .comments-container {
   position: fixed;
   top: 60px;
   right: 0;
-  width: 20%;
   height: calc(100vh - 60px);
+  width: 25%;
   overflow-y: auto;
   background-color: var(--background);
-  border-left: 1px solid var(--secondary);
   border: 1px solid var(--secondary);
   padding: 15px;
   z-index: 10;

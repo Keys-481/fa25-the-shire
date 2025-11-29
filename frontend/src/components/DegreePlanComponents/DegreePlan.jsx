@@ -11,7 +11,7 @@ import { useApiClient } from "../../lib/apiClient";
 /**
  * DegreePlan component displays the degree plan for a specific student.
  */
-export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId , userIsStudent=false }) {
+export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId , userIsStudent=false, setViewType: propSetViewType }) {
     const api = useApiClient();
     const base_url = '/students';
 
@@ -97,10 +97,20 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
                 {/* View Toggle */}
                 <div className="view-toggle">
                     <div>
-                        <button onClick={() => { setViewType('requirements') }} className={viewType === 'requirements' ? 'active' : 'inactive'}>
+                        <button
+                            onClick={() => { 
+                                setViewType('requirements');
+                                if (propSetViewType.setViewType) propSetViewType.setViewType('requirements');
+                            }}
+                            className={viewType === 'requirements' ? 'active' : 'inactive'}>
                             Requirements View
                         </button>
-                        <button onClick={() => { setViewType('semester') }} className={viewType === 'semester' ? 'active' : 'inactive'}>
+                        <button
+                            onClick={() => { 
+                                setViewType('semester');
+                                if (propSetViewType.setViewType) propSetViewType.setViewType('semester');
+                            }}
+                            className={viewType === 'semester' ? 'active' : 'inactive'}>
                             Semester View
                         </button>
                     </div>
