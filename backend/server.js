@@ -25,6 +25,7 @@ const userRoutes = require('./src/routes/users');
 const authRoutes = require('./src/routes/auth');
 const commentRoutes = require('./src/routes/comments');
 const notificationsRoutes = require('./src/routes/notifications');
+const graduationRoutes = require('./src/routes/graduation');
 
 /**
  * Checks the connection to the PostgreSQL database and returns a status object.
@@ -71,6 +72,7 @@ app.use(`${apiBase}/users`, userRoutes);
 app.use(`${apiBase}/auth`, authRoutes);
 app.use(`${apiBase}/comments`, commentRoutes);
 app.use(`${apiBase}/notifications`, notificationsRoutes);
+app.use(`${apiBase}/graduation`, graduationRoutes);
 
 // Serve React app
 function resolveFrontendDist() {
