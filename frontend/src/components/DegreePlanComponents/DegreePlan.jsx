@@ -6,12 +6,13 @@
 import { useEffect, useMemo, useState } from "react";
 import SemesterView from "./SemesterView";
 import RequirementsView from "./RequirementView";
+import GraduationStatus from "./GradStatus";
 import { useApiClient } from "../../lib/apiClient";
 
 /**
  * DegreePlan component displays the degree plan for a specific student.
  */
-export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId , userIsStudent=false }) {
+export default function DegreePlan({ student, program, studentId: propStudentId, programId: propProgramId , userIsStudent=false}) {
     const api = useApiClient();
     const base_url = '/students';
 
@@ -29,6 +30,9 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
 
     // state toggle view type (by semester or by program requirements)
     const [viewType, setViewType] = useState('requirements'); // 'requirements' or 'semester'
+
+    // trigger to refresh degree plan when graduation status changes
+    const [gradRefreshToggle, setGradRefreshToggle] = useState(false);
 
     // function to fetch degree plan data when student or program changes
     useEffect(() => {
@@ -50,7 +54,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
                 setLoading(false);
             }
         })();
-    }, [studentId, thisProgramId, viewType, api]);
+    }, [studentId, thisProgramId, viewType, api, gradRefreshToggle]);
         
     if (!studentId || !thisProgramId) {
         return <p className="error-message">Select a student and a program to view the degree plan.</p>;
@@ -93,6 +97,13 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
                     <span>Phone:</span> {phone}
                 </p>
                 <p><span>Program:</span> {programName}</p>
+                <p>
+                    <GraduationStatus
+                        studentId={studentId}
+                        student={student}
+                        onUpdate={() => { setGradRefreshToggle((prev) => !prev); }}
+                />
+                </p>
 
                 {/* View Toggle */}
                 <div className="view-toggle">

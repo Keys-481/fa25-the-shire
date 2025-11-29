@@ -160,13 +160,14 @@ async function getStudentByPhoneNumber(phoneNumber) {
             LIKE $1 || '%'`,
             [phoneDigits]
         );
-        
+
         return result.rows;
     } catch (error) {
         console.error('Error fetching student by phone number: ', error);
         throw error;
     }
 }
+
 
 module.exports = {
     getStudentBySchoolId,
