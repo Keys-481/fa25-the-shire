@@ -36,6 +36,7 @@ export default function EditUser({
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
   const [newProgramId, setNewProgramId] = useState('');
+  const [currentPrograms, setCurrentPrograms] = useState(studentPrograms || []);
   const apiClient = useApiClient();
 
   /**
@@ -80,54 +81,31 @@ export default function EditUser({
     }
   };
 
-  /**
-   * Removes a program from the student's list of enrolled programs.
-   * @param {*} programId - The ID of the program to remove.
-   */
-  const handleRemoveProgram = async (programId) => {
-    alert(`Are you sure you want to remove this program from the student?`);
-    try {
-      await apiClient.del(`/students/${selectedUser.public}/programs`, { programId });
-      setStudentPrograms(prev => prev.filter(p => p.program_id !== programId));
-    } catch (err) {
-      console.error('Failed to remove program:', err);
-      alert('Failed to remove program.');
-    }
-  }
 
   /**
    * Updates the student's enrolled programs by adding a new program.
    * @param {*} newProgramId - The ID of the program to add.
    */
-  const handleAddProgram = async (newProgramId) => {
-    console.log('Adding program with ID:', newProgramId);
-    if (!newProgramId) {
-      alert('Invalid program ID.');
-      return;
-    }
+  const handleAddProgram  = (programId) => {
+    const program = programsList.find(p => p.program_id === Number(programId));
+    if (program) {
+      const alreadyAdded = currentPrograms.some(p => p.program_id === program.program_id);
+      if (alreadyAdded) {
+        alert('Student is already enrolled in this program.');
+        return;
+      }
 
-    const selectedProgram = programsList.find(p => p.program_id === Number(newProgramId));
-    if (!selectedProgram) {
-      alert('Program not found.');
-      return;
-    }
-
-    if (studentPrograms.some(p => p.program_id === selectedProgram.program_id)) {
-      alert('Student is already enrolled in this program.');
-      return;
-    }
-    
-    try {
-      console.log('Sending request to add program...');
-      await apiClient.patch(`/students/${selectedUser.public}/programs`, { programId: newProgramId });
-      setStudentPrograms(prev => [...prev, selectedProgram]);
-      setNewProgramId('');
-
-    } catch (err) {
-      console.error('Failed to add program:', err);
-      alert('Failed to add program.');
+      setCurrentPrograms(prev => [...prev, program]);
     }
   }
+
+  /**
+   * Removes a program from the student's list of enrolled programs.
+   * @param {*} programId - The ID of the program to remove.
+   */
+  const handleRemoveProgram = (programId) => {
+    setCurrentPrograms(prev => prev.filter(p => p.program_id !== programId));
+  };
 
   /**
    * Validates the user's email and phone number before saving.
@@ -156,8 +134,19 @@ export default function EditUser({
       alert('Phone number should follow the format ###-###-####, but is not constrained to this.');
       return;
     }
-    
-    handleSave();
+
+    const originalPrograms = studentPrograms;
+    const updatedPrograms = currentPrograms;
+
+    const programsToAdd = updatedPrograms.filter(
+      p => !originalPrograms.some(op => op.program_id === p.program_id)
+    );
+
+    const programsToRemove = originalPrograms.filter(
+      p => !updatedPrograms.some(up => up.program_id === p.program_id)
+    );
+
+    handleSave({ programsToAdd, programsToRemove });
   };
 
   /**
@@ -169,6 +158,7 @@ export default function EditUser({
   const handleCancel = () => {
     setSelectedUser(null);
     setManualStudents([]);
+    setCurrentPrograms(studentPrograms || []);
   };
 
   /**
@@ -280,7 +270,7 @@ export default function EditUser({
           </div>
           <ul>
             {/* Show all programs the student is enrolled in, and allow removing programs for the student */}
-            {studentPrograms.map(program => (
+            {currentPrograms.map(program => (
               <li key={program.program_id}>
                 {program.program_name}
                 <button onClick={() => handleRemoveProgram(program.program_id)}>

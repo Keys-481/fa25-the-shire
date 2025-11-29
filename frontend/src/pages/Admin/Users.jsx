@@ -264,7 +264,7 @@ export default function AdminUsers() {
    * Handles saving updated roles for the selected user.
    * Sends a PUT request to the backend.
    */
-  const handleSave = async () => {
+  const handleSave = async ({ programsToAdd = [], programsToRemove = [] }) => {
     if (!selectedUser) return;
 
     const updatedRoles = Object.entries(roleToggles)
@@ -293,6 +293,19 @@ export default function AdminUsers() {
           advisorIds: assignedAdvisors.map(a => a.user_id),
           studentIds: allStudentAssignments.map(s => s.user_id)
       });
+
+      // 4. Update student programs
+      for (const program of programsToAdd) {
+        await apiClient.patch(`/students/${selectedUser.public}/programs`, {
+          programId: program.program_id
+        });
+      }
+      
+      for (const program of programsToRemove) {
+        await apiClient.del(`/students/${selectedUser.public}/programs`, {
+          programId: program.program_id
+        });
+      }
 
       alert('User updated successfully');
       setSearchResults([]);
