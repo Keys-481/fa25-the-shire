@@ -1,33 +1,48 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Detect docker compose
-if command -v docker >/dev/null 2>&1; then
-    if docker compose version > /dev/null 2>&1; then
-        COMPOSE="docker compose"
-    elif command -v docker-compose >/dev/null 2>&1; then
-        COMPOSE="docker-compose"
+detect_compose() {
+    local runtime=""
+    local compose_cmd=""
+
+    # Detect docker, else podman
+    if command -v docker >/dev/null 2>&1; then
+        runtime="docker"
+    elif command -v podman >/dev/null 2>&1; then
+        runtime="podman"
+    fi
+
+    # Try docker compose, then podman compose
+    if [[ -n "$runtime" ]] && "${runtime}" compose version >/dev/null 2>&1; then
+        compose_cmd="${runtime} compose"
     else
-        echo "Docker Compose is not installed. Please install Docker Compose to proceed." >&2
+        if command -v docker-compose >/dev/null 2>&1; then
+            compose_cmd="docker-compose"
+        elif command -v podman-compose >/dev/null 2>&1; then
+            compose_cmd="podman-compose"
+        fi
+    fi
+
+    if [[ -z "${compose_cmd:-}" ]]; then
+        echo "Neither Docker nor Podman with Compose support is installed. Please install one of them to proceed." >&2
         exit 1
     fi
-elif command -v docker-compose >/dev/null 2>&1; then
-    COMPOSE="docker-compose"
-else
-    echo "Docker is not installed. Please install Docker to proceed." >&2
-    exit 1
-fi
 
-echo "Building images and starting services using: $COMPOSE"
+    echo "$compose_cmd"
+}
+
+COMPOSE=$(detect_compose)
+
+echo "Building images and starting services using: ${COMPOSE}"
 
 # Build and start the services in detached mode
-$COMPOSE up --build -d
+${COMPOSE} up --build -d "$@"
 
 echo "========================================="
 echo "All services are up and running!"
 echo "    Current status:"
-$COMPOSE ps
+${COMPOSE} ps
 echo
-echo "View logs: $COMPOSE logs -f"
+echo "View logs: ${COMPOSE} logs -f"
 echo "Stop services: ./clean.sh"
 echo "========================================="
