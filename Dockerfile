@@ -31,7 +31,8 @@ RUN apk add --no-cache postgresql-client bash
 # Copy backend dependencies
 COPY --from=be-deps /app/backend/node_modules /app/backend/node_modules
 COPY backend/ /app/backend/
-RUN chmod +x /app/backend/start.sh
+RUN dos2unix /app/backend/start.sh && chmod +x /app/backend/start.sh
+
 
 # Copy schema and seed files
 COPY database/ /app/database/

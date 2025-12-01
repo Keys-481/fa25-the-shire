@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
+import { useApiClient } from '../../lib/apiClient';
 
 export default function AdminCourses() {
+  const apiClient = useApiClient();
   const [results, setResults] = useState([]);
   const [isAddingCourse, setIsAddingCourse] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -60,20 +62,14 @@ export default function AdminCourses() {
    * Updates the results list and resets the form.
    */
   const handleAddCourse = async () => {
+    console.log('Submitting courseForm:', courseForm);
     try {
-      const response = await fetch('/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(courseForm)
-      });
-
-      if (!response.ok) throw new Error('Failed to add course');
-
-      const addedCourse = await response.json();
+      const addedCourse = await apiClient.post('/courses', courseForm);
       resetForm();
       searchRef.current?.triggerSearch();
     } catch (error) {
       console.error('Error adding course:', error);
+      alert('Failed to add course.');
     }
   };
 
@@ -83,36 +79,30 @@ export default function AdminCourses() {
    */
   const handleUpdateCourse = async () => {
     try {
-      const response = await fetch(`/api/courses/${courseForm.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(courseForm)
-      });
-
-      if (!response.ok) throw new Error('Failed to update course');
-
-      const updatedCourse = await response.json();
+      const updatedCourse = await apiClient.put(`/courses/${courseForm.id}`, courseForm);
       setResults(results.map(c => c.id === updatedCourse.id ? updatedCourse : c));
       resetForm();
       searchRef.current?.triggerSearch();
     } catch (error) {
       console.error('Error updating course:', error);
+      alert('Failed to update course.');
     }
   };
 
 
   const handleDeleteCourse = async () => {
+    if (!selectedCourse) return;
+    if (!window.confirm(`Are you sure you want to delete the course "${selectedCourse.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/courses/${selectedCourse.id}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) throw new Error('Failed to delete course');
-
+      await apiClient.del(`/courses/${selectedCourse.id}`);
       setResults(results.filter(c => c.id !== selectedCourse.id));
       resetForm();
     } catch (error) {
       console.error('Error deleting course:', error);
+      alert('Failed to delete course.');
     }
   };
 

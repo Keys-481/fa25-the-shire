@@ -51,6 +51,7 @@ export default function AdminSettings() {
           setTheme(prefs.theme);
           setFontSize(prefs.font_size_change);
           setFontFamily(prefs.font_family);
+          setIsDark(prefs.theme === 'dark');
 
           setIsDark(prefs.theme === 'dark'); // set state
           document.body.classList.toggle('dark-theme', prefs.theme === 'dark');

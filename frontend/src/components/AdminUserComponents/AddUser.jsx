@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useApiClient } from '../../lib/apiClient';
 
 export default function AddUser({
   roles,
@@ -19,6 +20,7 @@ export default function AddUser({
 }) {
   const [allPermissions, setAllPermissions] = useState([]);
   const [rolePermissionMap, setRolePermissionMap] = useState({});
+  const apiClient = useApiClient();
 
   /**
    * Automatically adds the default view role to the selectedRoles set whenever defaultView changes.
@@ -51,9 +53,8 @@ export default function AddUser({
   useEffect(() => {
     const fetchAllPermissions = async () => {
       try {
-        const res = await fetch('/users/permissions'); // You must expose this endpoint
-        const perms = await res.json();
-        setAllPermissions(perms);
+        const res = await apiClient.get('/users/permissions'); // You must expose this endpoint
+        setAllPermissions(res);
       } catch (err) {
         console.error('Failed to fetch all permissions:', err);
         setAllPermissions([]);
@@ -64,9 +65,8 @@ export default function AddUser({
       const map = {};
       for (const role of roles) {
         try {
-          const res = await fetch(`/users/roles/${role.role_name}/permissions`);
-          const perms = await res.json();
-          map[role.role_name] = perms;
+          const res = await apiClient.get(`/users/roles/${role.role_name}/permissions`);
+          map[role.role_name] = res;
         } catch (err) {
           console.error(`Failed to fetch permissions for ${role.role_name}:`, err);
           map[role.role_name] = [];

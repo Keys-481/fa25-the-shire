@@ -81,8 +81,9 @@ if (require.main === module) {
         try {
             await ensureDatabaseExists();
             await runSchemaAndSeeds();
-            process.exit(0);
+            console.log('DB setup finished successfully.');
         } catch (err) {
+            console.error('DB setup failed:', err);
             process.exit(1);
         }
     })();

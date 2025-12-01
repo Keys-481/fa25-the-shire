@@ -15,6 +15,7 @@ import EditUser from '../../components/AdminUserComponents/EditUser';
 import RoleList from '../../components/AdminUserComponents/RoleList';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
+import { useApiClient } from '../../lib/apiClient';
 
 export default function AdminUsers() {
   const [allUsers, setAllUsers] = useState([]);
@@ -39,6 +40,7 @@ export default function AdminUsers() {
   const [manualStudents, setManualStudents] = useState([]);
   const [assignedAdvisors, setAssignedAdvisors] = useState([]);
 
+  const apiClient = useApiClient();
 
   const searchEndpoint = '/users/search';
 
@@ -49,13 +51,10 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [usersRes, rolesRes] = await Promise.all([
-          fetch('/users/all'),
-          fetch('/users/roles')
+        const [usersData, rolesData] = await Promise.all([
+          apiClient.get('/users/all'),
+          apiClient.get('/users/roles')
         ]);
-
-        const usersData = await usersRes.json();
-        const rolesData = await rolesRes.json();
 
         setAllUsers(usersData);
         setRoles(rolesData);
@@ -81,8 +80,8 @@ export default function AdminUsers() {
     const fetchUserRoles = async () => {
       if (selectedUser) {
         try {
-          const res = await fetch(`/api/users/${selectedUser.id}/roles`);
-          const userRoles = await res.json();
+          const res = await apiClient.get(`/users/${selectedUser.id}/roles`);
+          const userRoles = res;
 
           const toggles = {};
           roles.forEach(role => {
@@ -107,8 +106,8 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (selectedUser) {
-        const res = await fetch(`/api/users/${selectedUser.id}`);
-        const data = await res.json();
+        const res = await apiClient.get(`/users/${selectedUser.id}`);
+        const data = res;
         setEditName(data.name);
         setEditEmail(data.email);
         setEditPhone(data.phone_number);
@@ -125,8 +124,8 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchPermissions = async () => {
       try {
-        const permsRes = await fetch('/users/permissions');
-        const perms = await permsRes.json();
+        const permsRes = await apiClient.get('/users/permissions');
+        const perms = permsRes;
         setAllPermissions(perms);
       } catch (err) {
         console.error('Failed to fetch all permissions:', err);
@@ -135,8 +134,8 @@ export default function AdminUsers() {
       const map = {};
       for (const role of roles) {
         try {
-          const res = await fetch(`/api/users/roles/${role.role_name}/permissions`);
-          const perms = await res.json();
+          const res = await apiClient.get(`/users/roles/${role.role_name}/permissions`);
+          const perms = res;
           map[role.role_name] = perms;
         } catch (err) {
           console.error(`Failed to fetch permissions for ${role.role_name}:`, err);
@@ -158,8 +157,8 @@ export default function AdminUsers() {
   useEffect(() => {
     const fetchAdvising = async () => {
       if (selectedUser) {
-        const res = await fetch(`/api/users/${selectedUser.id}/advising`);
-        const data = await res.json();
+        const res = await apiClient.get(`/users/${selectedUser.id}/advising`);
+        const data = res;
 
         // Preserve manual additions
         const existingIds = new Set(data.students.map(s => s.user_id));
@@ -179,12 +178,12 @@ export default function AdminUsers() {
   const refreshData = async () => {
     try {
       const [usersRes, rolesRes] = await Promise.all([
-        fetch('/users/all'),
-        fetch('/users/roles')
+        apiClient.get('/users/all'),
+        apiClient.get('/users/roles')
       ]);
 
-      const usersData = await usersRes.json();
-      const rolesData = await rolesRes.json();
+      const usersData = usersRes;
+      const rolesData = rolesRes;
 
       setAllUsers(usersData);
       setRoles(rolesData);
@@ -207,30 +206,22 @@ export default function AdminUsers() {
     const allRoles = Array.from(selectedRoles);
 
     try {
-      const res = await fetch('/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const newUser = await apiClient.post('/users', {
           name: newUserName,
           email: newUserEmail,
           phone: newUserPhone,
           password: newUserPassword,
           default_view: defaultView,
           roles: allRoles
-        })
       });
 
-      if (res.ok) {
         alert('User added successfully');
         setIsAddingUser(false);
         setNewUserName('');
         setdefaultView('');
-        const newUser = await res.json();
         setAllUsers(prev => [...prev, { id: newUser.userId, name: newUser.name, roles: allRoles }]);
         await refreshData();
-      } else {
-        alert('Failed to add user');
-      }
+
     } catch (err) {
       console.error('Add user error:', err);
       alert('Error adding user');
@@ -250,56 +241,32 @@ export default function AdminUsers() {
 
     try {
       // 1. Update user details
-      const userRes = await fetch(`/api/users/${selectedUser.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const userRes = await apiClient.put(`/users/${selectedUser.id}`, {
           name: editName,
           email: editEmail,
           phone: editPhone,
           password: editPassword,
           default_view: defaultView
-        })
       });
-
-      if (!userRes.ok) {
-        alert('Failed to update user details');
-        return;
-      }
 
       // 2. Update roles
-      const rolesRes = await fetch(`/api/users/${selectedUser.id}/roles`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roles: updatedRoles })
+      const rolesRes = await apiClient.put(`/users/${selectedUser.id}/roles`, {
+        roles: updatedRoles
       });
-
-      if (!rolesRes.ok) {
-        alert('Failed to update roles');
-        return;
-      }
 
       // 3. Update advising relationships
       const allStudentAssignments = [...assignedStudents, ...manualStudents];
-      const advisingRes = await fetch(`/api/users/${selectedUser.id}/advising`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+
+      await apiClient.post(`/users/${selectedUser.id}/advising`, {
           advisorIds: assignedAdvisors.map(a => a.user_id),
           studentIds: allStudentAssignments.map(s => s.user_id)
-        })
       });
-
-
-      if (!advisingRes.ok) {
-        alert('Failed to update advising relationships');
-        return;
-      }
 
       alert('User updated successfully');
       setSearchResults([]);
       setSelectedUser(null);
       await refreshData();
+
     } catch (err) {
       console.error('Save error:', err);
       alert('Error saving user');
@@ -317,19 +284,14 @@ export default function AdminUsers() {
     if (!window.confirm(`Are you sure you want to delete ${selectedUser.name}?`)) return;
 
     try {
-      const res = await fetch(`/api/users/${selectedUser.id}`, {
-        method: 'DELETE'
-      });
+      const res = await apiClient.del(`/users/${selectedUser.id}`);
 
-      if (res.ok) {
-        alert('User deleted');
-        setSelectedUser(null);
-        setSearchResults(prev => prev.filter(u => u.id !== selectedUser.id));
-        setAllUsers(prev => prev.filter(u => u.id !== selectedUser.id));
-        await refreshData();
-      } else {
-        alert('Failed to delete user');
-      }
+      alert('User deleted');
+      setSelectedUser(null);
+      setSearchResults(prev => prev.filter(u => u.id !== selectedUser.id));
+      setAllUsers(prev => prev.filter(u => u.id !== selectedUser.id));
+      await refreshData();
+      
     } catch (err) {
       console.error('Delete error:', err);
       alert('Error deleting user');

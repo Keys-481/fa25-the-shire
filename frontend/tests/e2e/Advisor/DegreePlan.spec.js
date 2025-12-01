@@ -7,7 +7,7 @@
  *   - advisor's ability to edit course status in the degree plan.
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * Tests for searching a student and viewing their degree plan.
@@ -41,7 +41,7 @@ test.describe('Advising - DegreePlan component', () => {
         // Wait for the degree plan API call
         const apiResponse = await page.waitForResponse(
             r =>
-                r.url().includes('/students/112299690/degree-plan') && 
+                r.url().includes('/students/112299690/degree-plan') &&
                 r.status() === 200,
             { timeout: 10000 }
         );
@@ -87,10 +87,8 @@ test.describe('DegreePlan component view toggle', () => {
         await page.getByText('Master of Science in Organizational Performance and Workplace Learning').click();
 
         // Wait for degree plan to load (accepts both with and without api)
-        await page.waitForResponse(r =>
-            /\/(api\/)?students\/112299690\/degree-plan/.test(r.url()) && r.ok(),
-            { timeout: 30000 }
-        );
+        // Wait for the requirements table to appear
+        await expect(page.locator('.requirements-table')).toBeVisible();
 
         // Verify initial view is requirements view
         await expect(page.getByText('Credit Count: 15 / 36')).toBeVisible({ timeout: 15000 });
@@ -138,7 +136,7 @@ test.describe('DegreePlan edit course status', () => {
         await Promise.all([
             page.waitForResponse(
                 r => /\/(api\/)?students\/112299690\/degree-plan/.test(r.url()) &&
-                ([200, 204, 304].includes(r.status())),
+                    ([200, 204, 304].includes(r.status())),
                 { timeout: 30000 }
             ),
             page.getByText('Master of Science in Organizational Performance and Workplace Learning').click(),
