@@ -46,3 +46,6 @@ bower_components/
 
 # Database files from docker-compose
 data/postgres/
+
+# Docker override files
+docker-compose.override.yml
