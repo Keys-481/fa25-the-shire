@@ -15,8 +15,8 @@
 
 ---
 <nav>
-  <a href="/">Home</a> |
-  <a href="/features">Features</a>
+  <a href="./index.md">Home</a> |
+  <a href="./features.md">Features</a>
 </nav>
 
 ## Project Abstract
