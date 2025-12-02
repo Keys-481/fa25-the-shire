@@ -14,10 +14,10 @@ Below is a list of the main features we implemented in our project:
 * Supports multiple roles per user
 * UI adapts based on active role
 
-![Admin Dashboard](./images/admin_dash.png)
-![Advisor Dashboard](./images/advisor2dash.png)
-![Student Dashboard](./images/student1dash.png)
-![Accounting Dashboard](./images/account_dash.png)
+![Admin Dashboard](./images/admin-dash.png)
+![Advisor Dashboard](./images/advisor-dash.png)
+![Student Dashboard](./images/student-dash.png)
+![Accounting Dashboard](./images/accounting-dash.png)
 
 ---
 
@@ -25,17 +25,17 @@ Below is a list of the main features we implemented in our project:
 * Students can view own plans and communicate via a comment section
 * Students are alerted of course overlaps with certificates they can apply for
 
-![Student Degree Tracking](./images/student1plan.png)
+![Student Degree Tracking](./images/student1CertPlan.png)
 
 * Advisors can view plans for all students in caseload with search section and communicate via a comment section
 * Advisors can manage plans and update status for courses as well as graduation application tracking
 
-![Advisor Advising Page](./images/advisor2bobPlan.png)
+![Advisor Advising Page](./images/advisor-view-alice-plan.png)
 
 * Requirements vs. Semester view for degree plan
   
-![Requirements View](./images/reqView.png)
-![Semester View](./images/semesterView.png)
+![Requirements View](./images/req-view.png)
+![Semester View](./images/semester-view.png)
 
 ---
 
@@ -53,7 +53,7 @@ Below is a list of the main features we implemented in our project:
 * Generate and allow downloads of future enrollment reports based on system data
 * Generate and allow downloads of graduation tracking reports based on system data
 
-![Enrollment Reports](./images/enrollments.png)
+![Enrollment Reports](./images/enrollment.png)
 ![Graduation Reports](./images/graduation.png)
 
 ---
@@ -63,8 +63,8 @@ Below is a list of the main features we implemented in our project:
 * Users can change their styling preferences (font, font size, dark/light mode)
 * Users with multiple roles can switch views here
 
-![Student Profile](./images/studentprofile.png)
-![Multi-Role Settings](./images/multi-role-settings.png)
+![Student Profile](./images/student-profile.png)
+![Multi-Role Settings](./images/multi-view-settings.png)
 
 ---
 
@@ -73,8 +73,7 @@ Below is a list of the main features we implemented in our project:
 * Notifications are sent to non-author users with access to degree plans when a comment is posted or edited
 * Comment notifications are linked to degree plans
 
-![Notification Page](./images/notifs.png)
-![Notifications Link](./images/notifs-link.png)
+![Notification Page](./images/notif-link.png)
 
 
 
