@@ -13,7 +13,7 @@ import CommentItem from './CommentItem.jsx';
  * @param {*} param0 - Props containing studentSchoolId and programId.
  * @returns {JSX.Element} The rendered CommentsContainer component.
  */
-export default function CommentsContainer({ studentSchoolId, programId, userIsStudent=false }) {
+export default function CommentsContainer({ studentSchoolId, programId, userIsStudent=false, className='' }) {
 
     const api = useApiClient();
     const [ comments, setComments ] = useState([]);
@@ -47,14 +47,21 @@ export default function CommentsContainer({ studentSchoolId, programId, userIsSt
     }
 
     if (!studentSchoolId || !programId) {
-        return <p className="error-message">Select a student and a program to view comments.</p>;
+        return (
+            <div className={`comments-container ${className}`}>
+                <h4>Comments</h4>
+                <p style={{ padding: "10px", opacity: 0.7 }}>
+                    No program selected.
+                </p>
+            </div>
+        )
     }
 
     if (loading) return <p>Loading comments...</p>;
     if (error) return <p className="error-message">Error: {error}</p>;
 
     return (
-        <div className="comments-container">
+        <div className={`comments-container ${className}`}>
             <h4>Comments</h4>
             <div className="comment-form-wrapper">
                 <CommentForm

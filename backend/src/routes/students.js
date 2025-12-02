@@ -13,9 +13,6 @@ const pool = require('../db');
 const { requireUser, requireAnyRole } = require('../utils/authorize');
 
 
-const { log, error } = require('console');
-
-
 /**
  * Route: GET /students/search
  * Supports searching for a student by their school ID, and partial or full name (q1, q2).
@@ -325,6 +322,100 @@ router.get('/:schoolId/programs', async (req, res) => {
         }
     } catch (error) {
         console.error('Error fetching student programs:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+/**
+ * Route: PATCH /students/:schoolId/programs
+ * Adds a student to a new program by their school ID.
+ */
+router.patch('/:schoolId/programs', async (req, res) => {
+    const { schoolId } = req.params;
+    const { programId } = req.body;
+    try {
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        // admin can update any student in edit user
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        }
+
+        if (hasAccess) {
+            const existingPrograms = await StudentModel.getProgramsByStudentId(student.student_id);
+            if (existingPrograms.some(p => p.program_id === programId)) {
+                return res.status(400).json({ message: 'Student is already enrolled in the specified program' });
+            }
+
+            const result = await StudentModel.addStudentToProgram(student.student_id, programId);
+            return res.json({ message: 'Student enrolled in program successfully', result });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to enroll this student in a program' });
+        }
+    } catch (error) {
+        console.error('Error enrolling student in program:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+/**
+ * Route: DELETE /students/:schoolId/programs
+ * Removes a student from a program by their school ID.
+ */
+router.delete('/:schoolId/programs', async (req, res) => {
+    const { schoolId } = req.params;
+    const { programId } = req.body;
+    try {
+        const currentUser = req.user;
+        if (!currentUser || !currentUser.user_id) {
+            return res.status(401).json({ message: 'Unauthorized: No user info' });
+        }
+
+        // get student by schoolId
+        const studentResult = await StudentModel.getStudentBySchoolId(schoolId);
+        const student = studentResult && studentResult.length > 0 ? studentResult[0] : null;
+
+        // check if student exists
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
+        // check access permissions
+        const userRoles = await AccessModel.getUserRoles(currentUser.user_id);
+        let hasAccess = false;
+
+        // admin can update any student in edit user
+        if (userRoles.includes('admin')) {
+            hasAccess = true;
+        }
+
+        if (hasAccess) {
+            const result = await StudentModel.removeStudentFromProgram(student.student_id, programId);
+            if (!result) {
+                return res.status(400).json({ message: 'Student not enrolled in the specified program' });
+            }
+            return res.json({ message: 'Student removed from program successfully', result });
+        } else {
+            return res.status(403).json({ message: 'Forbidden: You do not have access to remove this student from a program' });
+        }
+    } catch (error) {
+        console.error('Error removing student from program:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

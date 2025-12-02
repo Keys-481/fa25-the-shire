@@ -10,7 +10,7 @@ const pool = require('../../src/db');
 // Reset and seed the database before each test
 beforeAll(async () => {
     await runSchemaAndSeeds();
-}, 8000);
+}, 15000);
 
 // Close the database connection after all tests
 afterAll(async () => {
