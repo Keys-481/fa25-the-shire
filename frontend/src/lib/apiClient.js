@@ -45,7 +45,7 @@ export function useApiClient() {
     const post = useCallback((p, data) => request(p, { method: 'POST', body: JSON.stringify(data) }), [request]);
     const put = useCallback((p, data) => request(p, { method: 'PUT', body: JSON.stringify(data) }), [request]);
     const patch = useCallback((p, data) => request(p, { method: 'PATCH', body: JSON.stringify(data) }), [request]);
-    const del = useCallback((p) => request(p, { method: 'DELETE' }), [request]);
+    const del = useCallback((p, data) => request(p, { method: 'DELETE', body: JSON.stringify(data) }), [request]);
 
     return useMemo(() => ({ get, post, put, patch, del }), [get, post, put, patch, del]);
 }

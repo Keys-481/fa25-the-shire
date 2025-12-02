@@ -25,6 +25,7 @@ const userRoutes = require('./src/routes/users');
 const authRoutes = require('./src/routes/auth');
 const commentRoutes = require('./src/routes/comments');
 const notificationsRoutes = require('./src/routes/notifications');
+const programRoutes = require('./src/routes/programs');
 const graduationRoutes = require('./src/routes/graduation');
 
 /**
@@ -72,6 +73,7 @@ app.use(`${apiBase}/users`, userRoutes);
 app.use(`${apiBase}/auth`, authRoutes);
 app.use(`${apiBase}/comments`, commentRoutes);
 app.use(`${apiBase}/notifications`, notificationsRoutes);
+app.use(`${apiBase}/programs`, programRoutes);
 app.use(`${apiBase}/graduation`, graduationRoutes);
 
 // Serve React app

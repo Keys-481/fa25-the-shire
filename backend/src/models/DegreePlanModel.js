@@ -14,7 +14,7 @@ const pool = require('../db');
 async function getDegreePlanByStudentId(studentId, programId) {
     try {
         const result = await pool.query(
-            `SELECT dp.plan_id, dp.student_id, dp.course_id, dp.course_status, dp.catalog_year,
+            `SELECT dp.plan_id, dp.student_id, dp.course_id, dp.course_status, dp.catalog_year, dp.program_id,
                 c.course_id, c.course_code, c.course_name, c.credits,
                 s.semester_id, s.semester_name, s.semester_type,
                 s.sem_start_date, s.sem_end_date,
@@ -193,12 +193,56 @@ async function getCourseStatus(studentId, courseId, programId) {
     }
 }
 
+/**
+ * Create a default degree plan for a student in a specific program and preserves history if it exists
+ * @param {*} studentId - internal student ID
+ * @param {*} programId - internal program ID
+ * @param {*} defaultStatus - default status for the courses
+ * @param {*} catalogYear - catalog year for the courses
+ * @returns The newly created degree plan entries
+ */
+async function createDefaultPlan(studentId, programId, defaultStatus = 'Unplanned', catalogYear = '2025-2026') {
+    try {
+        const query = `
+            INSERT INTO degree_plans (student_id, program_id, course_id, semester_id, course_status, catalog_year)
+            SELECT
+                $1 AS student_id,
+                $2 AS program_id,
+                c.course_id,
+                COALESCE(dp_existing.semester_id, NULL) AS semester_id,
+                COALESCE(dp_existing.course_status, $3) AS course_status,
+                COALESCE(
+                    (SELECT dp.catalog_year
+                    FROM degree_plans dp
+                    WHERE dp.student_id = $1 AND dp.program_id = $2
+                    LIMIT 1), $4
+                ) AS catalog_year
+            FROM program_requirements pr
+            JOIN requirement_courses rc ON pr.requirement_id = rc.requirement_id
+            JOIN courses c ON rc.course_id = c.course_id
+            LEFT JOIN degree_plans dp_existing
+                ON dp_existing.student_id = $1
+                AND dp_existing.course_id = c.course_id
+            WHERE pr.program_id = $2
+            ON CONFLICT (student_id, course_id, program_id) DO NOTHING
+            RETURNING *;
+        `;
+
+        const { rows } = await pool.query(query, [studentId, programId, defaultStatus, catalogYear]);
+        return rows;
+    } catch (error) {
+        console.error('Error creating default degree plan:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     getDegreePlanByStudentId,
     getDegreePlanByRequirements,
     getTotalProgramRequiredCredits,
     updateCourseStatus,
     getCourseStatus,
-    getDegreePlanByStudentPhoneNumber
+    getDegreePlanByStudentPhoneNumber,
+    createDefaultPlan,
 }
 

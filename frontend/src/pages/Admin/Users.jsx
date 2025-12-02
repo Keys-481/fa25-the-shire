@@ -10,12 +10,12 @@
  * - Delete users
  */
 import { useEffect, useState } from 'react';
+import { useApiClient } from '../../lib/apiClient';
 import AddUser from '../../components/AdminUserComponents/AddUser';
 import EditUser from '../../components/AdminUserComponents/EditUser';
 import RoleList from '../../components/AdminUserComponents/RoleList';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
-import { useApiClient } from '../../lib/apiClient';
 
 export default function AdminUsers() {
   const [allUsers, setAllUsers] = useState([]);
@@ -39,6 +39,8 @@ export default function AdminUsers() {
   const [assignedStudents, setAssignedStudents] = useState([]);
   const [manualStudents, setManualStudents] = useState([]);
   const [assignedAdvisors, setAssignedAdvisors] = useState([]);
+  const [studentPrograms, setStudentPrograms] = useState([]);
+  const [programsList, setProgramsList] = useState([]);
 
   const apiClient = useApiClient();
 
@@ -172,6 +174,36 @@ export default function AdminUsers() {
   }, [selectedUser]);
 
   /**
+   * Fetches all programs for one student
+   */
+    useEffect(() => {
+      if (selectedUser) {
+        apiClient.get(`/students/${selectedUser.public}/programs`)
+          .then((data) => {
+            setStudentPrograms(data.programs);
+          })
+          .catch((err) => {
+            console.error('Failed to fetch student programs:', err);
+          });
+      }
+  }, [selectedUser]);
+
+  /**
+   * Fetches all available programs
+   */
+  useEffect(() => {
+    const fetchAllPrograms = async () => {
+      try {
+        const data = await apiClient.get('/programs');
+        setProgramsList(data);
+      } catch (err) {
+        console.error('Failed to fetch all programs:', err);
+      }
+    };
+    fetchAllPrograms();
+  }, []);
+
+  /**
    * Refreshes user and role data from the backend.
    * Resets role toggles.
    */
@@ -232,7 +264,7 @@ export default function AdminUsers() {
    * Handles saving updated roles for the selected user.
    * Sends a PUT request to the backend.
    */
-  const handleSave = async () => {
+  const handleSave = async ({ programsToAdd = [], programsToRemove = [] }) => {
     if (!selectedUser) return;
 
     const updatedRoles = Object.entries(roleToggles)
@@ -261,6 +293,19 @@ export default function AdminUsers() {
           advisorIds: assignedAdvisors.map(a => a.user_id),
           studentIds: allStudentAssignments.map(s => s.user_id)
       });
+
+      // 4. Update student programs
+      for (const program of programsToAdd) {
+        await apiClient.patch(`/students/${selectedUser.public}/programs`, {
+          programId: program.program_id
+        });
+      }
+      
+      for (const program of programsToRemove) {
+        await apiClient.del(`/students/${selectedUser.public}/programs`, {
+          programId: program.program_id
+        });
+      }
 
       alert('User updated successfully');
       setSearchResults([]);
@@ -360,6 +405,7 @@ export default function AdminUsers() {
                 handleToggle={handleToggle}
                 handleSave={handleSave}
                 handleDelete={handleDelete}
+                selectedUser={selectedUser}
                 setSelectedUser={setSelectedUser}
                 defaultView={defaultView}
                 setdefaultView={setdefaultView}
@@ -379,6 +425,8 @@ export default function AdminUsers() {
                 setManualStudents={setManualStudents}
                 assignedAdvisors={assignedAdvisors}
                 setAssignedAdvisors={setAssignedAdvisors}
+                studentPrograms={studentPrograms}
+                programsList={programsList}
               />
             ) : isAddingUser ? (
               <AddUser
