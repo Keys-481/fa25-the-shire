@@ -41,11 +41,15 @@ Below is a list of the main features we implemented in our project:
 
 ## Admin System Management
 * Admin users can manage courses in the system
+
+![Admin Add Course](./images/add-course.png)
+![Admin Edit Course](./images/edit-course.png)
+
 * Admin users can manage users in the system
 
-![Admin Add Course](./images/addCourse.png)
-![Admin Add User](./images/addUser.png)
-![Admin Edit User](./images/editUser.png)
+![Admin View Users](./images/all-users.png)
+![Admin Add User](./images/add-user.png)
+![Admin Edit User](./images/edit-user.png)
 
 ---
 
