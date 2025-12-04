@@ -3,7 +3,7 @@
  * Admins can search for a course and view its enrollment report across 4 future semesters.
  */
 import { useState } from "react";
-import AdminNavBar from "../../components/NavBars/AdvisorNavBar";
+import AdminNavBar from "../../components/NavBars/AdminNavBar";
 import SearchBar from "../../components/SearchBar";
 import ReportLayout from "../../components/ReportLayout";
 
