@@ -14,15 +14,25 @@ export default function AccountingReportingFunctionality() {
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   const handleSearchResults = (results) => {
-    if (!results || results.length === 0) {
-      // Search cleared or nothing found → reset
+    // User cleared inputs
+    if (results === null) {
       setResults([]);
       setHasSearched(false);
       setSelectedCourse(null);
-    } else {
-      setResults(results);
-      setHasSearched(true);
+      return;
     }
+
+    // Search returned no results
+    if (Array.isArray(results) && results.length === 0) {
+      setResults([]);
+      setHasSearched(false);
+      setSelectedCourse(null);
+      return;
+    }
+
+    // Search returned results
+    setResults(results);
+    setHasSearched(true);
   };
 
   // Handle course selection from results

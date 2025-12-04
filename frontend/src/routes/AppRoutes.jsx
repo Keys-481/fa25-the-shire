@@ -19,16 +19,17 @@ import LogIn from '../pages/LogIn/LogIn.jsx'
 import Notifications from '../pages/Notifications.jsx'
 
 //admin imports
-import AdminCourses from '../pages/Admin/Courses'
 import AdminDashboard from '../pages/Admin/AdminDashboard.jsx'
+import AdminCourses from '../pages/Admin/Courses'
+import AdminGraduationReport from '../pages/Admin/GraduationReport'
 import AdminSettings from '../pages/Admin/Settings'
 import AdminEnrollmentReport from '../pages/Admin/ReportingFunctionality'
 import AdminUsers from '../pages/Admin/Users'
 
 //student imports
-import StudentDashboard from '../pages/Student/StudentDashboard.jsx'
 import StudentDegreeTracking from '../pages/Student/DegreeTracking'
 import StudentSettings from '../pages/Student/Settings'
+import StudentDashboard from '../pages/Student/StudentDashboard.jsx'
 
 //advisor imports
 import Advising from '../pages/Advisor/Advising'
@@ -44,7 +45,7 @@ import AccountingSettings from '../pages/Accounting/Settings'
 
 
 export default function AppRoutes() {
-  const base = import.meta.env.VITE_PUBLIC_URL || '/';
+  const base = import.meta.env.PUBLIC_URL || '/';
   return (
     <AuthProvider>
       <Router>
@@ -56,30 +57,38 @@ export default function AppRoutes() {
           <Route path="/login" element={<LogIn />} />
 
           {/* Protected Routes */}
+          {/* Notifications Route */}
           <Route element={<ProtectedRoute />}>
-
-            {/* Notifications Route */}
             <Route path="/notifications" element={<Notifications />} />
+          </Route>
 
-            {/* Admin Routes */}
+          {/* Admin Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
             <Route path="/admin/reporting-functionality" element={<AdminEnrollmentReport />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
+            <Route path="/admin/graduation-report" element={<AdminGraduationReport />} /> 
             <Route path="/admin/settings" element={<AdminSettings />} />
+          </Route>
 
-            {/* Advising Routes */}
+          {/* Advising Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['advisor']} />}>
             <Route path="/advisor/dashboard" element={<AdvisorDashboard />} />
             <Route path="/advisor/advising" element={<Advising />} />
             <Route path="/advisor/reporting-functionality" element={<AdvisorReportingFunctionality />} />
             <Route path="/advisor/settings" element={<AdvisorSettings />} />
-            
-            {/* Student Routes */}
+          </Route>
+
+          {/* Student Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['student']} />}>
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/student/degree-tracking" element={<StudentDegreeTracking />} />
             <Route path="/student/settings" element={<StudentSettings />} />
+          </Route>
 
-            {/* Accounting Routes */}
+          {/* Accounting Routes */}
+          <Route element={<ProtectedRoute allowedRoles={['accounting']} />}>
             <Route path="/accounting/dashboard" element={<AccountingDashboard />} />
             <Route path="/accounting/graduation-report" element={<AccountingGraduationReport />} />
             <Route path="/accounting/settings" element={<AccountingSettings />} />

@@ -14,6 +14,10 @@
 - Lauren Rausch
 
 ---
+<nav>
+  <a href="./index.md">Home</a> |
+  <a href="./features.md">Features</a>
+</nav>
 
 ## Project Abstract
 
@@ -30,6 +34,6 @@ Our application consists of a Node.js backend built with the Express framework a
 After logging in, users are directed to a role-specific view that exposes features appropriate for their permissions. Users may have multiple roles, such as an advisor with admin privileges. In that case the user can switch between views through their settings page. The settings page also includes user preferences such as font and font size. Across roles, all users have access to notifications, which can link directly to relevant pages such as degree plan comments.
 
 
-The Admin view provides pages for managing courses and users in the system. The Advisor view includes an advising page which allows the adivsor to manage all their students' degree plans, and a page for enrollment reporting. The Student view allows students to view and track their own degree progress. The Accounting view includes the graduation report and enrollment report pages.
+The Admin view provides pages for managing courses and users in the system. The Advisor view includes an advising page which allows the advisor to manage all their students' degree plans, and a page for enrollment reporting. The Student view allows students to view and track their own degree progress. The Accounting view includes the graduation report and enrollment report pages.
 
 ---

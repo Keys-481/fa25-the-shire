@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AccountingNavBar from '../../components/NavBars/AccountingNavBar';
 import { useApiClient } from '../../lib/apiClient';
-
+import { useAuth } from '../../auth/AuthProvider';
 
 /**
  * AccountingSettings component displays the Settings page for accounting users.
@@ -14,6 +14,7 @@ import { useApiClient } from '../../lib/apiClient';
  */
 export default function AccountingSettings() {
   const navigate = useNavigate();
+  const { user, setRole } = useAuth();
   const [viewType, setViewType] = useState('settings'); // Default to 'settings'
   const [userInfo, setUserInfo] = useState(null);
   const [newPassword, setNewPassword] = useState('');
@@ -52,6 +53,7 @@ export default function AccountingSettings() {
           setFontFamily(prefs.font_family);
           setIsDark(prefs.theme === 'dark');
 
+          setIsDark(prefs.theme === 'dark'); // set state
           document.body.classList.toggle('dark-theme', prefs.theme === 'dark');
           document.documentElement.style.setProperty('--font-size-change', prefs.font_size_change);
           document.documentElement.style.setProperty('--font-family-change', prefs.font_family);
@@ -68,7 +70,6 @@ export default function AccountingSettings() {
       }
     })();
   }, []);
-
 
   if (!userInfo) return <p>Loading user info...</p>;
 
@@ -183,7 +184,7 @@ export default function AccountingSettings() {
                   {userInfo.roles?.length > 1 && (
                     <div>
                       <div className="textbox-row">
-                        <p><strong>Current View:</strong> Accounting</p>
+                        <p><strong>Current View:</strong> {user?.role}</p>
                       </div>
                       <div className="textbox-row">
                         <p><strong>Change View:</strong></p>
@@ -200,7 +201,12 @@ export default function AccountingSettings() {
                         </select>
                         <button
                           onClick={() => {
-                            const route = roleSettingsRoutes[newView.toLowerCase()];
+                            const targetRole = newView.toLowerCase();
+
+                            // Update current role in Auth
+                            setRole(targetRole);
+
+                            const route = roleSettingsRoutes[targetRole];
                             if (route) {
                               navigate(route);
                             } else {

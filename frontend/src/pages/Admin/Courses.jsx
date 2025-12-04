@@ -64,12 +64,13 @@ export default function AdminCourses() {
   const handleAddCourse = async () => {
     console.log('Submitting courseForm:', courseForm);
     try {
-      const addedCourse = await apiClient.post('/courses', courseForm);
-      resetForm();
-      searchRef.current?.triggerSearch();
+      await apiClient.post('/courses', courseForm);
     } catch (error) {
       console.error('Error adding course:', error);
       alert('Failed to add course.');
+    } finally {
+      resetForm();
+      searchRef.current?.triggerSearch();
     }
   };
 

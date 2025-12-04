@@ -194,6 +194,23 @@ export function AuthProvider({ children }) {
         window.location.href = "/login";
     }
 
+    // Functionality to update user role for logged-in user
+    const setRole = (role) => {
+        setAuth((prev) => {
+            if (!prev || !prev.user) return prev;
+
+            return {
+                ...prev,
+                user: {
+                    ...prev.user,
+                    role,
+                },
+            };
+        });
+
+        setLastActivity();
+    }
+
     const handleStay = () => {
         // Allow button to remove warning
         markActivity({ force: true });
@@ -205,6 +222,7 @@ export function AuthProvider({ children }) {
         token: auth.token,
         login,
         logout,
+        setRole,
     }), [auth]);
 
     return (
