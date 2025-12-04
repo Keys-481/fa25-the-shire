@@ -166,6 +166,12 @@ test.describe('AdminCourses page', () => {
         await form.getByPlaceholder('Course Offerings').fill('FA, SP');
         await form.getByPlaceholder('e.g. OPWL-536, OPWL-530').fill('OPWL-530');
 
+        // Handle the confirmation popup
+        page.once('dialog', async (dialog) => {
+            expect(dialog.message());
+            await dialog.accept();
+        });
+
         await page.getByRole('button', { name: 'Add' }).click();
 
         await expect(page.getByRole('button', { name: 'Add Course' })).toBeVisible();

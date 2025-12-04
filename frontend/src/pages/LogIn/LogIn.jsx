@@ -4,6 +4,56 @@ import logo from '../../assets/images/boise_state_wbg.png'
 import { useAuth } from '../../auth/AuthProvider.jsx'
 import '../../styles/Styles.css'
 
+/**
+ * @file frontend/src/pages/LogIn/LogIn.jsx
+ * @description Login page for SDP website.
+ *              Authenticates users when given valid credentials and sends them to their dashboard.
+ *              Rejects invalid credentials.
+ */
+
+
+// Helper mappings
+const DASHBOARD_BY_ROLE_ID = {
+    1: "/admin/dashboard",
+    2: "/advisor/dashboard",
+    3: "/student/dashboard",
+    4: "/accounting/dashboard",
+};
+const DASHBOARD_BY_ROLE_NAME = {
+    admin: "/admin/dashboard",
+    advisor: "/advisor/dashboard",
+    student: "/student/dashboard",
+    accounting: "/accounting/dashboard",
+};
+
+/**
+ * Gets a users home route based on their default view.
+ * Falls back to a user's role if default view is unspecified.
+ * @param {*} user The current user
+ * @returns The current user's home route
+ */
+function getHomeRoute(user) {
+    if (!user) return "/student/dashboard";
+
+    const dv = user.default_view;
+
+    if (dv !== undefined && dv !== null){
+        const asNumber = typeof dv === 'number' ? dv : Number(dv);
+        if (!Number.isNaN(asNumber) && DASHBOARD_BY_ROLE_ID[asNumber]) {
+            return DASHBOARD_BY_ROLE_ID[asNumber];
+        }
+
+        if (typeof dv === 'string' && DASHBOARD_BY_ROLE_NAME[dv]) {
+            return DASHBOARD_BY_ROLE_NAME[dv];
+        }
+    }
+
+    if (user.role && DASHBOARD_BY_ROLE_NAME[user.role]) {
+        return DASHBOARD_BY_ROLE_NAME[user.role];
+    }
+
+    return "/student/dashboard";
+}
 
 export default function LogIn() {
     const [identifier, setIdentifier] = useState("");
@@ -15,14 +65,8 @@ export default function LogIn() {
 
     useEffect(() => {
         if (!isAuthed) return;
-        const role = user?.default_view;
-        const roleHome = ({
-            1: "/admin/dashboard",
-            2: "/advisor/dashboard",
-            3: "/student/dashboard",
-            4: "/accounting/dashboard",
-        })[role] || "/student/dashboard";
-        navigate(roleHome, { replace: true });
+        const home = getHomeRoute(user);
+        navigate(home, { replace: true });
     }, [isAuthed, user, navigate]);
 
     async function handleSubmit(e) {
@@ -44,16 +88,10 @@ export default function LogIn() {
             const data = await res.json();
             login({ token: data.token, user: data.user });
 
-            const role = data?.user?.role;
-            const roleHome = ({
-                admin: "/admin/dashboard",
-                advisor: "/advisor/dashboard",
-                student: "/student/dashboard",
-                accounting: "/accounting/dashboard",
-            })[role] || "/student/dashboard";
-
             const from = location.state?.from?.pathname;
-            const dest = (from && from !== "/login") ? from : roleHome;
+            const defaultHome = getHomeRoute(data.user);
+
+            const dest = (from && from !== "/login") ? from : defaultHome;
             navigate(dest, { replace: true });
         } catch {
             setError("Unable to log in. Try again.");

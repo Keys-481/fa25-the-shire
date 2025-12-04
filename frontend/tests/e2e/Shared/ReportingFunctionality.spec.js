@@ -1,5 +1,14 @@
 import { expect, test } from '@playwright/test';
 
+function getRoleFromProject(testInfo) {
+    const name = testInfo.project?.name || '';
+
+    if (name.includes('advisor')) return 'advisor';
+    if (name.includes('accounting')) return 'accounting';
+
+    return null;
+}
+
 test.describe('ReportingFunctionality Page', () => {
 
     /**
@@ -9,9 +18,12 @@ test.describe('ReportingFunctionality Page', () => {
      *   Navigates the Playwright browser to the Advisor ReportingFunctionality page.
      *   Ensures each test starts from a clean state on the correct route.
      */
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ page }, testInfo) => {
+        const role = getRoleFromProject(testInfo);
+        if (!role) test.skip();
+
         // Navigate to the ReportingFunctionality page
-        await page.goto('/advisor/reporting-functionality');
+        await page.goto(`/${role}/reporting-functionality`);
     });
 
     /**
