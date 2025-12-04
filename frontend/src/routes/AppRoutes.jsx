@@ -19,15 +19,15 @@ import LogIn from '../pages/LogIn/LogIn.jsx'
 import Notifications from '../pages/Notifications.jsx'
 
 //admin imports
-import AdminCourses from '../pages/Admin/Courses'
 import AdminDashboard from '../pages/Admin/AdminDashboard.jsx'
+import AdminCourses from '../pages/Admin/Courses'
 import AdminSettings from '../pages/Admin/Settings'
 import AdminUsers from '../pages/Admin/Users'
 
 //student imports
-import StudentDashboard from '../pages/Student/StudentDashboard.jsx'
 import StudentDegreeTracking from '../pages/Student/DegreeTracking'
 import StudentSettings from '../pages/Student/Settings'
+import StudentDashboard from '../pages/Student/StudentDashboard.jsx'
 
 //advisor imports
 import Advising from '../pages/Advisor/Advising'
@@ -43,7 +43,7 @@ import AccountingSettings from '../pages/Accounting/Settings'
 
 
 export default function AppRoutes() {
-  const base = import.meta.env.VITE_PUBLIC_URL || '/';
+  const base = import.meta.env.PUBLIC_URL || '/';
   return (
     <AuthProvider>
       <Router>
