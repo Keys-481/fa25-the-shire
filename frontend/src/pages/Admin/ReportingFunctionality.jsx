@@ -55,7 +55,7 @@ export default function ReportingFunctionality() {
   // Main 
   return (
     <div>
-      <AdvisorNavBar />
+      <AdminNavBar />
       <div className="window">
         <div className="title-bar">
           <h1>Enrollment Report</h1>
