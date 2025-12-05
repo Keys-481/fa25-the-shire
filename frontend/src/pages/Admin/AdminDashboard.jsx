@@ -9,6 +9,7 @@ import Dashboard from '../Dashboard/Dashboard.jsx'
 const buttons = [
   { label: 'Courses', path: '/admin/courses' },
   { label: 'Users', path: '/admin/users' },
+  { label: 'Enrollment Report', path: '/admin/reporting-functionality' },
   { label: 'Graduation Report', path: '/admin/graduation-report' },
   { label: 'Settings', path: '/admin/settings' }
 ];

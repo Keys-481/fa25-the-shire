@@ -23,6 +23,7 @@ import AdminDashboard from '../pages/Admin/AdminDashboard.jsx'
 import AdminCourses from '../pages/Admin/Courses'
 import AdminGraduationReport from '../pages/Admin/GraduationReport'
 import AdminSettings from '../pages/Admin/Settings'
+import AdminEnrollmentReport from '../pages/Admin/ReportingFunctionality'
 import AdminUsers from '../pages/Admin/Users'
 
 //student imports
@@ -65,6 +66,7 @@ export default function AppRoutes() {
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/reporting-functionality" element={<AdminEnrollmentReport />} />
             <Route path="/admin/courses" element={<AdminCourses />} />
             <Route path="/admin/graduation-report" element={<AdminGraduationReport />} /> 
             <Route path="/admin/settings" element={<AdminSettings />} />
