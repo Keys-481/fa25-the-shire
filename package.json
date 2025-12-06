@@ -6,8 +6,10 @@
         "db:setup": "cd backend && npm run db:setup:dev",
         "dev:backend": "cd backend && npm run dev",
         "dev:frontend": "cd frontend && npm run dev",
-        "clean": "./clean.sh",
-        "build:prod": "./build.sh"
+        "clean": "bash ./clean.sh",
+        "build": "bash ./build.sh",
+        "test": "bash ./test.sh",
+        "help": "bash ./help.sh"
     },
     "devDependencies": {
         "cross-env": "^10.1.0",
