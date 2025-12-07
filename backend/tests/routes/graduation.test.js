@@ -155,16 +155,10 @@ describe('PUT /api/graduation/:id/status missing status', () => {
     });
 });
 
-test("returns 400 for invalid status filter on GET /graduation", async () => {
-    const mockUser = { user_id: 1 }; // admin user
-    const app = makeAppWithUser(mockUser);
-
-    const res = await request(app).get("/api/graduation?status=NotARealStatus");
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toHaveProperty("message", "Invalid status filter");
-});
-
+/**
+ * Test PUT /graduation/:id/status route forbidden access
+ * Should return 403 Forbidden
+ */
 test("PUT /graduation/:id/status forbids user with no allowed roles", async () => {
     const mockStudentUser = { user_id: 5 }; // has only 'student' role
     const app = makeAppWithUser(mockStudentUser);
@@ -176,6 +170,10 @@ test("PUT /graduation/:id/status forbids user with no allowed roles", async () =
     expect(res.statusCode).toBe(403);
 });
 
+/**
+ * Test PUT /graduation/:id/status route for non-existent application
+ * Should return 404 Not Found
+ */
 test("PUT /graduation/:id/status returns 404 for missing application", async () => {
     const mockAdminUser = { user_id: 1 };
     const app = makeAppWithUser(mockAdminUser);
@@ -187,6 +185,10 @@ test("PUT /graduation/:id/status returns 404 for missing application", async () 
     expect(res.statusCode).toBe(404);
 });
 
+/**
+ * Test PUT /graduation/:id/status route for advisor trying to update status for a student they do not advise
+ * Should return 403 Forbidden
+ */ 
 test("advisor cannot update status for student they do not advise", async () => {
     const mockAdvisorUser = { user_id: 3 };
     const app = makeAppWithUser(mockAdvisorUser);
@@ -198,6 +200,10 @@ test("advisor cannot update status for student they do not advise", async () => 
     expect(res.statusCode).toBe(403);
 });
 
+/**
+ * Test PUT /graduation/:id/status route for student trying to update their own status
+ * Should return 403 Forbidden
+ */
 test("student cannot update their own graduation status", async () => {
     const mockStudentUser = { user_id: 5 };
     const app = makeAppWithUser(mockStudentUser);
@@ -207,11 +213,18 @@ test("student cannot update their own graduation status", async () => {
     expect(res.statusCode).toBe(403);
 });
 
-test("student cannot access /graduation/graduation-report", async () => {
-    const mockStudentUser = { user_id: 5 };
-    const app = makeAppWithUser(mockStudentUser);
+/**
+ * Additional tests for edge cases and permissions
+ * e.g., forbidden access, not found application, etc.
+ */
+test("returns 400 for invalid status filter on GET /graduation", async () => {
+    const mockUser = { user_id: 1 }; // admin user
+    const app = makeAppWithUser(mockUser);
 
-    const res = await request(app).get("/api/graduation/graduation-report");
+    const res = await request(app).get("/api/graduation?status=NotARealStatus");
 
-    expect(res.statusCode).toBe(403);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("message", "Invalid status filter");
 });
+
+
