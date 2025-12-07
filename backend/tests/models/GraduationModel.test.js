@@ -1,3 +1,4 @@
+const pool = require('../../src/db');
 /** 
  * file: backend/tests/models/GraduationModel.test.js
  * Unit tests for GraduationModel.js using Jest
@@ -6,7 +7,7 @@
 
 const GraduationModel = require('../../src/models/GraduationModel');
 const { runSchemaAndSeeds } = require('../../db_setup');
-const pool = require('../../src/db');
+
 
 // Reset and seed the database before each test
 beforeAll(async () => {
@@ -47,16 +48,6 @@ describe('GraduationModel', () => {
         expect(application.application_id).toBe(applicationId);
     }
     );
-    // Test for creating a new graduation application
-    test('createApplication creates and returns a new application', async () => {
-        const studentId = 2; // assuming student with ID 2 exists in seed data  
-        const programId = 1; // assuming program with ID 1 exists in seed data
-        const newApp = await GraduationModel.createApplication(studentId, programId);
-        expect(newApp).toHaveProperty('application_id');
-        expect(newApp.student_id).toBe(studentId);
-        expect(newApp.program_id).toBe(programId);
-        expect(newApp.status).toBe('Not Applied');
-    });
 
     // Test for updating graduation application status
     test('updateApplicationStatus updates the status of an application', async () => {

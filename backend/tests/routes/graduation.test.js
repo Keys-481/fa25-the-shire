@@ -120,3 +120,98 @@ describe('PUT /api/graduation/:id/status', () => {
         expect(res.body).toHaveProperty('status', newStatus);
     });
 });
+
+
+/**
+ * Test GET /graduation route with invalid status filter
+ * Should return 400 Bad Request
+ */
+describe('GET /api/graduation with invalid status filter', () => {
+    test('returns 400 for invalid status', async () => {
+        const mockAdminUser = { user_id: 1 };
+        const app = makeAppWithUser(mockAdminUser);
+
+        const res = await request(app).get('/api/graduation?status=InvalidStatus');
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('message', 'Invalid status filter');
+    });
+});
+
+/**
+ * Test PUT /graduation/:id/status route missing status in body
+ * Should return 400 Bad Request
+ */
+describe('PUT /api/graduation/:id/status missing status', () => {
+    test('returns 400 if status is not provided', async () => {
+        const app = makeAppWithUser({ user_id: 1 }); // admin
+
+        const res = await request(app)
+            .put('/api/graduation/1/status')
+            .send({}); // no status
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('message', 'Missing status');
+    });
+});
+
+test("returns 400 for invalid status filter on GET /graduation", async () => {
+    const mockUser = { user_id: 1 }; // admin user
+    const app = makeAppWithUser(mockUser);
+
+    const res = await request(app).get("/api/graduation?status=NotARealStatus");
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toHaveProperty("message", "Invalid status filter");
+});
+
+test("PUT /graduation/:id/status forbids user with no allowed roles", async () => {
+    const mockStudentUser = { user_id: 5 }; // has only 'student' role
+    const app = makeAppWithUser(mockStudentUser);
+
+    const res = await request(app)
+        .put("/api/graduation/1/status")
+        .send({ status: "Approved" });
+
+    expect(res.statusCode).toBe(403);
+});
+
+test("PUT /graduation/:id/status returns 404 for missing application", async () => {
+    const mockAdminUser = { user_id: 1 };
+    const app = makeAppWithUser(mockAdminUser);
+
+    const res = await request(app)
+        .put("/api/graduation/99999/status")
+        .send({ status: "Approved" });
+
+    expect(res.statusCode).toBe(404);
+});
+
+test("advisor cannot update status for student they do not advise", async () => {
+    const mockAdvisorUser = { user_id: 3 };
+    const app = makeAppWithUser(mockAdvisorUser);
+
+    const res = await request(app)
+        .put("/api/graduation/1/status") // ID belonging to non-advisee
+        .send({ status: "Approved" });
+
+    expect(res.statusCode).toBe(403);
+});
+
+test("student cannot update their own graduation status", async () => {
+    const mockStudentUser = { user_id: 5 };
+    const app = makeAppWithUser(mockStudentUser);
+    const res = await request(app)
+        .put("/api/graduation/2/status") // ID belonging to the student
+        .send({ status: "Approved" });
+    expect(res.statusCode).toBe(403);
+});
+
+test("student cannot access /graduation/graduation-report", async () => {
+    const mockStudentUser = { user_id: 5 };
+    const app = makeAppWithUser(mockStudentUser);
+
+    const res = await request(app).get("/api/graduation/graduation-report");
+
+    expect(res.statusCode).toBe(403);
+});

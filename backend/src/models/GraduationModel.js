@@ -2,7 +2,7 @@
  * file: GraduationModel.js
  * Handles queries for graduation_applications and joins to student/user/program info.
  */
-
+const pool = require('../../src/db');
 /**
  * Get graduation applications, optionally filtered by status.
  * @param {string} [status] - Optional status to filter applications by.
