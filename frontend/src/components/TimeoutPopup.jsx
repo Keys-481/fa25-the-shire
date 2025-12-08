@@ -4,6 +4,7 @@
 
 import React, { useEffect, useRef } from "react";
 
+// TimeoutPopup component displays a popup warning the user they are about to be timed out due to inactivity.
 export default function TimeoutPopup({ visible, secondsLeft, onStay }) {
     const stayButtonRef = useRef(null);
 
@@ -13,6 +14,7 @@ export default function TimeoutPopup({ visible, secondsLeft, onStay }) {
 
     if (!visible) return null;
 
+    // Render the timeout popup
     return (
         <div
             role="dialog"

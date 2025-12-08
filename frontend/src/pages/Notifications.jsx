@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useApiClient } from '../lib/apiClient';
 
+// Helper function to format notification messages
 function formatNotification(notif) {
     if (notif.title === 'New Degree Plan Comment') {
         return `${notif.triggered_by_name} commented on ${notif.student_name}'s ${notif.program_name} degree plan`;
@@ -35,6 +36,7 @@ export default function Notifications() {
     const [selectedNotifications, setSelectedNotifications] = useState([]);
     const [clickedNotif, setClickedNotif] = useState(null);
 
+    // Determine which NavBar to display based on user role
     let NavBarComponent = null;
     if (user?.default_view === 1) {
         NavBarComponent = AdminNavBar;
@@ -158,8 +160,10 @@ export default function Notifications() {
         }
     }
 
+    // Render the Notifications page
     return (
         <div>
+            {/* Navigation Bar */}
             {NavBarComponent && <NavBarComponent />}
             <div className="window">
                 <div className="title-bar">
