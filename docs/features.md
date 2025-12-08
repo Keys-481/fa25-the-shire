@@ -2,8 +2,8 @@
 ---
 
 <nav>
-  <a href="./index.md">Home</a> |
-  <a href="./features.md">Features</a> |
+  <a href="./index.html">Home</a> |
+  <a href="./features.html">Features</a> |
 </nav>
 
 # Features
