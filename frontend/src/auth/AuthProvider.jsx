@@ -1,3 +1,10 @@
+/**
+ * Authentication Provider using React Context API.
+ * Manages user authentication state, login, logout, and idle timeout functionality.
+ * Persists authentication state in localStorage.
+ *
+ * @file frontend/src/auth/AuthProvider.jsx
+ */
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import TimeoutPopup from "../components/TimeoutPopup";
 
@@ -102,6 +109,7 @@ export function AuthProvider({ children }) {
         warnTimerRef.current = setTimeout(() => {
             setShowWarning(true);
 
+            // Start countdown
             const remainNow = Math.max(0, Math.ceil((deadlineRef.current - Date.now()) / 1000));
             setCountdown(remainNow);
 
@@ -225,6 +233,7 @@ export function AuthProvider({ children }) {
         setRole,
     }), [auth]);
 
+    // Render provider with timeout popup
     return (
         <AuthContext.Provider value={value}>
             {children}

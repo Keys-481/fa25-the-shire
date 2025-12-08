@@ -1,11 +1,17 @@
+/**
+ * file: frontend/src/components/AdminUserComponents/RoleList.jsx
+ * description: Component to display a list of user roles and their associated users in the admin panel.
+ */
 import { useState } from 'react';
 
+// Component to display a list of user roles and their associated users
 export default function RoleList({
     roles,
     allUsers,
     setIsAddingUser,
     setSelectedUser
 }) {
+    // State to manage collapsed roles
     const [collapsedRoles, setCollapsedRoles] = useState({});
 
     const toggleCollapse = (role) => {
@@ -15,6 +21,7 @@ export default function RoleList({
         }));
     };
 
+    // Render the role list with users
     return (
         <div className="section-results-side">
             <div className='header-row'>

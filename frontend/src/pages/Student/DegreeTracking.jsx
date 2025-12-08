@@ -1,9 +1,8 @@
 /** 
  * File: frontend/src/pages/Student/DegreeTracking.jsx
  * Student Degree Tracking Page
- * This file allows students to view their degree progress and plans */
-
-
+ * This file allows students to view their degree progress and plans 
+ */
 import { useState, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import StudentNavBar from "../../components/NavBars/StudentNavBar";
@@ -24,6 +23,7 @@ export default function StudentDegreeTracking() {
     const [programs, setPrograms] = useState([]);
     const [selectedProgram, setSelectedProgram] = useState(null);
 
+    // fetch student programs when user changes
     useEffect(() => {
         if (!user || !user.public_id) {
             setPrograms([]);
@@ -32,6 +32,7 @@ export default function StudentDegreeTracking() {
             return;
         }
 
+        // fetch programs for the logged-in student
         let cancelled = false;
         (async () => {
             try {
@@ -73,6 +74,7 @@ export default function StudentDegreeTracking() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
+    // if no user or student, prompt to log in
     if (!user || !student) {
         return (
             <div>
@@ -89,14 +91,17 @@ export default function StudentDegreeTracking() {
         );
     }
 
+    // render the degree tracking page
     return (
         <div>
+            {/* Student Navigation Bar */}
             <StudentNavBar />
             <div className="window">
                 <div className="title-bar">
                     <h1>Degree Tracking</h1>
                 </div>
                 <div className="container">
+                    {/* Program Selector Component */}
                     <ProgramSelector
                         student={student}
                         programs={programs}

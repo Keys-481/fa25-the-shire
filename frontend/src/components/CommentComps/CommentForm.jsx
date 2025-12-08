@@ -16,6 +16,7 @@ export default function CommentForm({ studentSchoolId, programId, onCommentPoste
     const [ posting, setPosting ] = useState(false);
     const [ error, setError ] = useState('');
 
+    // handle posting a new comment
     const handlePostComment = async () => {
 
         if (!commentText.trim()) {
@@ -23,14 +24,17 @@ export default function CommentForm({ studentSchoolId, programId, onCommentPoste
             return;
         }
 
+        // Post the comment
         setPosting(true);
         setError('');
         try {
+            // Attempt to post a new comment
             const newComment = await api.post('/comments', {
                 programId,
                 studentSchoolId,
                 commentText: commentText.trim(),
             });
+            // Clear the comment text and notify parent component
             setCommentText('');
             onCommentPosted(newComment);
         } catch (error) {
@@ -42,6 +46,7 @@ export default function CommentForm({ studentSchoolId, programId, onCommentPoste
         }
     };
 
+    // Render error message if any
     return (
         <div className="comment-form">
             <textarea

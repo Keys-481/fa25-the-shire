@@ -18,6 +18,7 @@ export default function SemesterView( { courses, program } ) {
         return <p>No program selected</p>;
     }
 
+    // Group courses by semester
     const grouped = courses.reduce((acc, course) => {
         const key = course.semester_name || 'Unscheduled Courses';
         if (!acc[key]) {
@@ -27,11 +28,15 @@ export default function SemesterView( { courses, program } ) {
         return acc;
     }, {});
 
+    // Sort semesters, placing 'Unscheduled Courses' at the end
     const sortedSemesters = Object.keys(grouped);
 
+    // Move 'Unscheduled Courses' to the end if it exists
     return (
         <div className="semester-view-container">
+            {/* Render each semester section */}
             {sortedSemesters.map((semester) => (
+                
                 <div key={semester} className="semester-section">
                     <h4 className="semester-header">{semester}</h4>
 

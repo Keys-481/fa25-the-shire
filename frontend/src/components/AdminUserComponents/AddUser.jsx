@@ -1,6 +1,11 @@
+/**
+ * File: frontend/src/components/AdminUserComponents/AddUser.jsx
+ * Component to add a new user with role and permission assignments.
+ */
 import { useEffect, useState } from 'react';
 import { useApiClient } from '../../lib/apiClient';
 
+// AddUser component definition
 export default function AddUser({
   roles,
   defaultView,
@@ -18,7 +23,7 @@ export default function AddUser({
   selectedRoles,
   setSelectedRoles
 }) {
-  const [allPermissions, setAllPermissions] = useState([]);
+  const [allPermissions, setAllPermissions] = useState([]); 
   const [rolePermissionMap, setRolePermissionMap] = useState({});
   const apiClient = useApiClient();
 
@@ -61,6 +66,7 @@ export default function AddUser({
       }
     };
 
+    // Fetch permissions for each role and build a mapping
     const fetchRolePermissions = async () => {
       const map = {};
       for (const role of roles) {
@@ -75,6 +81,7 @@ export default function AddUser({
       setRolePermissionMap(map);
     };
 
+    // Only fetch if roles are available
     if (roles.length > 0) {
       fetchAllPermissions();
       fetchRolePermissions();
@@ -131,8 +138,11 @@ export default function AddUser({
     handleAddUser();
   };
 
+  // Render the AddUser component UI
   return (
     <div className="section-results-side">
+
+      {/* Header Row with Add and Cancel Buttons */}
       <div className='h2-row'>
         <h2>Add New User</h2>
         <div className="button-row">
@@ -140,6 +150,7 @@ export default function AddUser({
           <button onClick={() => setIsAddingUser(false)} style={{ marginLeft: '10px' }}>Cancel</button>
         </div>
       </div>
+      {/* Input Fields for User Details */}
       <div className='horizontal-line'></div>
       <div className='textbox-row'>
         <p className='layout'>Name:</p>
@@ -151,6 +162,7 @@ export default function AddUser({
           placeholder="Enter full name"
         />
       </div>
+      {/* Email Input Field */}
       <div className='textbox-row'>
         <p className='layout'>Email:</p>
         <input
@@ -161,6 +173,7 @@ export default function AddUser({
           placeholder="Enter email"
         />
       </div>
+      {/* Phone Number Input Field */}
       <div className='textbox-row'>
         <p className='layout'>Phone Number:</p>
         <input
@@ -171,6 +184,7 @@ export default function AddUser({
           placeholder="Enter phone number"
         />
       </div>
+      {/* Password Input Field */}
       <div className='textbox-row'>
         <p className='layout'>Password:</p>
         <input
@@ -181,6 +195,7 @@ export default function AddUser({
           placeholder="Enter password"
         />
       </div>
+      {/* Default View Selection */}
       <div className='textbox-row'>
         <p className='layout'>Default View:</p>
         <select
@@ -196,6 +211,7 @@ export default function AddUser({
           ))}
         </select>
       </div>
+      {/* Role Assignment Toggles and Permission Highlights */}
       <div className="toggle-container">
         <h3>Assign Roles:</h3>
         {roles.map(role => (
@@ -214,6 +230,7 @@ export default function AddUser({
         ))}
         <p className="subtext">*Please note that Advisor-Student relationships are assigned when editing current users.</p>
       </div>
+      {/* Permissions Highlight Section */}
       <div className="toggle-container">
         <h3>Selected Permissions:</h3>
         <ul>
