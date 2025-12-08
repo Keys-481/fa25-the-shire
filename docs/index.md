@@ -1,6 +1,10 @@
-# Fall 2025: Team Shire
+---
+---
 
-[View On GitHub](https://github.com/Keys-481/fa25-the-shire)
+<nav>
+  <a href="./index.md">Home</a> |
+  <a href="./features.md">Features</a>
+</nav>
 
 ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
@@ -14,10 +18,6 @@
 - Lauren Rausch
 
 ---
-<nav>
-  <a href="./index.md">Home</a> |
-  <a href="./features.md">Features</a>
-</nav>
 
 ## Project Abstract
 
