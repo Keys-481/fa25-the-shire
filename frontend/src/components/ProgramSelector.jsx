@@ -63,7 +63,6 @@ export default function ProgramSelector({ student, programs, selectedStudentProg
                         <p>Select a program to view the degree plan</p>
                     )}
                 </div>
-                    {/* Comments Section */}
                 <CommentsContainer
                     student={student}
                     studentSchoolId={student.id || student.school_student_id}
