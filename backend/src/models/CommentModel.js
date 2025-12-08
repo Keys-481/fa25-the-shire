@@ -16,7 +16,8 @@ const NotificationsModel = require('./NotificationsModel');
  */
 async function createComment(programId, studentId, authorId, commentText) {
     try {
-        const comment = commentText.trim();
+        const comment = commentText.trim(); // sanitize input
+        // Insert the new comment and return the inserted row with author names
         const result = await pool.query(
         `INSERT INTO degree_plan_comments (program_id, student_id, author_id, comment_text)
          VALUES ($1, $2, $3, $4) RETURNING *,
@@ -25,7 +26,7 @@ async function createComment(programId, studentId, authorId, commentText) {
         [programId, studentId, authorId, comment]
     );
 
-    const newComment = result.rows[0];
+    const newComment = result.rows[0]; // newly created comment
 
     // trigger notifications for relevant users
     await NotificationsModel.createNewCommentNotif({
@@ -51,6 +52,7 @@ async function createComment(programId, studentId, authorId, commentText) {
  */
 async function getCommentsByProgramAndStudent(programId, studentId) {
     try {
+        // Query to get comments along with author names
         const result = await pool.query(
             `SELECT c.*,
             u.first_name, u.last_name
@@ -74,6 +76,7 @@ async function getCommentsByProgramAndStudent(programId, studentId) {
  */
 async function deleteCommentById(commentId) {
     try {
+        // Query to delete the comment
         const result = await pool.query(
             `DELETE FROM degree_plan_comments WHERE comment_id = $1 RETURNING *`,
             [commentId]
@@ -93,7 +96,8 @@ async function deleteCommentById(commentId) {
  */
 async function updateComment(commentId, newText) {
     try {
-        const text = newText.trim();
+        const text = newText.trim(); // sanitize input
+        // Query to update the comment and return the updated row with author names
         const result = await pool.query(
             `WITH updated AS (
                 UPDATE degree_plan_comments
@@ -129,6 +133,7 @@ async function updateComment(commentId, newText) {
     }
 }
 
+// Export functions
 module.exports = {
     createComment,
     getCommentsByProgramAndStudent,

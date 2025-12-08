@@ -12,12 +12,14 @@ const pool = require('../db');
  */
 async function createNewCommentNotif(comment, event) {
     try {
+        // Determine notification title based on event type
         const notificationTitle = event === "comment_created"
             ? 'New Degree Plan Comment'
             : event === 'comment_updated'
             ? 'Updated Degree Plan Comment'
             : 'Degree Plan Comment';
 
+            // Fetch recipients: the student and all advisors of the student
         const recipientsResponse = await pool.query(
             `SELECT s.user_id AS recipient_id, s.student_id
             FROM students s
@@ -30,10 +32,12 @@ async function createNewCommentNotif(comment, event) {
             [comment.student_id]
         )
 
+        // Filter out the author from recipients
         const recipients = recipientsResponse.rows.filter(r => r.recipient_id !== comment.author_id);
 
         if (recipients.length === 0) return;
 
+        // Insert notifications for each recipient
         const insertNotifs = recipients.map(r =>
             pool.query(
                 `INSERT INTO comment_notifications
@@ -119,6 +123,7 @@ async function deleteNotification(notificationId) {
     }
 }
 
+//Export Functions
 module.exports = {
     createNewCommentNotif,
     markNotificationReadState,

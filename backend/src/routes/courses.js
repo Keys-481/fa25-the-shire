@@ -1,3 +1,8 @@
+/**
+ * file: backend/src/routes/courses.js
+ * Routes for handling course-related operations such as searching, creating,
+ * updating, and deleting courses, as well as retrieving enrollment data.
+ */
 const express = require('express')
 const router = express.Router()
 const CourseModel = require('../models/CourseModel')
@@ -41,6 +46,7 @@ router.get('/search', async (req, res) => {
   }
 
   try {
+    // Search for courses based on provided parameters
     const courses = await CourseModel.searchCourses({ name: q1, code: q2 });
 
     if (!courses || courses.length === 0) {
@@ -91,6 +97,7 @@ router.get('/search', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const newCourse = await createCourse(req.body);
+    // Return the newly created course object
     res.status(201).json({
       id: newCourse.course_id,
       name: newCourse.course_name,
@@ -218,6 +225,7 @@ router.get('/enrollments/all', async (req, res) => {
   try {
     const rows = await CourseModel.getAllEnrollments();
 
+    // Map database rows to desired response format
     const enrollments = rows.map(r => ({
       course_code: r.course_code,
       semester: r.semester,

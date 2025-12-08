@@ -17,6 +17,7 @@ router.post('/', async (req, res) => {
     const { programId, studentSchoolId, commentText } = req.body;
     const authorId = req.user.user_id;
 
+    // Validate required fields
     if (!programId || !studentSchoolId || !authorId || !commentText) {
         return res.status(400).json({ message: 'Missing required fields: programId, studentSchoolId, authorId, commentText' });
     }
@@ -33,12 +34,14 @@ router.post('/', async (req, res) => {
         }
         const student = studentArr[0];
 
+        // Check access permissions
         const userRoles = await AccessModel.getUserRoles(authorId);
         const isAdmin = userRoles.includes('admin');
         const isAdvisor = userRoles.includes('advisor');
         const isStudent = userRoles.includes('student');
         let hasAccess = false;
 
+        // Determine if the user has access to comment
         if (isAdmin) {
             hasAccess = true;
         } else if (isAdvisor) {
@@ -47,6 +50,7 @@ router.post('/', async (req, res) => {
             hasAccess = authorId === student.user_id;
         }
 
+        // If no access, return forbidden
         if (!hasAccess) {
             return res.status(403).json({ message: 'Forbidden: You do not have permission to comment on this degree plan' });
         }
@@ -70,6 +74,7 @@ router.get('/', async (req, res) => {
     const { programId, studentSchoolId } = req.query;
     const currentUserId = req.user.user_id;
 
+    // Validate required query parameters
     if (!programId || !studentSchoolId) {
         return res.status(400).json({ message: 'Missing required query parameters: programId, studentSchoolId' });
     }
@@ -83,12 +88,14 @@ router.get('/', async (req, res) => {
         }
         const student = studentArr[0];
 
+        // Check access permissions
         const userRoles = await AccessModel.getUserRoles(currentUserId);
         const isAdmin = userRoles.includes('admin');
         const isAdvisor = userRoles.includes('advisor');
         const isStudent = userRoles.includes('student');
         let hasAccess = false;
 
+        // Determine if the user has access to view comments
         if (isAdmin) {
             hasAccess = true;
         } else if (isAdvisor) {
@@ -97,6 +104,7 @@ router.get('/', async (req, res) => {
             hasAccess = currentUserId === student.user_id;
         }
 
+        // If no access, return forbidden
         if (!hasAccess) {
             return res.status(403).json({ message: 'Forbidden: You do not have permission to view comments for this degree plan' });
         }
@@ -116,6 +124,7 @@ router.get('/', async (req, res) => {
 router.delete('/:commentId', async (req, res) => {
     const { commentId } = req.params;
 
+    // Validate commentId parameter
     if (!commentId) {
             return res.status(400).json({ message: 'Missing commentId parameter' });
     }
@@ -141,10 +150,12 @@ router.put('/:commentId', async (req, res) => {
     const { commentId } = req.params;
     const { newText } = req.body;
 
+    // Validate required parameters
     if (!commentId || !newText) {
         return res.status(400).json({ message: 'Missing required parameters: commentId, newText' });
     }
 
+    // Validate that newText is not empty
     try {
         const updatedComment = await CommentModel.updateComment(commentId, newText);
         if (!updatedComment) {

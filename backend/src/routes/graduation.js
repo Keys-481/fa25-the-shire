@@ -1,5 +1,5 @@
 /**
- * file: graduation.js
+ * file: backend/src/routes/graduation.js
  * Routes for managing graduation applications
  */
 const express = require('express');
@@ -16,10 +16,11 @@ const { requireUser } = require('../utils/authorize');
  */
 router.get('/', requireUser, async (req, res) => {
     try {
-        const q = req.query.status;
+        const q = req.query.status; // comma-separated statuses
         const defaultStatuses = ['Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected']; // include 'Not Applied' by default
         const allowed = new Set(['Not Applied', 'Applied', 'Under Review', 'Approved', 'Rejected']); // allowed statuses
 
+        // parse statuses from query
         const statuses = q
             ? q.split(',').map(s => s.trim()).filter(Boolean)
             : defaultStatuses;

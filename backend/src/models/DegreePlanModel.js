@@ -236,6 +236,7 @@ async function createDefaultPlan(studentId, programId, defaultStatus = 'Unplanne
     }
 }
 
+//Export functions
 module.exports = {
     getDegreePlanByStudentId,
     getDegreePlanByRequirements,

@@ -38,9 +38,12 @@ describe('StudentModel', () => {
     test('getStudentBySchoolId returns a student if exists', async () => {
         const schoolId = '112299690'; // should match your seed data
         const studentResponse = await StudentModel.getStudentBySchoolId(schoolId);
+
         expect(Array.isArray(studentResponse)).toBe(true);
         expect(studentResponse.length).toBe(1);
+
         const student = studentResponse[0];
+
         expect(student).toBeDefined();
         expect(student.school_student_id).toBe(schoolId);
         expect(student.first_name).toBe('Alice'); // should match seed data
@@ -50,6 +53,7 @@ describe('StudentModel', () => {
     // Test for getting student with invalid school ID
     test('getStudentBySchoolId returns undefined for non-existent student', async () => {
         const studentResponse = await StudentModel.getStudentBySchoolId('invalid_id');
+
         expect(Array.isArray(studentResponse)).toBe(true);
         expect(studentResponse.length).toBe(0);
     });
@@ -59,6 +63,7 @@ describe('StudentModel', () => {
     test('getProgramsByStudentId returns programs for a valid student', async () => {
         const studentId = 1; // should match your seed data
         const programs = await StudentModel.getProgramsByStudentId(studentId);
+
         expect(programs).toBeDefined();
         expect(programs.length).toBeGreaterThan(0);
         expect(programs[0]).toHaveProperty('program_id');
@@ -67,6 +72,7 @@ describe('StudentModel', () => {
 
         // Check that the student is enrolled in expected programs (based on seed data)
         const programIds = programs.map(p => p.program_id);
+
         expect(programIds).toContain(1); // should match seed data
         expect(programIds).toContain(2); // should match seed data
     });
@@ -76,6 +82,7 @@ describe('StudentModel', () => {
         const schoolId = '112299690'; // should match your seed data
         const name = 'Alice'; // should match your seed data
         const students = await StudentModel.getStudentBySchoolIdAndName(schoolId, name);
+
         expect(students).toBeDefined();
         expect(students.length).toBeGreaterThan(0);
         expect(students[0].school_student_id).toBe(schoolId);
@@ -86,6 +93,7 @@ describe('StudentModel', () => {
     // Test for getting a student by school ID and name that does not exist
     test('getStudentBySchoolIdAndName returns empty array for non-existent student', async () => {
         const students = await StudentModel.getStudentBySchoolIdAndName('invalid_id', 'NonExistent');
+
         expect(students).toBeDefined();
         expect(students.length).toBe(0);
     });
@@ -93,6 +101,7 @@ describe('StudentModel', () => {
     // Test for getting a student by valid school ID and name that does not exist
     test('getStudentBySchoolIdAndName returns empty array for non-existent student', async () => {
         const students = await StudentModel.getStudentBySchoolIdAndName('112299690', 'NonExistent');
+
         expect(students).toBeDefined();
         expect(students.length).toBe(0);
     });
@@ -100,6 +109,7 @@ describe('StudentModel', () => {
     // Test for getting a student by invalid school ID and valid name
     test('getStudentBySchoolIdAndName returns empty array for non-existent student', async () => {
         const students = await StudentModel.getStudentBySchoolIdAndName('invalid_id', 'Alice');
+
         expect(students).toBeDefined();
         expect(students.length).toBe(0);
     });
@@ -108,6 +118,7 @@ describe('StudentModel', () => {
     test('getStudentsByName returns students matching partial name', async () => {
         const name = 'Alice'; // should match your seed data
         const students = await StudentModel.getStudentByName(name);
+
         expect(students).toBeDefined();
         expect(students.length).toBeGreaterThan(0);
         expect(students[0]).toHaveProperty('school_student_id');
@@ -129,6 +140,7 @@ test('getStudentBySchoolId throws error when query fails', async () => {
     const mockError = new Error('DB failure');
     jest.spyOn(pool, 'query').mockRejectedValueOnce(mockError);
 
+    // Attempt to get student by school ID, expecting a database error
     await expect(StudentModel.getStudentBySchoolId('112299690'))
         .rejects.toThrow('DB failure');
 
@@ -210,6 +222,7 @@ test('getProgramsBySchoolStudentId returns programs for valid school_student_id'
     const schoolId = '112299690'; // matches seed data
     const programs = await StudentModel.getProgramsBySchoolStudentId(schoolId);
 
+    // Verify that the result is an array with program objects
     expect(Array.isArray(programs)).toBe(true);
     expect(programs.length).toBeGreaterThan(0);
     expect(programs[0]).toHaveProperty('program_id');
@@ -239,6 +252,7 @@ test('addStudentToProgram adds student to program and returns true', async () =>
     const initialProgramIds = initialPrograms.map(p => p.program_id);
     expect(initialProgramIds).not.toContain(programId);
 
+    // Now add the student to the program
     const result = await StudentModel.addStudentToProgram(studentId, programId);
     expect(result).toBe(true);
 
@@ -260,6 +274,8 @@ test('addStudentToProgram returns false when student already in program', async 
     // Ensure the student is already in the program
     const initialPrograms = await StudentModel.getProgramsByStudentId(studentId);
     const initialProgramIds = initialPrograms.map(p => p.program_id);
+
+    // Verify that the student is already in the program
     expect(initialProgramIds).toContain(programId);
 
     const result = await StudentModel.addStudentToProgram(studentId, programId);
@@ -280,6 +296,7 @@ test('removeStudentFromProgram removes student from program and returns true', a
     // Verify that the student is in the program
     const initialPrograms = await StudentModel.getProgramsByStudentId(studentId);
     const initialProgramIds = initialPrograms.map(p => p.program_id);
+
     expect(initialProgramIds).toContain(programId);
 
     const result = await StudentModel.removeStudentFromProgram(studentId, programId);
@@ -288,5 +305,6 @@ test('removeStudentFromProgram removes student from program and returns true', a
     // Verify that the student is no longer associated with the program
     const programs = await StudentModel.getProgramsByStudentId(studentId);
     const programIds = programs.map(p => p.program_id);
+    // Verify that the student is no longer in the program
     expect(programIds).not.toContain(programId);
 });

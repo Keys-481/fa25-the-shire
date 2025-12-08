@@ -1,3 +1,7 @@
+/**
+ * file: backend/tests/routes/users.test.js
+ * Integration tests for user routes using Jest and Supertest
+ */
 const request = require('supertest');
 const express = require('express');
 const usersRouter = require('../../src/routes/users');

@@ -1,3 +1,7 @@
+/**
+ * file: backend/tests/models/UserModel.test.js
+ * Unit tests for UserModel using Jest
+ */
 const UserModel = require('../../src/models/UserModel');
 const pool = require('../../src/db');
 
@@ -61,6 +65,7 @@ describe('UserModel Functions', () => {
     const email = `getuser${timestamp}@example.com`;
     const phone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Create user to fetch
     const { userId } = await UserModel.addUser(
       'Get User',
       email,
@@ -70,7 +75,7 @@ describe('UserModel Functions', () => {
       ['Advisor']
     );
 
-    const user = await UserModel.getUserById(userId);
+    const user = await UserModel.getUserById(userId); // Fetch the user
     expect(user).toHaveProperty('name');
     expect(user).toHaveProperty('email');
     expect(user.default_view.toLowerCase()).toBe('advisor');
@@ -87,6 +92,7 @@ describe('UserModel Functions', () => {
     const email = `updateuser${timestamp}@example.com`;
     const phone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Create user to update
     const { userId } = await UserModel.addUser(
       'Update User',
       email,
@@ -96,6 +102,7 @@ describe('UserModel Functions', () => {
       ['Student']
     );
 
+    // Update user details
     const newPhone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
     await UserModel.updateUserDetails(
       userId,
@@ -106,6 +113,7 @@ describe('UserModel Functions', () => {
       'Student'
     );
 
+    // Verify updates
     const updated = await UserModel.getUserById(userId);
     expect(updated.name).toBe('Updated Name');
     expect(updated.email).toBe(`updated${timestamp}@example.com`);
@@ -151,6 +159,7 @@ describe('UserModel Functions', () => {
     const email = `roleuser${timestamp}@example.com`;
     const phone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Create user to update roles
     const { userId } = await UserModel.addUser(
       'Role User',
       email,
@@ -160,6 +169,7 @@ describe('UserModel Functions', () => {
       ['Student']
     );
 
+    // Update roles to Advisor
     await UserModel.updateUserRoles(userId, ['Advisor']);
     const roles = await UserModel.getUserRoles(userId);
     const normalizedRoles = roles.map(r => r.toLowerCase());
@@ -177,6 +187,7 @@ describe('UserModel Functions', () => {
     const email = `publicid${timestamp}@example.com`;
     const phone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Create user to get public ID
     const { userId } = await UserModel.addUser(
       'Public ID User',
       email,
@@ -194,6 +205,7 @@ describe('UserModel Functions', () => {
     const publicId = result.rows[0]?.public_id;
     expect(publicId).toBeDefined();
 
+    // Resolve user by public ID
     const resolved = await UserModel.getUserByPublicId(publicId);
     expect(resolved.user_id).toBe(userId);
 
@@ -209,6 +221,7 @@ describe('UserModel Functions', () => {
     const email = `advising${timestamp}@example.com`;
     const phone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Create user to check advising relations
     const { userId } = await UserModel.addUser(
       'Advising User',
       email,
@@ -218,6 +231,7 @@ describe('UserModel Functions', () => {
       ['Student']
     );
 
+    // Fetch advising relations
     const relations = await UserModel.getAdvisingRelations(userId);
     expect(relations).toHaveProperty('students');
     expect(relations).toHaveProperty('advisors');
@@ -236,6 +250,7 @@ describe('UserModel Functions', () => {
     const advisorPhone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
     const studentPhone = `555-${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 9000 + 1000)}`;
 
+    // Create advisor and student users
     const advisor = await UserModel.addUser(
       'Advisor User',
       advisorEmail,
@@ -245,6 +260,7 @@ describe('UserModel Functions', () => {
       ['Advisor']
     );
 
+    // Create student user
     const student = await UserModel.addUser(
       'Student User',
       studentEmail,
@@ -254,6 +270,7 @@ describe('UserModel Functions', () => {
       ['Student']
     );
 
+    // Establish advising relation
     await UserModel.updateUserRoles(advisor.userId, ['Advisor']); // Ensure advisor role is set
     await UserModel.updateAdvisingRelations(advisor.userId, [], [student.userId]);
 
@@ -277,6 +294,7 @@ describe('UserModel Functions', () => {
 test('searchUsers finds users by name and role', async () => {
   const timestamp = Date.now();
   const email = `search${timestamp}@example.com`;
+  // Create user to search for
   const { userId } = await UserModel.addUser(
     'Search User',
     email,
@@ -286,15 +304,19 @@ test('searchUsers finds users by name and role', async () => {
     ['Student']
   );
 
+  // Search by name
   const byName = await UserModel.searchUsers('Search', null);
   expect(byName.some(u => u.id === userId)).toBe(true);
 
+  // Search by role
   const byRole = await UserModel.searchUsers(null, 'Student');
   expect(byRole.some(u => u.id === userId)).toBe(true);
 
+  // Search by both name and role
   const both = await UserModel.searchUsers('Search', 'Student');
   expect(both.some(u => u.id === userId)).toBe(true);
 
+  // Search with no matches
   const none = await UserModel.searchUsers('Nonexistent', null);
   expect(none).toEqual([]);
 
@@ -309,6 +331,7 @@ test('searchUsers finds users by name and role', async () => {
 test('getUserRoles capitalizes role names', async () => {
   const timestamp = Date.now();
   const email = `roles${timestamp}@example.com`;
+  // Create user with lowercase role
   const { userId } = await UserModel.addUser(
     'Role Test',
     email,
@@ -318,6 +341,7 @@ test('getUserRoles capitalizes role names', async () => {
     ['student'] // lowercase
   );
 
+  // Fetch roles and verify capitalization
   const roles = await UserModel.getUserRoles(userId);
   expect(roles[0][0]).toBe(roles[0][0].toUpperCase());
 
@@ -332,6 +356,7 @@ test('getUserRoles capitalizes role names', async () => {
 test('updateUserRoles inserts into students and advisors tables', async () => {
   const timestamp = Date.now();
   const email = `update${timestamp}@example.com`;
+  // Create user with initial Student role
   const { userId } = await UserModel.addUser(
     'Update Roles',
     email,
@@ -341,6 +366,7 @@ test('updateUserRoles inserts into students and advisors tables', async () => {
     ['Student']
   );
 
+  //  Update roles to include Advisor
   await UserModel.updateUserRoles(userId, ['Student', 'Advisor']);
   const roles = await UserModel.getUserRoles(userId);
   expect(roles.map(r => r.toLowerCase())).toEqual(expect.arrayContaining(['student', 'advisor']));
@@ -379,6 +405,7 @@ test('updateUserDetails throws error for invalid default view role', async () =>
     ['Student']
   );
 
+  // Attempt to update with invalid role
   await expect(UserModel.updateUserDetails(
     userId,
     'Detail User',
@@ -403,16 +430,20 @@ test('getAdvisingRelations returns students for advisor and advisors for student
   const advisorEmail = `advA${timestamp}@example.com`;
   const studentEmail = `stuA${timestamp}@example.com`;
 
+  // Create advisor and student users
   const advisor = await UserModel.addUser('Advisor', advisorEmail, '111-242-2222', 'pass', 'Advisor', ['Advisor']);
   const student = await UserModel.addUser('Student', studentEmail, '111-343-3333', 'pass', 'Student', ['Student']);
 
+  // Ensure roles are set
   await UserModel.updateUserRoles(advisor.userId, ['Advisor']);
   await UserModel.updateUserRoles(student.userId, ['Student']);
 
+  // Establish advising relation
   await UserModel.updateAdvisingRelations(advisor.userId, [], [student.userId]);
   const advisorRelations = await UserModel.getAdvisingRelations(advisor.userId);
   expect(advisorRelations.students.some(s => s.user_id === student.userId)).toBe(true);
 
+  // Establish reverse relation
   await UserModel.updateAdvisingRelations(student.userId, [advisor.userId], []);
   const studentRelations = await UserModel.getAdvisingRelations(student.userId);
   expect(studentRelations.advisors.some(a => a.user_id === advisor.userId)).toBe(true);
@@ -431,15 +462,19 @@ test('updateAdvisingRelations resolves student by publicId and inserts if missin
   const advisorEmail = `advB${timestamp}@example.com`;
   const studentEmail = `stuB${timestamp}@example.com`;
 
+  // Create advisor and student users
   const advisor = await UserModel.addUser('Advisor2', advisorEmail, '111-424-4444', 'pass', 'Advisor', ['Advisor']);
   const student = await UserModel.addUser('Student2', studentEmail, '111-525-5555', 'pass', 'Student', ['Student']);
 
+  // Ensure roles are set
   await UserModel.updateUserRoles(advisor.userId, ['Advisor']);
   await UserModel.updateUserRoles(student.userId, ['Student']);
 
+  // Get student's publicId
   const res = await pool.query(`SELECT public_id FROM users WHERE user_id = $1`, [student.userId]);
   const publicId = res.rows[0].public_id;
 
+  // Establish advising relation using publicId
   await UserModel.updateAdvisingRelations(advisor.userId, [], [publicId]);
   const relations = await UserModel.getAdvisingRelations(advisor.userId);
   expect(relations.students.some(s => s.user_id === student.userId)).toBe(true);

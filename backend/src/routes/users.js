@@ -1,3 +1,7 @@
+/**
+ * file: backend/src/routes/users.js
+ * Routes for managing user profiles and roles.
+ */
 const express = require('express');
 const router = express.Router();
 const AccessModel = require('../models/AccessModel');
@@ -8,10 +12,6 @@ const UserModel = require('../models/UserModel');
  * Retrieves the currently authenticated user's profile.
  *
  * @returns {Object} User object with ID, name, email, phone, roles, and default view.
- */
-/**
- * GET /me
- * Retrieves the currently authenticated user's profile.
  */
 router.get('/me', async (req, res) => {
     const userId = req.user?.user_id;
@@ -25,6 +25,7 @@ router.get('/me', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        // Fetch user roles and preferences
         const roles = await AccessModel.getUserRoles(userId);
         const preferences = await UserModel.getUserPreferences(userId);
 
@@ -59,6 +60,7 @@ router.get('/search', async (req, res) => {
     try {
         const users = await UserModel.searchUsers(nameQuery, roleQuery);
 
+        // Format users with capitalized roles
         const formatted = users.map(user => {
             const roles = Array.isArray(user.roles) && user.roles.length > 0
                 ? user.roles.map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ')

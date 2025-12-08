@@ -1,5 +1,5 @@
 /**
- * file: GraduationModel.js
+ * file: backend/src/models/GraduationModel.js
  * Handles queries for graduation_applications and joins to student/user/program info.
  */
 const pool = require('../../src/db');
@@ -85,7 +85,7 @@ async function updateApplicationStatus(applicationId, newStatus) {
     return res.rows[0];
 }
 
-// Export functions
+//Export Functions
 module.exports = {
     getApplications,
     getApplicationById,
