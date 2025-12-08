@@ -8,6 +8,7 @@ export default function ReqRow({ req, level, program }) {
     const requiredReqCredits = req.required_credits || 0;
     const rowStyle = { "--level": level };
 
+    // Render the requirement row with description and credits
     return (
         <tr
             key={`req=${req.requirement_id}`}
@@ -19,6 +20,7 @@ export default function ReqRow({ req, level, program }) {
                 className="requirement-header-cell"
             >
                 <div className="requirement-header-content">
+                    {/* Requirement Description and Credits */}
                     <strong>{req.req_description}</strong>
                     {requiredReqCredits > 0 && (
                         <span style={{ marginLeft: '20px' }}>

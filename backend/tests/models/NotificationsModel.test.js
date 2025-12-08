@@ -30,6 +30,7 @@ describe('NotificationsModel', () => {
         newComment = await CommentModel.createComment(1, 1, 2, 'Test comment for notifications');
     });
 
+    // Test for creating new comment notification
     test('createNewCommentNotif inserts notifications for relevant users', async () => {
         await NotificationsModel.createNewCommentNotif({
             author_id: newComment.author_id,
@@ -46,6 +47,7 @@ describe('NotificationsModel', () => {
             [newComment.comment_id]
         );
 
+        //
         expect(result.rows.length).toBeGreaterThan(0);
         result.rows.forEach(notif => {
             expect(notif.comment_id).toBe(newComment.comment_id);
@@ -62,6 +64,8 @@ describe('NotificationsModel', () => {
     test('getNotificationsForUser returns all notifications for a user', async () => {
         const userId = 4; // user 4: Alice Johnson (student)
         const notifications = await NotificationsModel.getNotificationsForUser(userId);
+
+        // Verify notifications belong to the user
         expect(Array.isArray(notifications)).toBe(true);
         notifications.forEach(notif => {
             expect(notif.recipient_id).toBe(userId);
@@ -76,6 +80,7 @@ describe('NotificationsModel', () => {
         const result = await pool.query(
             `SELECT notification_id FROM comment_notifications WHERE is_read = false LIMIT 1`
         );
+        // Ensure we have at least one notification to test
         const notificationId = result.rows[0].notification_id;
 
         await NotificationsModel.markNotificationReadState(notificationId, true);
@@ -95,6 +100,7 @@ describe('NotificationsModel', () => {
         expect(reverted.rows[0].is_read).toBe(false);
     });
 
+    // Test for deleting a notification
     test('deleteNotification removes the notification', async () => {
         // Create a notification to delete
         const createResult = await pool.query(
@@ -126,6 +132,7 @@ test('createNewCommentNotif throws error when query fails', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => { }); // silence logs
     jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
 
+    // Try to create a notification
     await expect(
         NotificationsModel.createNewCommentNotif({
             author_id: 1,
@@ -148,6 +155,7 @@ test('markNotificationReadState throws error when query fails', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => { });
     jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
 
+    // Try to mark a notification read state
     await expect(
         NotificationsModel.markNotificationReadState(1, true)
     ).rejects.toThrow('DB failure');
@@ -164,6 +172,7 @@ test('getNotificationsForUser throws error when query fails', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => { });
     jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
 
+    // Try to get notifications for a user
     await expect(
         NotificationsModel.getNotificationsForUser(1)
     ).rejects.toThrow('DB failure');
@@ -180,6 +189,7 @@ test('deleteNotification throws error when query fails', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => { });
     jest.spyOn(pool, 'query').mockRejectedValueOnce(new Error('DB failure'));
 
+    // Try to delete a notification
     await expect(
         NotificationsModel.deleteNotification(1)
     ).rejects.toThrow('DB failure');
@@ -208,8 +218,10 @@ describe('NotificationsModel', () => {
             student_id: newComment.student_id,
         };
 
+        // Create notification for comment updated event
         await NotificationsModel.createNewCommentNotif(comment, "comment_updated");
 
+        // Verify notification with updated title exists
         const result = await pool.query(
             `SELECT * FROM comment_notifications WHERE comment_id = $1 AND title = 'Updated Degree Plan Comment'`,
             [comment.comment_id]
@@ -231,8 +243,10 @@ describe('NotificationsModel', () => {
             student_id: newComment.student_id,
         };
 
+        // Create notification for unknown event
         await NotificationsModel.createNewCommentNotif(comment, "random_event");
 
+        // Verify notification with default title exists
         const result = await pool.query(
             `SELECT * FROM comment_notifications WHERE comment_id = $1 AND title = 'Degree Plan Comment'`,
             [comment.comment_id]
@@ -260,6 +274,7 @@ describe('NotificationsModel', () => {
             rows: [{ recipient_id: 1, student_id: 1 }]
         });
 
+        // Attempt to create notification
         await NotificationsModel.createNewCommentNotif(comment, "comment_created");
 
         // Verify no insert was attempted

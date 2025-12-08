@@ -38,10 +38,12 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         }
     }, [editingCourse, localCourses]);
 
+    // Return early if no courses
     if (!courses || courses.length === 0) {
         return <p>No courses found</p>;
     }
 
+    // Return early if no program
     if (!program?.program_type) {
         return <p>No program selected</p>;
     }
@@ -83,11 +85,13 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             chosenSemesterId = semesterId ? Number(semesterId) : course.semester_id || null;
         }
 
+        // Validate semester selection
         if (["Completed", "In Progress", "Planned"].includes(newStatus) && !chosenSemesterId) {
             alert(`Please select a semester for "${newStatus}" courses.`);
             return;
         }
 
+        // Make API call to update course status
         try {
             const updated = await api.patch(`/students/${encodeURIComponent(schoolId)}/degree-plan/course`, {
                 courseId: course.course_id,
@@ -96,6 +100,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                 programId: program.program_id
             });
 
+            // Log the updated course for debugging
             console.log("Course status updated:", updated);
             setEditingCourse(null);
 
@@ -125,18 +130,22 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         }
     }
 
+    // Calculate completed credits for each requirement
     hierarchy.forEach(req => calculateCompletedCredits(req));
 
+    // Recursive function to render requirements and their courses
     function renderRequirement(req, level = 0) {
 
+        // Requirement header row
         const completedReqCredits = req.completedCredits || 0;
         const requiredReqCredits = req.required_credits || 0;
         
         const rows = [];
         const rowStyle = { '--level': level };
 
+        // Requirement header
         rows.push(
-            <tr key={`req=${req.requirement_id}`} className={`req-row req-level-${level}`} style={rowStyle}>
+            <tr key={`req=${req.requirement_id}`} className={`req-row req-level-${level}`} style={rowStyle}> 
                 <td colSpan={program.program_type !== 'certificate' ? 9 : 8} className="requirement-header-cell">
                     <div className="requirement-header-content">
                         <strong>{req.req_description}</strong>
@@ -148,6 +157,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             </tr>
         );
 
+        // Render courses under this requirement
         if (req.courses?.length > 0) {
             req.courses
             .filter(course => course?.course_id)
@@ -165,6 +175,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
                     />
                 );
 
+                // If this course is being edited, render the CourseEditRow
                 if (editingCourse === course.course_id) {
                     rows.push(
                         <CourseEditRow
@@ -184,6 +195,7 @@ export default function RequirementsView( { courses, program, semesters=[], stud
             });
         }
 
+        // Recursively render child requirements
         if (req.children?.length > 0) {
             req.children.forEach(child => {
                 rows.push(...renderRequirement(child, level + 1));
@@ -193,8 +205,10 @@ export default function RequirementsView( { courses, program, semesters=[], stud
         return rows;
     }
 
+    // Main render
     return (
         <div className="requirements-view-container">
+            {/* Certificate Alert */}
             <div className="requirements-view">
                 <CertificateAlert program={program} courses={localCourses} />
                 <table className="requirements-table">

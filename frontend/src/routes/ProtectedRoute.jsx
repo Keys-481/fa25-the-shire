@@ -1,3 +1,7 @@
+/**
+ * file: frontend/src/routes/ProtectedRoute.jsx
+ * description: Protects API routes from being accessed by unauthorized users
+ */
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider.jsx';
 

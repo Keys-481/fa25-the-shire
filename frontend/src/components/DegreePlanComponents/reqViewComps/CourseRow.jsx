@@ -5,6 +5,7 @@
 
 import { PencilLine } from "lucide-react";
 
+// Component to display a single course row within the requirements view of the degree plan.
 export default function CourseRow({
     course,
     program,
@@ -16,6 +17,7 @@ export default function CourseRow({
 }) {
     const statusClass = (course.course_status || "unplanned").toLowerCase().replace(/\s/g, "-");
 
+    // Render the course row with relevant details and edit button if applicable
     return (
         <tr
             key={`${requirementId}-${course.course_id}`}

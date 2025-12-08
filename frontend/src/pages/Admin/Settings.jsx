@@ -1,3 +1,8 @@
+/**
+ * file:frontend/src/pages/Admin/Settings.jsx
+ * description: Settings page for admin users, allowing them to view and update profile information,
+ * change their password, switch between different role-based views, and view assigned advisor information.
+ */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
@@ -13,6 +18,7 @@ import { useAuth } from '../../auth/AuthProvider';
  * @returns {JSX.Element} A React component rendering the admin settings interface.
  */
 export default function AdminSettings() {
+  // State variables
   const navigate = useNavigate();
   const { user, setRole } = useAuth();
   const [viewType, setViewType] = useState('settings'); // Default to 'settings'
@@ -73,6 +79,7 @@ export default function AdminSettings() {
 
   if (!userInfo) return <p>Loading user info...</p>;
 
+  // Render component
   return (
     <div>
       <AdminNavBar />

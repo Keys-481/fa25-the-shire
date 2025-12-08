@@ -13,6 +13,7 @@ const pool = require('../db');
  */
 async function getUserRoles(userId) {
     try {
+        // Query to get roles associated with the user
         const result = await pool.query(
             `SELECT r.role_name FROM roles r
             JOIN user_roles ur ON r.role_id = ur.role_id
@@ -34,6 +35,7 @@ async function getUserRoles(userId) {
  */
 async function isAdvisorOfStudent(userId, studentId) {
     try {
+        // Query to check if the advisor is assigned to the student
         const result = await pool.query(
             `SELECT 1 FROM advising_relations ar
             JOIN advisors a ON ar.advisor_id = a.advisor_id
@@ -47,10 +49,8 @@ async function isAdvisorOfStudent(userId, studentId) {
     }
 }
 
+// Export functions
 module.exports = {
     getUserRoles,
     isAdvisorOfStudent
 };
-
-
-

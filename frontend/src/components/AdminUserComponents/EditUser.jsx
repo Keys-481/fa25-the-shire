@@ -1,6 +1,11 @@
+/**
+ * file: frontend/src/components/AdminUserComponents/EditUser.jsx
+ * description: Component for editing user details in the admin panel.
+ */
 import { useEffect, useState } from 'react';
 import { useApiClient } from '../../lib/apiClient';
 
+// EditUser component allows admin to edit user details, roles, permissions, and assignments.
 export default function EditUser({
   roles,
   roleToggles,
@@ -31,6 +36,7 @@ export default function EditUser({
   studentPrograms,
   programsList,
 }) {
+  // Normalize default view for comparison
   const normalizedDefaultView = defaultView?.toLowerCase() || '';
   const [newStudentId, setNewStudentId] = useState('');
   const [newProgramId, setNewProgramId] = useState('');
@@ -92,6 +98,7 @@ export default function EditUser({
    * @param {*} newProgramId - The ID of the program to add.
    */
   const handleAddProgram  = (programId) => {
+    // Find the program in the available programs list
     const program = programsList.find(p => p.program_id === Number(programId));
     if (program) {
       const alreadyAdded = currentPrograms.some(p => p.program_id === program.program_id);
@@ -129,6 +136,7 @@ export default function EditUser({
       editEmail.endsWith('@u.boisestate.edu') ||
       editEmail.endsWith('@boisestate.edu');
 
+      // If email is not valid, show an alert and stop the save process
     if (!emailValid) {
       alert('Email is not valid. Valid emails must end in @u.boisestate.edu or @boisestate.edu');
       return;
@@ -140,9 +148,11 @@ export default function EditUser({
       return;
     }
 
+    // Determine programs to add and remove
     const originalPrograms = studentPrograms;
     const updatedPrograms = currentPrograms;
 
+    // Programs to add
     const programsToAdd = updatedPrograms.filter(
       p => !originalPrograms.some(op => op.program_id === p.program_id)
     );
@@ -181,8 +191,10 @@ export default function EditUser({
     }
   }, [defaultView]);
 
+  // Render the EditUser component UI
   return (
     <div className='section-results-side'>
+      {/* Header with action buttons */}
       <div className='h2-row'>
         <h2>Edit User</h2>
         <div className="button-row">
@@ -197,18 +209,22 @@ export default function EditUser({
         <p className='layout'>Name:</p>
         <input type="text" value={editName} className='textbox' onChange={e => setEditName(e.target.value)} placeholder="Full name" />
       </div>
+      {/* Email */}
       <div className='textbox-row'>
         <p className='layout'>Email:</p>
         <input type="email" value={editEmail} className='textbox' onChange={e => setEditEmail(e.target.value)} placeholder="Email" />
       </div>
+      {/* Phone */}
       <div className='textbox-row'>
         <p className='layout'>Phone:</p>
         <input type="tel" value={editPhone} className='textbox' onChange={e => setEditPhone(e.target.value)} placeholder="Phone" />
       </div>
+      {/* Password */}
       <div className='textbox-row'>
         <p className='layout'>Password:</p>
         <input type="password" value={editPassword} className='textbox' onChange={e => setEditPassword(e.target.value)} placeholder="New password (optional)" />
       </div>
+      {/* Default View */}
       <div className='textbox-row'>
         <p className='layout'>Default View:</p>
         <select value={defaultView} className='textbox' onChange={e => setdefaultView(e.target.value)}>
@@ -291,6 +307,7 @@ export default function EditUser({
 
           <h3>Assigned Advisors:</h3>
           <ul>
+            {/* Show all advisors assigned to the student, and allow removing advisors */}
             {assignedAdvisors.map(advisor => (
               <li key={advisor.user_id}>
                 {advisor.name}
@@ -302,6 +319,7 @@ export default function EditUser({
               </li>
             ))}
           </ul>
+          {/* Input to add a new advisor by ID */}
           <div style={{ display: 'flex', gap: '10px' }}>
             <input
               type="text"

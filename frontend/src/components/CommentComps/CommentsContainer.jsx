@@ -57,11 +57,14 @@ export default function CommentsContainer({ studentSchoolId, programId, userIsSt
         )
     }
 
+    // Render loading or error states
     if (loading) return <p>Loading comments...</p>;
     if (error) return <p className="error-message">Error: {error}</p>;
 
+    // Render comments list and comment form
     return (
         <div className={`comments-container ${className}`}>
+            {/* Comments Header */}
             <h4>Comments</h4>
             <div className="comment-form-wrapper">
                 <CommentForm
@@ -70,6 +73,7 @@ export default function CommentsContainer({ studentSchoolId, programId, userIsSt
                     onCommentPosted={handleCommentAdded}
                 />
             </div>
+            {/* Comments List */}
             <ul className="comments-list">
                 {comments.length === 0 ? (
                     <li className="no-comments">No comments yet.</li>

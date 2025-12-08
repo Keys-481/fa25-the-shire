@@ -29,6 +29,7 @@ describe('CourseModel', () => {
   test('getPrerequisitesForCourse returns prerequisites if exists', async () => {
     const courseId = 7; // should match your seed data
     const prerequisites = await CourseModel.getPrerequisitesForCourse(courseId);
+
     expect(prerequisites).toBeDefined();
     expect(Array.isArray(prerequisites)).toBe(true);
     expect(prerequisites.length).toBeGreaterThan(0);
@@ -39,6 +40,7 @@ describe('CourseModel', () => {
   test('getPrerequisitesForCourse returns empty array if no prerequisites', async () => {
     const courseId = 1; // assuming course_id 1 has no prerequisites in seed data
     const prerequisites = await CourseModel.getPrerequisitesForCourse(courseId);
+
     expect(prerequisites).toBeDefined();
     expect(Array.isArray(prerequisites)).toBe(true);
     expect(prerequisites.length).toBe(0);
@@ -47,6 +49,7 @@ describe('CourseModel', () => {
   // Test for getting prerequisites for an invalid course ID
   test('getPrerequisitesForCourse returns empty array for non-existent course', async () => {
     const prerequisites = await CourseModel.getPrerequisitesForCourse(9999); // assuming 9999 does not exist
+
     expect(prerequisites).toBeDefined();
     expect(Array.isArray(prerequisites)).toBe(true);
     expect(prerequisites.length).toBe(0);
@@ -56,6 +59,7 @@ describe('CourseModel', () => {
   test('getCourseOfferings returns offerings if exists', async () => {
     const courseId = 1;
     const offerings = await CourseModel.getCourseOfferings(courseId);
+
     expect(offerings).toBeDefined();
     // model should return a string of semester types (e.g. "F, SP")
     expect(typeof offerings).toBe('string');
@@ -66,6 +70,7 @@ describe('CourseModel', () => {
   test('getCertificateOverlaps returns certificates if exists', async () => {
     const courseId = 1; // course_id 1 = OPWL-536 in seed data
     const certificates = await CourseModel.getCertificateOverlaps(courseId);
+
     expect(certificates).toBeDefined();
     expect(Array.isArray(certificates)).toBe(true);
     expect(certificates.length).toBeGreaterThan(0);
@@ -75,6 +80,7 @@ describe('CourseModel', () => {
   // Partial or full course code queries return expected matches
   test('searchCourses returns correct course by code', async () => {
     const results = await CourseModel.searchCourses({ code: 'OPWL-536' });
+
     expect(results).toBeDefined();
     expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBeGreaterThan(0);
@@ -84,6 +90,7 @@ describe('CourseModel', () => {
   // Partial name matches work as expected
   test('searchCourses returns correct course by name', async () => {
     const results = await CourseModel.searchCourses({ name: 'Portfolio' });
+
     expect(results).toBeDefined();
     expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBeGreaterThan(0);
@@ -93,6 +100,7 @@ describe('CourseModel', () => {
   // Irrelevant queries return no results
   test('searchCourses returns empty array for unknown course', async () => {
     const results = await CourseModel.searchCourses({ name: 'Nonexistent Course' });
+
     expect(results).toBeDefined();
     expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBe(0);
@@ -101,6 +109,7 @@ describe('CourseModel', () => {
   // Verifies that combined filtering works as expcected
   test('searchCourses returns correct course by name and code', async () => {
     const results = await CourseModel.searchCourses({ name: 'Organizational', code: 'OPWL-536' });
+
     expect(results).toBeDefined();
     expect(Array.isArray(results)).toBe(true);
     expect(results.length).toBeGreaterThan(0);
@@ -305,6 +314,7 @@ test('getCourseOfferings throws error when query fails', async () => {
 test('getSemesterOptionsForCourse returns semester options for a valid course', async () => {
   const courseId = 1; // OPWL-536 in seed data
   const semesters = await CourseModel.getSemesterOptionsForCourse(courseId);
+  
   expect(Array.isArray(semesters)).toBe(true);
   expect(semesters.length).toBeGreaterThan(0);
   expect(semesters[0]).toHaveProperty('semester_name');

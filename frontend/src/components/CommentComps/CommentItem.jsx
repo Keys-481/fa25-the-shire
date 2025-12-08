@@ -16,13 +16,16 @@ import { useApiClient } from '../../lib/apiClient';
 export default function CommentItem({ comment, userIsStudent=false, setComments, openMenuId, setOpenMenuId }) {
     if (!comment || !comment.comment_id || !setComments) return null;
 
+    // initialize api client and auth user
     const api = useApiClient();
     const { user } = useAuth();
     
+    // derive author handle and permissions
     const authorHandle = `@${comment.first_name}_${comment.last_name}`;
     const canDelete = !userIsStudent || userIsStudent && String(comment.author_id) === String(user?.id);
     const canEdit = String(comment.author_id) === String(user?.id);
 
+    // state for editing mode
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(comment.comment_text);
 
@@ -31,17 +34,19 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
         setOpenMenuId(openMenuId === comment.comment_id ? null : comment.comment_id);
     };
 
+    // check if menu is open
     const isMenuOpen = openMenuId === comment.comment_id;
 
     // close menu on outside click
     useEffect(() => {
-        const handleClickOutside = (event) => {
+        const handleClickOutside = (event) => { 
             if (!event.target.closest('.comment-menu-btn')) {
                 if (!event.target.closest(`#comment-menu-btn-${comment.comment_id}`)) {
                     setOpenMenuId(null);
                 }
             };
         };
+        // Attach event listener to handle clicks outside the menu
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, [comment.comment_id, setOpenMenuId]);
@@ -86,8 +91,10 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
         setIsEditing(false);
     }
 
+    // render comment item
     return (
         <li className="comment-item">
+            {/* Comment Header with Author and Menu Button */}
             <div className="comment-header">
                 <span className="comment-author">{authorHandle}</span>
                 <button className="comment-menu-btn" id={`comment-menu-btn-${comment.comment_id}`} onClick={toggleMenu}>
@@ -95,6 +102,7 @@ export default function CommentItem({ comment, userIsStudent=false, setComments,
                 </button>
             </div>
 
+            {/* Comment Text or Edit Area */}
             {isEditing ? (
                 <div className="comment-edit">
                     <textarea

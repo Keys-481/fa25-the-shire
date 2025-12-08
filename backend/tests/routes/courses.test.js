@@ -46,10 +46,11 @@ function makeApp() {
 describe('GET /courses/search', () => {
     test('returns enriched course data for valid name and code', async () => {
         const app = makeApp();
-        const res = await request(app).get('/api/courses/search').query({
+        const res = await request(app).get('/api/courses/search').query({ // valid name and code
             q1: 'Organizational Performance and Workplace Learning',
             q2: 'OPWL-536'
         });
+
         expect(res.status).toBe(200);
         expect(res.body[0].code).toBe('OPWL-536');
         expect(res.body[0].name).toBe('Organizational Performance and Workplace Learning');
@@ -60,12 +61,14 @@ describe('GET /courses/search', () => {
         expect(Array.isArray(res.body[0].prerequisites)).toBe(true);
     });
 
+    // Missing parameters
     test('returns 400 for missing parameters', async () => {
         const app = makeApp();
         const res = await request(app).get('/api/courses/search');
         expect(res.status).toBe(400);
     });
 
+    // No matching courses
     test('returns 404 for no matching courses', async () => {
         const app = makeApp();
         const res = await request(app).get('/api/courses/search').query({ q1: 'Nonexistent' });
@@ -77,7 +80,7 @@ describe('GET /courses/search', () => {
  * Tests for POST /courses
  */
 describe('POST /courses', () => {
-    test('creates a new course with offerings and prerequisites', async () => {
+    test('creates a new course with offerings and prerequisites', async () => { // valid data
         const app = makeApp();
         const res = await request(app).post('/api/courses').send({
             name: 'Test Course',
@@ -110,8 +113,10 @@ describe('PUT /courses/:id', () => {
             offerings: 'FA'
         });
 
+        // Get the created course ID
         const courseId = createRes.body.id;
 
+        // Update the course
         const updateRes = await request(app).put(`/api/courses/${courseId}`).send({
             name: 'Updated Course',
             code: 'UPD101',
@@ -125,6 +130,7 @@ describe('PUT /courses/:id', () => {
         expect(updateRes.body.credits).toBe(4);
     });
 
+    // Invalid course ID
     test('returns 400 for invalid course ID', async () => {
         const app = makeApp();
         const res = await request(app).put('/api/courses/abc').send({});
@@ -148,8 +154,10 @@ describe('DELETE /courses/:id', () => {
             offerings: ''
         });
 
+        // Get the created course ID
         const courseId = createRes.body.id;
 
+        //  Delete the course
         const deleteRes = await request(app).delete(`/api/courses/${courseId}`);
         expect(deleteRes.status).toBe(200);
         expect(deleteRes.body.message).toBe('Course deleted successfully');
@@ -167,6 +175,8 @@ describe('GET /courses/enrollments', () => {
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.enrollments)).toBe(true);
     });
+
+    // Missing courseCode parameter
     test('returns 400 for missing courseCode parameter', async () => {
         const app = makeApp();
         const res = await request(app).get('/api/courses/enrollments');
@@ -185,6 +195,8 @@ describe('GET /courses/enrollments', () => {
         expect(res.status).toBe(200);
         expect(Array.isArray(res.body.enrollments)).toBe(true);
     });
+
+    // Missing courseCode parameter
     test('returns 400 for missing courseCode parameter', async () => {
         const app = makeApp();
         const res = await request(app).get('/api/courses/enrollments');
@@ -242,6 +254,7 @@ describe('GET /courses/search error handling', () => {
     let app;
     let CourseModel;
 
+    // Set up Express app and mock CourseModel before each test
     beforeEach(() => {
         jest.resetModules();
         jest.mock('../../src/models/CourseModel', () => ({
@@ -249,9 +262,11 @@ describe('GET /courses/search error handling', () => {
             getCourseOfferings: jest.fn(),
             getPrerequisitesForCourse: jest.fn()
         }));
+
         CourseModel = require('../../src/models/CourseModel');
         const express = require('express');
         const courseRoutes = require('../../src/routes/courses');
+
         app = express();
         app.use(express.json());
         app.use('/api/courses', courseRoutes);
@@ -265,6 +280,7 @@ describe('GET /courses/search error handling', () => {
     test('returns 500 when searchCourses throws', async () => {
         CourseModel.searchCourses.mockRejectedValue(new Error('DB error'));
         const res = await request(app).get('/api/courses/search').query({ q1: 'anything' });
+
         expect(res.status).toBe(500);
         expect(res.body.message).toBe('Internal server error');
     });
@@ -281,6 +297,7 @@ describe('Error handling in /courses routes', () => {
     let app;
     let CourseModel;
 
+    // Set up Express app and mock CourseModel before each test
     beforeEach(() => {
         jest.resetModules();
 

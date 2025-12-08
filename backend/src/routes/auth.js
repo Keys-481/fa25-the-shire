@@ -1,3 +1,7 @@
+/**
+ * file: backend/src/routes/auth.js
+ * Authentication routes for the application.
+ */
 const express = require("express");
 const bcrypt = require("bcrypt");
 const pool = require("../db");

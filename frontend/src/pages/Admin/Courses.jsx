@@ -1,9 +1,15 @@
+/**
+ * file: frontend/src/pages/Admin/Courses.jsx
+ * Admin interface for managing courses: searching, adding, editing, and deleting courses.
+ */
 import { useEffect, useRef, useState } from 'react';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
 import { useApiClient } from '../../lib/apiClient';
 
+// Main component for Admin Courses page
 export default function AdminCourses() {
+  // State variables
   const apiClient = useApiClient();
   const [results, setResults] = useState([]);
   const [isAddingCourse, setIsAddingCourse] = useState(false);
@@ -43,6 +49,7 @@ export default function AdminCourses() {
    */
   useEffect(() => {
     if (selectedCourse) {
+      // Populate form with selected course data
       setCourseForm({
         id: selectedCourse.id,
         name: selectedCourse.name || '',
@@ -80,6 +87,7 @@ export default function AdminCourses() {
    */
   const handleUpdateCourse = async () => {
     try {
+      // Send update request
       const updatedCourse = await apiClient.put(`/courses/${courseForm.id}`, courseForm);
       setResults(results.map(c => c.id === updatedCourse.id ? updatedCourse : c));
       resetForm();
@@ -90,7 +98,7 @@ export default function AdminCourses() {
     }
   };
 
-
+  // Deletes the selected course after confirmation
   const handleDeleteCourse = async () => {
     if (!selectedCourse) return;
     if (!window.confirm(`Are you sure you want to delete the course "${selectedCourse.name}"? This action cannot be undone.`)) {
@@ -98,6 +106,7 @@ export default function AdminCourses() {
     }
 
     try {
+      // Send delete request
       await apiClient.del(`/courses/${selectedCourse.id}`);
       setResults(results.filter(c => c.id !== selectedCourse.id));
       resetForm();
@@ -125,12 +134,14 @@ export default function AdminCourses() {
 
   return (
     <div>
+      { /* Navigation Bar */}
       <AdminNavBar />
       <div className="window">
         <div className="title-bar">
           <h1>Courses</h1>
         </div>
 
+        { /* Main Container */}
         <div className="container">
           <div className="side-panel">
             <SearchBar
@@ -167,6 +178,7 @@ export default function AdminCourses() {
             </div>
           </div>
 
+            {/* Report Section */}
           <div className="section-results">
             {isAddingCourse ? (
               <div className="section-results-side">
@@ -213,7 +225,7 @@ export default function AdminCourses() {
                     placeholder="e.g. OPWL-536, OPWL-530"
                   />
                 </div>
-
+                
               </div>
             ) : (
               <div className="section-results-side">

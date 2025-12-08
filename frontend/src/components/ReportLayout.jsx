@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useApiClient } from "../lib/apiClient";
 
+// Main ReportLayout component
 export default function ReportLayout({ courseCode }) {
   const [report, setReport] = useState(null);   // single course OR all courses
   const [loading, setLoading] = useState(false);
@@ -54,9 +55,11 @@ export default function ReportLayout({ courseCode }) {
     setReport(null);
 
     try {
+      // Fetch enrollment data for the course
       const data = await apiClient.get(`/courses/enrollments?courseCode=${encodeURIComponent(q)}`);
       const enrollments = data.enrollments || [];
 
+      // Pivot data to have semesters as columns
       const pivoted = {};
       semesterLabels.forEach((label) => {
         const match = enrollments.find((e) => e.semester === label);
@@ -79,12 +82,14 @@ export default function ReportLayout({ courseCode }) {
     setError(null);
     setReport(null);
 
+    // Fetch enrollment data for all courses
     try {
       const data = await apiClient.get(`/courses/enrollments/all`);
       const list = data.enrollments || [];
 
       const map = {};
 
+      // Pivot data to have semesters as columns
       list.forEach((row) => {
         const c = row.course_code;
         if (!map[c]) {
@@ -96,6 +101,7 @@ export default function ReportLayout({ courseCode }) {
         }
       });
 
+      // Convert map to array
       setReport(Object.values(map));
     } catch (err) {
       setError(err.message || "Error fetching all courses");
@@ -137,6 +143,7 @@ export default function ReportLayout({ courseCode }) {
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
   if (!report) return null;
 
+  // Render report table
   return (
     <div>
       <button onClick={exportCSV} style={{ marginBottom: "10px", marginTop: "10px" }}>

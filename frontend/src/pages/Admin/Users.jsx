@@ -1,6 +1,7 @@
 /**
  * AdminUsers Component
  *
+ * file: frontend/src/pages/Admin/Users.jsx
  * This component provides an administrative interface for managing users and their roles.
  * It allows administrators to:
  * - View all users grouped by roles
@@ -17,6 +18,7 @@ import RoleList from '../../components/AdminUserComponents/RoleList';
 import AdminNavBar from '../../components/NavBars/AdminNavBar';
 import SearchBar from '../../components/SearchBar';
 
+// Main AdminUsers component
 export default function AdminUsers() {
   const [allUsers, setAllUsers] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -58,6 +60,7 @@ export default function AdminUsers() {
           apiClient.get('/users/roles')
         ]);
 
+        // Set fetched data to state
         setAllUsers(usersData);
         setRoles(rolesData);
 
@@ -364,6 +367,7 @@ export default function AdminUsers() {
 
   return (
     <div>
+      {/* Main AdminUsers component */}
       <AdminNavBar />
       <div className='window'>
         <div className='title-bar'>
@@ -396,6 +400,7 @@ export default function AdminUsers() {
             </div>
           </div>
 
+          {/* Section for editing or adding users */}
           <div className='section-results'>
             {selectedUser ? (
               <EditUser

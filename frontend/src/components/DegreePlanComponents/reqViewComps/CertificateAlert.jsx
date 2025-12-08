@@ -32,6 +32,7 @@ export default function CertificateAlert({ program, courses }) {
 
     return (
         <div className="certificate-alert">
+            {/* Certificate Alert Component */}
             <div className="certificate-alert-header">
                 <strong>Certificate Opportunity</strong>
                 <button className="certificate-alert-toggle" onClick={() => setCollapsed(!collapsed)}>
@@ -40,6 +41,7 @@ export default function CertificateAlert({ program, courses }) {
             </div>
             {!collapsed && (
                 <div className="certificate-alert-body">
+                    {/* Certificate Alert Body */}
                     <p>
                         You’ve completed one or more courses that apply toward the following
                         certificate{completedCertificateOverlaps.length > 1 ? "s" : ""}:

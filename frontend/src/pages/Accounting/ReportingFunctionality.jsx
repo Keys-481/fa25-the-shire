@@ -65,12 +65,14 @@ export default function AccountingReportingFunctionality() {
   // Main 
   return (
     <div>
+        {/* Navigation Bar */}
       <AccountingNavBar />
       <div className="window">
         <div className="title-bar">
           <h1>Enrollment Report</h1>
         </div>
 
+        {/* Main Container */}
         <div className="container">
           <div className="side-panel">
             <p>Search for a Course</p>
@@ -84,6 +86,7 @@ export default function AccountingReportingFunctionality() {
             <div className="side-panel-results">{renderResults()}</div>
           </div>
 
+          {/* Report Section */}
           <div className="section-results">
             <div className="section-results-main">
               <ReportLayout courseCode={selectedCourse?.code || selectedCourse?.course_code} />

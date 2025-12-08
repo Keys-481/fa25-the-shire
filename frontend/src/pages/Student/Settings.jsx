@@ -1,3 +1,7 @@
+/**
+ * file: frontend/src/pages/Student/Settings.jsx
+ * description: Settings page for student users to manage profile, password, and preferences.
+ */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StudentNavBar from '../../components/NavBars/StudentNavBar';
@@ -75,6 +79,7 @@ export default function StudentSettings() {
 
   return (
     <div>
+      {/* Navigation Bar */}
       <StudentNavBar />
       <div className='window'>
         <div className='title-bar'>
@@ -97,6 +102,7 @@ export default function StudentSettings() {
               </div>
             </div>
 
+            {/* Main Content Area */}
             <div className="view-content">
               {viewType === 'profile' && (
                 <div>

@@ -1,3 +1,8 @@
+/**
+ * file: frontend/src/pages/Advisor/Settings.jsx
+ * description: Settings page for advisor users to manage profile, password, views, and preferences.
+ */
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdvisorNavBar from '../../components/NavBars/AdvisorNavBar';
@@ -73,8 +78,10 @@ export default function AdvisorSettings() {
 
   if (!userInfo) return <p>Loading user info...</p>;
 
+  // Render the settings page
   return (
     <div>
+      {/* Navigation Bar */}
       <AdvisorNavBar />
       <div className='window'>
         <div className='title-bar'>
@@ -97,6 +104,7 @@ export default function AdvisorSettings() {
               </div>
             </div>
 
+            {/* Main Content Area */}
             <div className="view-content">
               {viewType === 'profile' && (
                 <div>

@@ -16,6 +16,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
     const api = useApiClient();
     const base_url = '/students';
 
+    // derive studentId and programId from props or student/program objects
     const studentId = useMemo(() => student?.school_student_id ?? student?.id ?? propStudentId ?? null, [student, propStudentId]);
     const thisProgramId = useMemo(() => {
         if (program?.program_id) return program.program_id;
@@ -38,15 +39,18 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
     useEffect(() => {
         if (!studentId || !thisProgramId || !viewType) return;
 
+        // fetch degree plan data
         (async () => {
             setLoading(true);
             setError('');
             try {
                 const data = await api.get(
+                    // Construct API endpoint URL
                     `${base_url}/${encodeURIComponent(studentId)}/degree-plan?programId=${encodeURIComponent(thisProgramId)}&viewType=${encodeURIComponent(viewType)}`
                 );
                 setPlanData(data);
             } catch (error) {
+                // Log error for debugging
                 console.error("[DegreePlan] fetch failed:", error?.message || error);
                 setPlanData(null);
                 setError(error?.message || "Failed to load degree plan");
@@ -56,26 +60,32 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
         })();
     }, [studentId, thisProgramId, viewType, api, gradRefreshToggle]);
         
+    // Render logic
     if (!studentId || !thisProgramId) {
         return <p className="error-message">Select a student and a program to view the degree plan.</p>;
     }
 
+    // Show loading, error, or no data messages
     if (loading) return <p>Loading degree plan...</p>;
     if (error) return <p className="error-message">Error: {error}</p>;
 
+    // Render degree plan details
     const courses = planData?.degreePlan ?? [];
     if (!courses.length) return <p>Degree plan not found for {student?.name ?? studentId}</p>;
 
+    // Calculate student info
     const name = student?.name ?? "";
     const id = studentId;
     const email = student?.email ?? "";
     const phone = student?.phone ?? "";
     const programName = program?.program_name ?? program?.name ?? thisProgramId;
 
+    // Extract catalog year and credit counts
     const catalogYear = courses.find(c => c.catalog_year)?.catalog_year || 'N/A';
     const totalCredits = planData?.totalRequiredCredits ?? 0;
     const completedCredits = courses.reduce((sum, c) => sum + (c.course_status === "Completed" ? (c.credits || 0) : 0), 0);
 
+    // Render the degree plan component
     return (
         <div className="degree-plan-container">
             {/* Student Info Section */}
@@ -98,6 +108,7 @@ export default function DegreePlan({ student, program, studentId: propStudentId,
                 </p>
                 <p><span>Program:</span> {programName}</p>
                 <p>
+                    {/* Graduation Status Component */}
                     <GraduationStatus
                         studentId={studentId}
                         student={student}

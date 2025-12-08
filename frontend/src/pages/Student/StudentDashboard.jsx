@@ -1,6 +1,6 @@
 /**
- * @file frontend/src/pages/student/dashboard
- * @description Dashboard for student users
+ * file: frontend/src/pages/Student/StudentDashboard.jsx
+ * description: Dashboard page for student users
  */
 
 import StudentNavBar from '../../components/NavBars/StudentNavBar'

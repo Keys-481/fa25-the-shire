@@ -224,6 +224,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     test('admin can view any student\'s degree plan', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/api/students/112299690/degree-plan?programId=1&viewType=semester');
+
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('112299690');
         expect(res.body.student.first_name).toBe('Alice'); // should match seed data
@@ -231,7 +232,9 @@ describe('GET /students/:schoolId/degree-plan', () => {
         expect(res.body.programId).toBe('1'); // OPWL MS program ID in seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+
         const courseCodes = res.body.degreePlan.map(course => course.course_code);
+
         expect(courseCodes).toContain('OPWL-536'); // should match seed data
     });
 
@@ -239,6 +242,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     test('advisor can view assigned student degree plan', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
         const res = await request(app).get('/api/students/113601927/degree-plan?programId=2&viewType=semester');
+
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('113601927');
         expect(res.body.student.first_name).toBe('Bob'); // should match seed data
@@ -246,7 +250,9 @@ describe('GET /students/:schoolId/degree-plan', () => {
         expect(res.body.programId).toBe('2'); // OD certificate program ID in seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+
         const courseCodes = res.body.degreePlan.map(course => course.course_code);
+
         expect(courseCodes).toContain('OPWL-536'); // should match seed data
     });
 
@@ -254,6 +260,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     test('returns 403 for advisor not assigned to student', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
         const res = await request(app).get('/api/students/112299690/degree-plan?programId=1&viewType=semester');
+
         expect(res.status).toBe(403);
     });
 
@@ -261,6 +268,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     test('returns 404 for non-existent student', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/api/students/invalid_id/degree-plan');
+
         expect(res.status).toBe(404);
     });
 
@@ -268,6 +276,7 @@ describe('GET /students/:schoolId/degree-plan', () => {
     test('returns degree plan grouped by requirements', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/api/students/112299690/degree-plan?programId=1&viewType=requirements');
+
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('112299690');
         expect(res.body.student.first_name).toBe('Alice');
@@ -275,7 +284,9 @@ describe('GET /students/:schoolId/degree-plan', () => {
         expect(res.body.programId).toBe('1'); // OPWL MS program ID in seed data
         expect(Array.isArray(res.body.degreePlan)).toBe(true);
         expect(res.body.degreePlan[0]).toHaveProperty('prerequisites');
+
         const courseCodes = res.body.degreePlan.map(course => course.course_code);
+
         expect(courseCodes).toContain('OPWL-536');
         expect(res.body.degreePlan[0]).toHaveProperty('requirement_id');
         expect(res.body.degreePlan[0]).toHaveProperty('requirement_type');
@@ -292,13 +303,17 @@ describe('GET /students/:schoolId/programs', () => {
     test('admin can view any student\'s programs', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/api/students/112299690/programs');
+
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('112299690');
         expect(res.body.student.first_name).toBe('Alice'); // should match seed data
         expect(res.body.student.last_name).toBe('Johnson'); // should match seed data
+
         expect(Array.isArray(res.body.programs)).toBe(true);
         expect(res.body.programs.length).toBeGreaterThan(0);
+
         const programTypes = res.body.programs.map(program => program.program_type);
+
         expect(programTypes).toContain('masters'); // should match seed data
         expect(programTypes).toContain('certificate'); // should match seed data
     });
@@ -307,13 +322,16 @@ describe('GET /students/:schoolId/programs', () => {
     test('advisor can view assigned student programs', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor with access to student 113601927
         const res = await request(app).get('/api/students/113601927/programs');
+
         expect(res.status).toBe(200);
         expect(res.body.student.school_student_id).toBe('113601927');
         expect(res.body.student.first_name).toBe('Bob'); // should match seed data
         expect(res.body.student.last_name).toBe('Williams'); // should match seed data
         expect(Array.isArray(res.body.programs)).toBe(true);
         expect(res.body.programs.length).toBeGreaterThan(0);
+
         const programTypes = res.body.programs.map(program => program.program_type);
+
         expect(programTypes).toContain('certificate'); // should match seed data
     });
 
@@ -321,6 +339,7 @@ describe('GET /students/:schoolId/programs', () => {
     test('returns 403 for advisor not assigned to student', async () => {
         const app = makeAppWithUser({ user_id: 3 }); // advisor without access to student 112299690
         const res = await request(app).get('/api/students/112299690/programs');
+
         expect(res.status).toBe(403);
     });
 
@@ -328,6 +347,7 @@ describe('GET /students/:schoolId/programs', () => {
     test('returns 404 for non-existent student', async () => {
         const app = makeAppWithUser({ user_id: 1 }); // admin
         const res = await request(app).get('/api/students/invalid_id/programs');
+
         expect(res.status).toBe(404);
     });
 });
@@ -343,6 +363,7 @@ describe('PATCH /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(200);
     });
 
@@ -353,6 +374,7 @@ describe('PATCH /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(403);
     });
 
@@ -363,6 +385,7 @@ describe('PATCH /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(404);
     });
 
@@ -373,6 +396,7 @@ describe('PATCH /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(400);
     });
 });
@@ -390,6 +414,7 @@ describe('DELETE /students/:schoolId/programs', () => {
             .send({
                 programId: 2,
             });
+
         expect(deleteRes.status).toBe(200);
     });
 
@@ -400,6 +425,7 @@ describe('DELETE /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(403);
     });
 
@@ -410,6 +436,7 @@ describe('DELETE /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(404);
     });
 
@@ -428,6 +455,7 @@ describe('DELETE /students/:schoolId/programs', () => {
             .send({
                 programId: 1,
             });
+
         expect(res.status).toBe(400);
     });
 });
@@ -449,6 +477,7 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
                 semesterId: 8, // Spring 2026 semester ID in seed data
                 programId: 1 // OPWL MS program ID in seed data
             });
+
         expect(res.status).toBe(200);
         expect(res.body.student_id).toBe(1); // internal student ID for school_student_id 112299690 in seed data
         expect(res.body.course_id).toBe(8); // OPWL-529 course ID in seed data
@@ -468,6 +497,7 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
                 semesterId: 8, // Spring 2026 semester ID in seed data
                 programId: 2 // OD certificate program ID in seed data
             });
+
         expect(res.status).toBe(200);
         expect(res.body.student_id).toBe(2); // internal student ID for school_student_id 113601927 in seed data
         expect(res.body.course_id).toBe(4); // OPWL-518 course ID in seed data
@@ -518,6 +548,7 @@ describe('PATCH /students/:schoolId/degree-plan/course', () => {
                 semesterId: 8, // Spring 2026 semester ID in seed data
                 programId: 1 // OPWL MS program ID in seed data
             });
+
         expect(res.status).toBe(400);
         expect(res.body.message).toMatch(/prerequisite/i);
 
@@ -542,6 +573,7 @@ test('GET /students/search - returns 500 on DB error', async () => {
     jest.spyOn(StudentModel, 'getStudentBySchoolId').mockRejectedValueOnce(new Error('DB fail'));
 
     const res = await request(app).get('/api/students/search').query({ q1: '112299690' });
+
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ message: 'Internal server error' });
 
@@ -557,6 +589,7 @@ test('GET /students/search - returns 500 on DB error', async () => {
 test('GET /students/:schoolId/degree-plan - returns 400 when programId missing', async () => {
     const app = makeAppWithUser({ user_id: 1 }); // admin
     const res = await request(app).get('/api/students/112299690/degree-plan');
+
     expect(res.status).toBe(400);
     expect(res.body.message).toMatch(/Missing programId/);
 });
@@ -569,6 +602,7 @@ test('GET /students/:schoolId/degree-plan - returns 400 when programId missing',
 test('GET /students/assigned - returns 403 for non-advisor', async () => {
     const app = makeAppWithUser({ user_id: 2 }); // student role
     const res = await request(app).get('/api/students/assigned');
+
     expect(res.status).toBe(403);
 });
 
@@ -580,6 +614,7 @@ test('GET /students/assigned - returns 403 for non-advisor', async () => {
 test('GET /students/:schoolId/programs - student can view own programs', async () => {
     const app = makeAppWithUser({ user_id: 2 }); // student with school_student_id 113601927
     const res = await request(app).get('/api/students/113601927/programs');
+
     expect(res.status).toBe(200);
     expect(res.body.student.school_student_id).toBe('113601927');
 });
@@ -592,6 +627,7 @@ test('GET /students/:schoolId/programs - student can view own programs', async (
 test('student can view their own degree plan', async () => {
     const app = makeAppWithUser({ user_id: 2 }); // student with school_student_id 113601927
     const res = await request(app).get('/api/students/113601927/degree-plan?programId=2&viewType=semester');
+
     expect(res.status).toBe(200);
     expect(res.body.student.school_student_id).toBe('113601927');
 });
@@ -606,6 +642,7 @@ test('GET /students/:schoolId/degree-plan - returns 500 on DB error', async () =
     jest.spyOn(DegreePlanModel, 'getDegreePlanByStudentId').mockRejectedValueOnce(new Error('DB fail'));
 
     const res = await request(app).get('/api/students/112299690/degree-plan?programId=1&viewType=semester');
+
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ message: 'Internal server error' });
 
@@ -620,6 +657,7 @@ test('GET /students/:schoolId/degree-plan - returns 500 on DB error', async () =
 test('student can view their own programs', async () => {
     const app = makeAppWithUser({ user_id: 2 }); // student with school_student_id 113601927
     const res = await request(app).get('/api/students/113601927/programs');
+
     expect(res.status).toBe(200);
     expect(res.body.student.school_student_id).toBe('113601927');
 });
@@ -632,6 +670,7 @@ test('student can view their own programs', async () => {
 test('GET /students/:schoolId/programs - returns 401 when no user info', async () => {
     const app = makeAppWithUser(null);
     const res = await request(app).get('/api/students/112299690/programs');
+
     expect(res.status).toBe(401);
 });
 
@@ -645,6 +684,7 @@ test('GET /students/:schoolId/programs - returns 500 on DB error', async () => {
     jest.spyOn(StudentModel, 'getProgramsByStudentId').mockRejectedValueOnce(new Error('DB fail'));
 
     const res = await request(app).get('/api/students/112299690/programs');
+    
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ message: 'Internal server error' });
 

@@ -1,5 +1,5 @@
 /**
- * @file frontend/src/pages/advisor/dashboard
+ * file: frontend/src/pages/Advisor/AdvisorDashboard.jsx
  * @description Dashboard for advisor users
  */
 

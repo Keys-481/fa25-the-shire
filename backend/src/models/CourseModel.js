@@ -75,10 +75,12 @@ async function getCertificateOverlaps(courseId) {
  */
 async function getSemesterOptionsForCourse(courseId) {
   try {
+    // First, get the course offerings (semester types)
     const courseOfferings = await getCourseOfferings(courseId);
     if (!courseOfferings) return [];
     const semesterTypes = courseOfferings.split(',').map(s => s.trim());
 
+    // Now, get the actual semesters matching those types
     const result = await pool.query(
       `SELECT semester_id, semester_name, semester_type, sem_start_date, sem_end_date
         FROM semesters
@@ -101,6 +103,7 @@ async function getSemesterOptionsForCourse(courseId) {
  */
 async function searchCourses({ name, code }) {
   try {
+    // Build dynamic query based on provided parameters
     let query = `SELECT course_id, course_code, course_name, credits FROM courses WHERE 1=1`;
     const values = [];
 
@@ -114,6 +117,7 @@ async function searchCourses({ name, code }) {
       values.push(`%${code}%`);
     }
 
+    // Execute the query
     const result = await pool.query(query, values);
     return result.rows;
   } catch (error) {
@@ -144,6 +148,7 @@ async function createCourse({ name, code, credits, prerequisites = '', offerings
   try {
     await client.query('BEGIN');
 
+    // Insert the new course
     const result = await client.query(
       `INSERT INTO courses (course_name, course_code, credits)
        VALUES ($1, $2, $3) RETURNING course_id, course_name, course_code, credits`,
@@ -151,6 +156,7 @@ async function createCourse({ name, code, credits, prerequisites = '', offerings
     );
     const newCourse = result.rows[0];
 
+    // Insert prerequisites
     const prereqCodes = prerequisites.split(',').map(c => c.trim()).filter(Boolean);
     for (const prereqCode of prereqCodes) {
       const prereqRes = await client.query(
@@ -166,6 +172,7 @@ async function createCourse({ name, code, credits, prerequisites = '', offerings
       }
     }
 
+    // Insert course offerings
     const offeringTerms = offerings.split(',').map(term => term.trim()).filter(Boolean);
     for (const term of offeringTerms) {
       await client.query(
@@ -174,6 +181,7 @@ async function createCourse({ name, code, credits, prerequisites = '', offerings
       );
     }
 
+    
     await client.query('COMMIT');
     return newCourse;
   } catch (error) {
@@ -208,11 +216,13 @@ async function updateCourse(courseId, { name, code, credits, prerequisites = '',
   try {
     await client.query('BEGIN');
 
+    // Update the course's core details
     await client.query(
       `UPDATE courses SET course_name = $1, course_code = $2, credits = $3 WHERE course_id = $4`,
       [name, code, credits, courseId]
     );
 
+    // Clear existing offerings and add new ones
     await client.query(`DELETE FROM course_offerings WHERE course_id = $1`, [courseId]);
     const offeringTerms = offerings.split(',').map(term => term.trim()).filter(Boolean);
     for (const term of offeringTerms) {
@@ -222,6 +232,7 @@ async function updateCourse(courseId, { name, code, credits, prerequisites = '',
       );
     }
 
+    // Clear existing prerequisites and add new ones
     await client.query(`DELETE FROM course_prerequisites WHERE course_id = $1`, [courseId]);
     const prereqCodes = prerequisites.split(',').map(c => c.trim()).filter(Boolean);
     for (const prereqCode of prereqCodes) {
@@ -238,6 +249,7 @@ async function updateCourse(courseId, { name, code, credits, prerequisites = '',
       }
     }
 
+    // Fetch and return the updated course
     const updatedCourse = await client.query(
       `SELECT course_id, course_name, course_code, credits FROM courses WHERE course_id = $1`,
       [courseId]
@@ -321,7 +333,8 @@ async function getAllEnrollments() {
     count: r.count
   }));
 }
- 
+
+//Export functions
 module.exports = {
   getPrerequisitesForCourse,
   getCourseOfferings,

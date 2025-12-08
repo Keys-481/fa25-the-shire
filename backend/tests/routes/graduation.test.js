@@ -115,6 +115,7 @@ describe('PUT /api/graduation/:id/status', () => {
         const res = await request(app)
             .put(`/api/graduation/${applicationId}/status`)
             .send({ status: newStatus });
+
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('application_id', applicationId);
         expect(res.body).toHaveProperty('status', newStatus);
@@ -210,6 +211,7 @@ test("student cannot update their own graduation status", async () => {
     const res = await request(app)
         .put("/api/graduation/2/status") // ID belonging to the student
         .send({ status: "Approved" });
+
     expect(res.statusCode).toBe(403);
 });
 
@@ -221,10 +223,8 @@ test("returns 400 for invalid status filter on GET /graduation", async () => {
     const mockUser = { user_id: 1 }; // admin user
     const app = makeAppWithUser(mockUser);
 
-    const res = await request(app).get("/api/graduation?status=NotARealStatus");
+    const res = await request(app).get("/api/graduation?status=NotARealStatus"); // invalid status
 
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty("message", "Invalid status filter");
 });
-
-
