@@ -1,6 +1,5 @@
 ---
 ---
-# Fall 2025: Team Shire
 
 <nav>
   <a href="./index.md">Home</a> |
